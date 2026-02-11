@@ -2,6 +2,7 @@ import { View, Text } from '@tarojs/components'
 import { useState, useEffect, useCallback } from 'react'
 import Taro from '@tarojs/taro'
 import { Network } from '@/network'
+import CustomTabBar from '@/components/CustomTabBar'
 
 export default function IndexPage() {
   const [isSpinning, setIsSpinning] = useState(false)
@@ -143,7 +144,7 @@ export default function IndexPage() {
   }
 
   return (
-    <View className="min-h-screen bg-gradient-to-b from-red-600 to-orange-500 p-4">
+    <View className="min-h-screen bg-gradient-to-b from-red-600 to-orange-500 p-4 pb-20">
       {/* 标题 */}
       <View className="text-center mb-6 pt-4">
         <Text className="block text-5xl mb-2">🧧</Text>
@@ -297,6 +298,9 @@ export default function IndexPage() {
           </View>
         </View>
       )}
+
+      {/* 自定义TabBar */}
+      <CustomTabBar />
     </View>
   )
 }

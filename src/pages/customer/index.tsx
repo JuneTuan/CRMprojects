@@ -2,6 +2,7 @@ import { View, Text, Input, Button } from '@tarojs/components'
 import { useState, useEffect } from 'react'
 import Taro from '@tarojs/taro'
 import { Network } from '@/network'
+import CustomTabBar from '@/components/CustomTabBar'
 
 export default function CustomerPage() {
   const [customers, setCustomers] = useState<any[]>([])
@@ -95,7 +96,7 @@ export default function CustomerPage() {
 
   if (showForm) {
     return (
-      <View className="customer-page min-h-screen bg-gray-50 p-4">
+      <View className="customer-page min-h-screen bg-gray-50 p-4 pb-20">
         <View className="flex items-center mb-4">
           <Button onClick={() => setShowForm(false)} size="mini">返回</Button>
           <Text className="ml-4 text-xl font-bold text-gray-800">
@@ -152,7 +153,7 @@ export default function CustomerPage() {
   }
 
   return (
-    <View className="customer-page min-h-screen bg-gray-50 p-4">
+    <View className="customer-page min-h-screen bg-gray-50 p-4 pb-20">
       <View className="flex justify-between items-center mb-4">
         <Text className="text-xl font-bold text-gray-800">客户管理</Text>
         <Button
@@ -195,6 +196,9 @@ export default function CustomerPage() {
           ))}
         </View>
       )}
+
+      {/* 自定义TabBar */}
+      <CustomTabBar />
     </View>
   )
 }

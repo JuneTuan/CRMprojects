@@ -1,4 +1,5 @@
 import { View, Text, Button } from '@tarojs/components'
+import CustomTabBar from '@/components/CustomTabBar'
 import { useState, useEffect } from 'react'
 import Taro from '@tarojs/taro'
 import { Network } from '@/network'
@@ -81,7 +82,7 @@ export default function CouponPage() {
   }
 
   return (
-    <View className="coupon-page min-h-screen bg-gray-50 p-4">
+    <View className="coupon-page min-h-screen bg-gray-50 p-4 pb-20">
       <View className="flex justify-between items-center mb-4">
         <Text className="text-xl font-bold text-gray-800">卡券中心</Text>
         <Button
@@ -148,6 +149,9 @@ export default function CouponPage() {
           })}
         </View>
       )}
+
+      {/* 自定义TabBar */}
+      <CustomTabBar />
     </View>
   )
 }

@@ -30,11 +30,19 @@ export default function LoginPage() {
         Taro.setStorageSync('token', res.data.data.token)
         Taro.setStorageSync('userInfo', res.data.data.user)
 
+        const role = res.data.data.user.role
+
         Taro.showToast({ title: '登录成功', icon: 'success' })
 
-        // 跳转到首页
+        // 根据角色跳转到不同的首页
         setTimeout(() => {
-          Taro.switchTab({ url: '/pages/index/index' })
+          if (role === 'customer') {
+            // 客户角色：跳转到抽奖页
+            Taro.switchTab({ url: '/pages/index/index' })
+          } else {
+            // 员工角色：跳转到客户管理页
+            Taro.switchTab({ url: '/pages/customer/index' })
+          }
         }, 1000)
       } else {
         Taro.showToast({ title: res.data.msg || '登录失败', icon: 'none' })

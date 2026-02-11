@@ -8,7 +8,7 @@ export const users = pgTable("users", {
   id: varchar("id", { length: 36 }).primaryKey().default(sql`gen_random_uuid()`),
   username: varchar("username", { length: 50 }).notNull().unique(),
   password: varchar("password", { length: 255 }).notNull(),
-  role: varchar("role", { length: 20 }).notNull().default("admin"), // admin, sales, product
+  role: varchar("role", { length: 20 }).notNull().default("admin"), // admin, staff, customer - 管理员、员工、客户
   name: varchar("name", { length: 100 }).notNull(),
   isActive: boolean("is_active").default(true).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
