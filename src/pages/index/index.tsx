@@ -175,15 +175,15 @@ export default function IndexPage() {
         )}
       </View>
 
-      {/* 转盘区域 */}
+      {/* 转盘区域 - 占据页面高度的1/4 */}
       <View className="relative mb-6">
         {/* 指针 */}
         <View className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-3 z-20">
           <View className="w-0 h-0 border-l-[10px] border-r-[10px] border-t-[20px] border-l-transparent border-r-transparent border-t-yellow-400" />
         </View>
 
-        {/* 转盘外圈 */}
-        <View className="relative w-[320px] h-[320px] mx-auto rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 shadow-2xl p-2">
+        {/* 转盘外圈 - 使用vh单位占据页面高度的1/4 */}
+        <View className="relative w-[25vh] h-[25vh] mx-auto rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 shadow-2xl p-2">
           {/* 转盘主体 */}
           <View
             className="w-full h-full rounded-full relative overflow-hidden bg-white"
@@ -220,19 +220,19 @@ export default function IndexPage() {
                     }}
                   />
 
-                  {/* 奖品内容 */}
+                  {/* 奖品内容 - 调整字体大小以适应更小的转盘 */}
                   <View
                     className="absolute flex flex-col items-center"
                     style={{
-                      top: '30%',
+                      top: '35%',
                       left: '50%',
                       transform: 'translateX(-50%)',
-                      width: '60px',
+                      width: '25%',
                       textAlign: 'center',
                     }}
                   >
-                    <Text className="text-xl mb-1">{prize.icon}</Text>
-                    <Text className={`text-[10px] font-bold leading-tight ${isEven ? 'text-white' : 'text-gray-700'}`}>
+                    <Text className="text-lg mb-0.5">{prize.icon}</Text>
+                    <Text className={`text-[9px] font-bold leading-tight ${isEven ? 'text-white' : 'text-gray-700'}`}>
                       {prize.name}
                     </Text>
                   </View>
@@ -240,9 +240,9 @@ export default function IndexPage() {
               )
             })}
 
-            {/* 中心圆 */}
-            <View className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-24 h-24 bg-gradient-to-br from-red-500 to-orange-400 rounded-full shadow-lg border-4 border-white flex items-center justify-center z-10">
-              <Text className="text-lg font-bold text-white">抽奖</Text>
+            {/* 中心圆 - 按比例缩小 */}
+            <View className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[12%] h-[12%] bg-gradient-to-br from-red-500 to-orange-400 rounded-full shadow-lg border-4 border-white flex items-center justify-center z-10">
+              <Text className="text-sm font-bold text-white">抽奖</Text>
             </View>
           </View>
         </View>
