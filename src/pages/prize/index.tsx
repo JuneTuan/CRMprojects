@@ -4,7 +4,7 @@ import Taro from '@tarojs/taro'
 import './index.css'
 
 export default function PrizePage() {
-  const [prizes, setPrizes] = useState<any[]>([])
+  const [prizes] = useState<any[]>([])
 
   const handleAddPrize = () => {
     Taro.showToast({ title: '新增奖品功能开发中', icon: 'none' })

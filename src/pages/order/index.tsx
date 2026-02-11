@@ -4,7 +4,7 @@ import Taro from '@tarojs/taro'
 import './index.css'
 
 export default function OrderPage() {
-  const [orders, setOrders] = useState<any[]>([])
+  const [orders] = useState<any[]>([])
 
   const handleAddOrder = () => {
     Taro.showToast({ title: '新增订单功能开发中', icon: 'none' })

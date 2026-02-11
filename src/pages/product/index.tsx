@@ -4,7 +4,7 @@ import Taro from '@tarojs/taro'
 import './index.css'
 
 export default function ProductPage() {
-  const [products, setProducts] = useState<any[]>([])
+  const [products] = useState<any[]>([])
 
   const handleAddProduct = () => {
     Taro.showToast({ title: '新增产品功能开发中', icon: 'none' })

@@ -3,7 +3,7 @@ import { useState } from 'react'
 import './index.css'
 
 export default function CouponPage() {
-  const [coupons, setCoupons] = useState<any[]>([])
+  const [coupons] = useState<any[]>([])
 
   return (
     <View className="coupon-page min-h-screen bg-gray-50 p-4">

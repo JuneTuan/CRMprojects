@@ -1,0 +1,8 @@
+export { userManager } from './userManager';
+export { customerManager } from './customerManager';
+export { productManager } from './productManager';
+export { orderManager } from './orderManager';
+export { prizeManager } from './prizeManager';
+export { couponManager } from './couponManager';
+export { lotteryManager } from './lotteryManager';
+export * from './shared/schema';

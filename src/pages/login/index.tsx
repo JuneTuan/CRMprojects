@@ -1,26 +1,59 @@
 import { View, Text } from '@tarojs/components'
 import { useState } from 'react'
 import Taro from '@tarojs/taro'
+import { Network } from '@/network'
 import './index.css'
 
 export default function LoginPage() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
 
   const handleLogin = async () => {
     if (!username || !password) {
       Taro.showToast({ title: '请输入用户名和密码', icon: 'none' })
       return
     }
-    // TODO: 实现登录逻辑
-    Taro.showToast({ title: '登录功能开发中', icon: 'none' })
+
+    setLoading(true)
+    try {
+      console.log('开始登录请求...')
+      const res = await Network.request({
+        url: '/api/auth/login',
+        method: 'POST',
+        data: { username, password }
+      })
+
+      console.log('登录响应:', res)
+
+      if (res.data.code === 200) {
+        // 保存登录信息
+        Taro.setStorageSync('token', res.data.data.token)
+        Taro.setStorageSync('userInfo', res.data.data.user)
+
+        Taro.showToast({ title: '登录成功', icon: 'success' })
+
+        // 跳转到首页
+        setTimeout(() => {
+          Taro.switchTab({ url: '/pages/index/index' })
+        }, 1000)
+      } else {
+        Taro.showToast({ title: res.data.msg || '登录失败', icon: 'none' })
+      }
+    } catch (error: any) {
+      console.error('登录错误:', error)
+      Taro.showToast({ title: error.message || '网络错误，请重试', icon: 'none' })
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
     <View className="login-page min-h-screen bg-red-600 p-4 flex flex-col items-center justify-center">
       <View className="mb-8">
-        <Text className="block text-4xl mb-2">🧧</Text>
+        <Text className="block text-6xl mb-3">🧧</Text>
         <Text className="block text-2xl font-bold text-white">春节幸运大转盘</Text>
+        <Text className="block text-sm text-red-100 mt-2">小店客户管理系统</Text>
       </View>
 
       <View className="w-full max-w-sm bg-white rounded-2xl p-6 shadow-lg">
@@ -32,6 +65,7 @@ export default function LoginPage() {
               placeholder="请输入用户名"
               value={username}
               onInput={(e) => setUsername(e.currentTarget.value)}
+              disabled={loading}
             />
           </View>
         </View>
@@ -45,16 +79,28 @@ export default function LoginPage() {
               placeholder="请输入密码"
               value={password}
               onInput={(e) => setPassword(e.currentTarget.value)}
+              disabled={loading}
             />
           </View>
         </View>
 
         <button
-          className="w-full bg-red-600 text-white rounded-xl py-3 font-semibold active:bg-red-700"
+          className={`w-full rounded-xl py-3 font-semibold ${
+            loading ? 'bg-gray-400 text-gray-200' : 'bg-red-600 text-white active:bg-red-700'
+          }`}
           onClick={handleLogin}
+          disabled={loading}
         >
-          登录
+          {loading ? '登录中...' : '登录'}
         </button>
+
+        <View className="mt-4 text-center">
+          <Text className="text-xs text-gray-400">默认账号: admin / 密码: 123456</Text>
+        </View>
+      </View>
+
+      <View className="mt-6">
+        <Text className="text-xs text-red-200">春节快乐 · 万事如意</Text>
       </View>
     </View>
   )
