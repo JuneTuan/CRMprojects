@@ -8,6 +8,7 @@ export default defineAppConfig({
     'pages/order/index',
     'pages/prize/index',
     'pages/coupon/index',
+    'pages/points-rule/index',
     'pages/profile/index',
     'pages/my-coupon/index',
     'pages/lottery-record/index',

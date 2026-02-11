@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { orderManager, customerManager } from '../storage/database';
+import { orderManager, customerManager, pointsRuleManager } from '../storage/database';
 
 @Injectable()
 export class OrderService {
@@ -23,12 +23,27 @@ export class OrderService {
     }
 
     const amount = parseFloat(data.amount);
-    const pointsEarned = Math.floor(amount);
 
-    return orderManager.createOrder({
+    // 使用积分规则计算积分
+    let pointsEarned = await pointsRuleManager.calculatePoints(amount);
+
+    // 如果前端传入了pointsEarned（向后兼容）
+    if (data.pointsEarned !== undefined) {
+      pointsEarned = parseInt(data.pointsEarned);
+    }
+
+    // 创建订单
+    const order = await orderManager.createOrder({
       ...data,
       amount,
       pointsEarned
     });
+
+    // 更新客户积分
+    await customerManager.updateCustomer(data.customerId, {
+      points: (customer.points || 0) + pointsEarned
+    });
+
+    return order;
   }
 }

@@ -84,6 +84,19 @@ export const lottery_records = pgTable("lottery_records", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 })
 
+// 积分规则表
+export const points_rules = pgTable("points_rules", {
+  id: varchar("id", { length: 36 }).primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name", { length: 100 }).notNull(), // 规则名称
+  pointsPerAmount: integer("points_per_amount").notNull().default(1), // 积分计算比例，如1元=10积分则值为10
+  minAmount: numeric("min_amount", { precision: 10, scale: 2 }).default("0"), // 最低消费金额
+  maxPoints: integer("max_points"), // 单次最高积分限制
+  description: text("description"), // 规则说明
+  isActive: boolean("is_active").default(true).notNull(), // 是否启用
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }),
+})
+
 // 使用 createSchemaFactory 配置 date coercion
 const { createInsertSchema: createCoercedInsertSchema } = createSchemaFactory({
   coerce: { date: true },
@@ -197,6 +210,34 @@ export const updateCouponSchema = createCoercedInsertSchema(coupons)
     status: true,
     expiryDate: true,
     usedAt: true,
+  })
+  .partial()
+
+// Points Rule schemas
+export const insertPointsRuleSchema = createCoercedInsertSchema(points_rules)
+  .extend({
+    minAmount: z.union([z.string(), z.number()]).transform(String),
+  })
+  .pick({
+    name: true,
+    pointsPerAmount: true,
+    minAmount: true,
+    maxPoints: true,
+    description: true,
+    isActive: true,
+  })
+
+export const updatePointsRuleSchema = createCoercedInsertSchema(points_rules)
+  .extend({
+    minAmount: z.union([z.string(), z.number()]).transform(String).optional(),
+  })
+  .pick({
+    name: true,
+    pointsPerAmount: true,
+    minAmount: true,
+    maxPoints: true,
+    description: true,
+    isActive: true,
   })
   .partial()
 

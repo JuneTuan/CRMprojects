@@ -146,30 +146,30 @@ export default function IndexPage() {
       {/* 标题 */}
       <View className="text-center mb-6 pt-4">
         <Text className="block text-5xl mb-2">🧧</Text>
-        <Text className="text-2xl font-bold text-white">春节幸运大转盘</Text>
-        <Text className="text-sm text-red-100 mt-1">好运连连，惊喜不断</Text>
+        <Text className="block text-2xl font-bold text-white">春节幸运大转盘</Text>
+        <Text className="block text-sm text-red-100 mt-1">好运连连，惊喜不断</Text>
       </View>
 
       {/* 用户信息卡片 */}
       <View className="bg-white rounded-2xl p-4 mb-6 shadow-lg">
         <View className="flex justify-between items-center mb-3">
-          <Text className="text-sm font-bold text-gray-800">👤 用户信息</Text>
-          <Text className="text-xs text-gray-400">{userInfo?.name || '管理员'}</Text>
+          <Text className="block text-sm font-bold text-gray-800">👤 用户信息</Text>
+          <Text className="block text-xs text-gray-400">{userInfo?.name || '管理员'}</Text>
         </View>
         {customer && (
           <View className="flex justify-between items-center">
             <View className="flex items-center">
-              <Text className="text-xs text-gray-500">积分:</Text>
-              <Text className="text-lg font-bold text-orange-500 ml-2">{customer.points}</Text>
+              <Text className="block text-xs text-gray-500">积分:</Text>
+              <Text className="block text-lg font-bold text-orange-500 ml-2">{customer.points}</Text>
             </View>
             <View className="flex items-center">
-              <Text className="text-xs text-gray-500">剩余次数:</Text>
-              <Text className="text-lg font-bold text-red-500 ml-2">{remainingCount}/3</Text>
+              <Text className="block text-xs text-gray-500">剩余次数:</Text>
+              <Text className="block text-lg font-bold text-red-500 ml-2">{remainingCount}/3</Text>
             </View>
           </View>
         )}
         {!customer && (
-          <Text className="text-xs text-gray-400">请先在客户管理中创建客户信息</Text>
+          <Text className="block text-xs text-gray-400">请先在客户管理中创建客户信息</Text>
         )}
       </View>
 
@@ -213,8 +213,8 @@ export default function IndexPage() {
                     transformOrigin: '50% 133%',
                   }}
                 >
-                  <Text className="text-lg mb-0.5">{prize.icon}</Text>
-                  <Text className={`text-[8px] font-bold leading-tight ${isEven ? 'text-white' : 'text-gray-800'}`}>
+                  <Text className="block text-lg mb-0.5">{prize.icon}</Text>
+                  <Text className={`block text-[8px] font-bold leading-tight ${isEven ? 'text-white' : 'text-gray-800'}`}>
                     {prize.name}
                   </Text>
                 </View>
@@ -223,7 +223,7 @@ export default function IndexPage() {
 
             {/* 中心圆 */}
             <View className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[15%] h-[15%] bg-gradient-to-br from-red-500 to-orange-400 rounded-full shadow-lg border-3 border-white flex items-center justify-center z-10">
-              <Text className="text-xs font-bold text-white">抽奖</Text>
+              <Text className="block text-xs font-bold text-white">抽奖</Text>
             </View>
           </View>
         </View>

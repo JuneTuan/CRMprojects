@@ -5,4 +5,5 @@ export { orderManager } from './orderManager';
 export { prizeManager } from './prizeManager';
 export { couponManager } from './couponManager';
 export { lotteryManager } from './lotteryManager';
+export { pointsRuleManager } from './pointsRuleManager';
 export * from './shared/schema';

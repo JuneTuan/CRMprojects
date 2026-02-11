@@ -144,12 +144,23 @@ export default function ProfilePage() {
           </View>
 
           <View
-            className="flex items-center justify-between p-4"
+            className="flex items-center justify-between p-4 border-b border-gray-100"
             onClick={() => navigateTo('/pages/coupon/index')}
           >
             <View className="flex items-center">
               <Text className="text-2xl mr-3">🧧</Text>
               <Text className="text-base font-semibold text-gray-800">卡券管理</Text>
+            </View>
+            <Text className="text-gray-400">›</Text>
+          </View>
+
+          <View
+            className="flex items-center justify-between p-4"
+            onClick={() => navigateTo('/pages/points-rule/index')}
+          >
+            <View className="flex items-center">
+              <Text className="text-2xl mr-3">⚙️</Text>
+              <Text className="text-base font-semibold text-gray-800">积分规则管理</Text>
             </View>
             <Text className="text-gray-400">›</Text>
           </View>

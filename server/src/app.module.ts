@@ -8,6 +8,7 @@ import { OrderModule } from '@/order/order.module';
 import { PrizeModule } from '@/prize/prize.module';
 import { LotteryModule } from '@/lottery/lottery.module';
 import { CouponModule } from '@/coupon/coupon.module';
+import { PointsRuleModule } from '@/points-rule/points-rule.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { CouponModule } from '@/coupon/coupon.module';
     PrizeModule,
     LotteryModule,
     CouponModule,
+    PointsRuleModule,
   ],
   controllers: [AppController],
   providers: [AppService],
