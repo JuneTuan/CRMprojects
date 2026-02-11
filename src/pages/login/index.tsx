@@ -101,8 +101,14 @@ export default function LoginPage() {
           {loading ? '登录中...' : '登录'}
         </button>
 
-        <View className="mt-4 text-center">
+        <View className="mt-4 flex justify-between items-center">
           <Text className="text-xs text-gray-400">默认账号: admin / 密码: 123456</Text>
+          <Text
+            className="text-xs text-red-600 font-semibold"
+            onClick={() => Taro.navigateTo({ url: '/pages/register/index' })}
+          >
+            去注册
+          </Text>
         </View>
       </View>
 
