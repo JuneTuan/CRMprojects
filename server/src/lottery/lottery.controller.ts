@@ -6,9 +6,9 @@ export class LotteryController {
   constructor(private readonly lotteryService: LotteryService) {}
 
   @Post('draw')
-  async draw(@Body() body: { customerId: string, usePoints?: boolean }) {
+  async draw(@Body() body: { customerId: string, activityId?: string, usePoints?: boolean }) {
     try {
-      const data = await this.lotteryService.draw(body.customerId, body.usePoints);
+      const data = await this.lotteryService.draw(body.customerId, body.activityId, body.usePoints);
       return {
         code: 200,
         msg: '抽奖成功',

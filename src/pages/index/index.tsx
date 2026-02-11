@@ -266,8 +266,8 @@ export default function IndexPage() {
         url: '/api/activity/active',
         method: 'GET'
       })
-      if (res.data.code === 200 && res.data.data) {
-        setActivity(res.data.data)
+      if (res.data.code === 200) {
+        setActivity(res.data.data || null)
       }
     } catch (error) {
       console.error('获取当前活动失败:', error)

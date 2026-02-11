@@ -48,6 +48,13 @@ export class ActivityController {
   async getActive() {
     try {
       const data = await this.activityService.getActive();
+      if (!data) {
+        return {
+          code: 200,
+          msg: '当前无活动',
+          data: null
+        }
+      }
       return {
         code: 200,
         msg: '获取成功',

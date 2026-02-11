@@ -1,19 +1,33 @@
 import { Injectable } from '@nestjs/common';
-import { lotteryManager, prizeManager, couponManager, customerManager, lotterySettingManager } from '../storage/database';
+import { lotteryManager, prizeManager, couponManager, customerManager, lotterySettingManager, activityManager } from '../storage/database';
 
 @Injectable()
 export class LotteryService {
-  async draw(customerId: string, usePoints: boolean = false) {
+  async draw(customerId: string, activityId?: string, usePoints: boolean = false) {
     const customer = await customerManager.getCustomerById(customerId);
     if (!customer) {
       throw new Error('客户不存在');
     }
 
-    // 获取抽奖配置
-    const lotterySetting = await lotterySettingManager.getActiveLotterySetting();
-    const freeDrawsPerDay = lotterySetting?.freeDrawsPerDay || 3;
-    const pointsPerDraw = lotterySetting?.pointsPerDraw || 10;
-    const enablePointsDraw = lotterySetting?.enablePointsDraw !== false;
+    // 优先使用活动配置，否则使用全局配置
+    let freeDrawsPerDay = 3;
+    let pointsPerDraw = 10;
+    let enablePointsDraw = true;
+
+    if (activityId) {
+      const activity = await activityManager.getActivityById(activityId);
+      if (activity) {
+        freeDrawsPerDay = activity.dailyFreeDraws || 3;
+        pointsPerDraw = activity.pointsPerDraw || 10;
+        enablePointsDraw = activity.pointsEnabled !== false;
+      }
+    } else {
+      // 使用全局配置
+      const lotterySetting = await lotterySettingManager.getActiveLotterySetting();
+      freeDrawsPerDay = lotterySetting?.freeDrawsPerDay || 3;
+      pointsPerDraw = lotterySetting?.pointsPerDraw || 10;
+      enablePointsDraw = lotterySetting?.enablePointsDraw !== false;
+    }
 
     // 检查今日免费抽奖次数
     const todayCount = await lotteryManager.getTodayLotteryCount(customerId);

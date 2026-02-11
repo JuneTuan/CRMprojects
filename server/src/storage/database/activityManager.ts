@@ -56,16 +56,29 @@ class ActivityManager {
   // 创建活动
   async createActivity(data: InsertActivity) {
     const db = await this.getDb();
-    const result = await db.insert(activities).values(data).returning();
+    // 确保 startTime 和 endTime 是 Date 对象
+    const insertData = {
+      ...data,
+      startTime: data.startTime instanceof Date ? data.startTime : new Date(data.startTime),
+      endTime: data.endTime instanceof Date ? data.endTime : new Date(data.endTime)
+    }
+    const result = await db.insert(activities).values(insertData).returning();
     return result[0];
   }
 
   // 更新活动
   async updateActivity(id: string, data: UpdateActivity) {
     const db = await this.getDb();
+    // 确保 startTime 和 endTime 是 Date 对象
+    const updateData = {
+      ...data,
+      startTime: data.startTime ? (data.startTime instanceof Date ? data.startTime : new Date(data.startTime)) : undefined,
+      endTime: data.endTime ? (data.endTime instanceof Date ? data.endTime : new Date(data.endTime)) : undefined,
+      updatedAt: new Date()
+    }
     const result = await db
       .update(activities)
-      .set({ ...data, updatedAt: new Date() })
+      .set(updateData)
       .where(eq(activities.id, id))
       .returning();
     return result[0];

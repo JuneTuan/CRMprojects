@@ -14,9 +14,8 @@ export default function ActivityPage() {
     name: '',
     description: '',
     gameType: 'wheel',
-    startTime: '',
-    endTime: '',
-    status: 'draft',
+    durationDays: '7', // 活动天数，默认7天
+    status: 'active', // 默认状态为活动中
     dailyFreeDraws: '3',
     pointsEnabled: false,
     pointsPerDraw: '10',
@@ -66,9 +65,8 @@ export default function ActivityPage() {
       name: '',
       description: '',
       gameType: 'wheel',
-      startTime: '',
-      endTime: '',
-      status: 'draft',
+      durationDays: '7', // 默认7天
+      status: 'active', // 默认状态为活动中
       dailyFreeDraws: '3',
       pointsEnabled: false,
       pointsPerDraw: '10',
@@ -78,13 +76,16 @@ export default function ActivityPage() {
   }
 
   const handleEdit = (activity: any) => {
+    const startTime = new Date(activity.startTime)
+    const endTime = new Date(activity.endTime)
+    const durationDays = Math.ceil((endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60 * 24))
+
     setEditingActivity(activity)
     setFormData({
       name: activity.name,
       description: activity.description || '',
       gameType: activity.gameType,
-      startTime: activity.startTime || '',
-      endTime: activity.endTime || '',
+      durationDays: String(durationDays || 7),
       status: activity.status,
       dailyFreeDraws: String(activity.dailyFreeDraws || 3),
       pointsEnabled: activity.pointsEnabled || false,
@@ -103,9 +104,22 @@ export default function ActivityPage() {
       Taro.showToast({ title: '请选择游戏类型', icon: 'none' })
       return
     }
-    if (!formData.startTime || !formData.endTime) {
-      Taro.showToast({ title: '请选择活动时间', icon: 'none' })
+    if (!formData.durationDays || parseInt(formData.durationDays) <= 0) {
+      Taro.showToast({ title: '请输入有效的活动天数', icon: 'none' })
       return
+    }
+
+    // 自动计算开始时间和结束时间
+    const startTime = new Date()
+    const endTime = new Date()
+    endTime.setDate(endTime.getDate() + parseInt(formData.durationDays))
+
+    // 只传递后端需要的字段，排除 durationDays
+    const { durationDays, ...baseData } = formData
+    const submitData = {
+      ...baseData,
+      startTime: startTime.toISOString(),
+      endTime: endTime.toISOString()
     }
 
     try {
@@ -114,7 +128,7 @@ export default function ActivityPage() {
         await Network.request({
           url: `/api/activity/${editingActivity.id}`,
           method: 'PUT',
-          data: formData
+          data: submitData
         })
         Taro.showToast({ title: '更新成功', icon: 'success' })
       } else {
@@ -122,7 +136,7 @@ export default function ActivityPage() {
         await Network.request({
           url: '/api/activity',
           method: 'POST',
-          data: formData
+          data: submitData
         })
         Taro.showToast({ title: '创建成功', icon: 'success' })
       }
@@ -152,6 +166,24 @@ export default function ActivityPage() {
         }
       }
     })
+  }
+
+  const toggleActivityStatus = async (activity: any) => {
+    const newStatus = activity.status === 'active' ? 'paused' : 'active'
+    try {
+      await Network.request({
+        url: `/api/activity/${activity.id}`,
+        method: 'PUT',
+        data: { ...activity, status: newStatus }
+      })
+      Taro.showToast({
+        title: newStatus === 'active' ? '已启用' : '已禁用',
+        icon: 'success'
+      })
+      fetchActivities()
+    } catch (error) {
+      Taro.showToast({ title: '操作失败', icon: 'none' })
+    }
   }
 
   const getGameTypeName = (gameType: string) => {
@@ -212,7 +244,7 @@ export default function ActivityPage() {
                   key={activity.id}
                   className="bg-white rounded-xl p-4 shadow-sm"
                 >
-                  <View className="flex justify-between items-start mb-3">
+                  <View className="flex justify-between items-start mb-2">
                     <View className="flex-1">
                       <Text className="block text-base font-semibold text-gray-800 mb-1">
                         {activity.name}
@@ -233,11 +265,47 @@ export default function ActivityPage() {
                     </View>
                   </View>
 
+                  {/* 活动时间范围 */}
+                  <View className="bg-gray-50 rounded-lg p-2 mb-2">
+                    <Text className="block text-xs text-gray-500">
+                      📅 {new Date(activity.startTime).toLocaleString('zh-CN', {
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })} 至 {new Date(activity.endTime).toLocaleString('zh-CN', {
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </Text>
+                  </View>
+
+                  {/* 活动配置 */}
+                  <View className="flex gap-2 mb-2">
+                    <Text className="block text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                      🎁 免费 {activity.dailyFreeDraws} 次/天
+                    </Text>
+                    {activity.pointsEnabled && (
+                      <Text className="block text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded">
+                        💎 {activity.pointsPerDraw} 积分/次
+                      </Text>
+                    )}
+                  </View>
+
                   <View className="flex justify-between items-center mt-3 pt-3 border-t border-gray-100">
                     <Text className="block text-xs text-gray-400">
                       {new Date(activity.createdAt).toLocaleDateString('zh-CN')}
                     </Text>
                     <View className="flex gap-2">
+                      <Button
+                        size="mini"
+                        type={activity.status === 'active' ? 'warn' : 'primary'}
+                        onClick={() => toggleActivityStatus(activity)}
+                      >
+                        {activity.status === 'active' ? '禁用' : '启用'}
+                      </Button>
                       <Button
                         size="mini"
                         type="default"
@@ -331,30 +399,18 @@ export default function ActivityPage() {
               </View>
             </View>
 
-            {/* 活动时间 */}
+            {/* 活动天数 */}
             <View>
-              <Text className="block text-sm font-semibold text-gray-800 mb-2">活动时间 *</Text>
-              <View className="space-y-2">
-                <View className="bg-gray-50 rounded-xl px-4 py-3">
-                  <Text className="block text-xs text-gray-500 mb-1">开始时间</Text>
-                  <Input
-                    className="w-full bg-transparent"
-                    type="text"
-                    placeholder="YYYY-MM-DD HH:mm"
-                    value={formData.startTime}
-                    onInput={(e) => setFormData({ ...formData, startTime: e.detail.value })}
-                  />
-                </View>
-                <View className="bg-gray-50 rounded-xl px-4 py-3">
-                  <Text className="block text-xs text-gray-500 mb-1">结束时间</Text>
-                  <Input
-                    className="w-full bg-transparent"
-                    type="text"
-                    placeholder="YYYY-MM-DD HH:mm"
-                    value={formData.endTime}
-                    onInput={(e) => setFormData({ ...formData, endTime: e.detail.value })}
-                  />
-                </View>
+              <Text className="block text-sm font-semibold text-gray-800 mb-2">活动天数 *</Text>
+              <View className="bg-gray-50 rounded-xl px-4 py-3">
+                <Text className="block text-xs text-gray-500 mb-1">活动持续天数（自动从当前时间开始）</Text>
+                <Input
+                  className="w-full bg-transparent"
+                  type="number"
+                  placeholder="请输入活动天数"
+                  value={formData.durationDays}
+                  onInput={(e) => setFormData({ ...formData, durationDays: e.detail.value })}
+                />
               </View>
             </View>
 
