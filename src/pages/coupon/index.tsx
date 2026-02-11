@@ -85,12 +85,20 @@ export default function CouponPage() {
     <View className="coupon-page min-h-screen bg-gray-50 p-4 pb-20">
       <View className="flex justify-between items-center mb-4">
         <Text className="text-xl font-bold text-gray-800">卡券中心</Text>
-        <Button
-          className="bg-red-600 text-white rounded-lg px-4 py-2 text-sm"
-          onClick={fetchCoupons}
-        >
-          刷新
-        </Button>
+        <View className="flex gap-2">
+          <Button
+            className="bg-orange-500 text-white rounded-lg px-4 py-2 text-sm"
+            onClick={() => Taro.navigateTo({ url: '/pages/coupon-verify/index' })}
+          >
+            卡券核销
+          </Button>
+          <Button
+            className="bg-red-600 text-white rounded-lg px-4 py-2 text-sm"
+            onClick={fetchCoupons}
+          >
+            刷新
+          </Button>
+        </View>
       </View>
 
       {loading ? (

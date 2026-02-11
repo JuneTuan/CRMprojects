@@ -14,7 +14,8 @@ export default defineAppConfig({
     'pages/purchase-record/index',
     'pages/lottery-record/index',
     'pages/points-history/index',
-    'pages/edit-profile/index'
+    'pages/edit-profile/index',
+    'pages/coupon-verify/index'
   ],
   window: {
     backgroundTextStyle: 'light',

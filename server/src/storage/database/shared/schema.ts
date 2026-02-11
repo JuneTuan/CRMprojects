@@ -97,6 +97,17 @@ export const points_rules = pgTable("points_rules", {
   updatedAt: timestamp("updated_at", { withTimezone: true }),
 })
 
+// 抽奖配置表
+export const lottery_settings = pgTable("lottery_settings", {
+  id: varchar("id", { length: 36 }).primaryKey().default(sql`gen_random_uuid()`),
+  freeDrawsPerDay: integer("free_draws_per_day").notNull().default(3), // 每日免费抽奖次数
+  pointsPerDraw: integer("points_per_draw").notNull().default(10), // 消费积分抽奖每次消耗的积分数
+  enablePointsDraw: boolean("enable_points_draw").default(true).notNull(), // 是否启用积分抽奖
+  description: text("description"), // 配置说明
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }),
+})
+
 // 使用 createSchemaFactory 配置 date coercion
 const { createInsertSchema: createCoercedInsertSchema } = createSchemaFactory({
   coerce: { date: true },
@@ -241,6 +252,23 @@ export const updatePointsRuleSchema = createCoercedInsertSchema(points_rules)
   })
   .partial()
 
+// Lottery Settings schemas
+export const insertLotterySettingSchema = createCoercedInsertSchema(lottery_settings).pick({
+  freeDrawsPerDay: true,
+  pointsPerDraw: true,
+  enablePointsDraw: true,
+  description: true,
+})
+
+export const updateLotterySettingSchema = createCoercedInsertSchema(lottery_settings)
+  .pick({
+    freeDrawsPerDay: true,
+    pointsPerDraw: true,
+    enablePointsDraw: true,
+    description: true,
+  })
+  .partial()
+
 // Lottery record schemas
 export const insertLotteryRecordSchema = createCoercedInsertSchema(lottery_records).pick({
   customerId: true,
@@ -275,6 +303,14 @@ export type UpdateCoupon = z.infer<typeof updateCouponSchema>
 
 export type LotteryRecord = typeof lottery_records.$inferSelect
 export type InsertLotteryRecord = z.infer<typeof insertLotteryRecordSchema>
+
+export type PointsRule = typeof points_rules.$inferSelect
+export type InsertPointsRule = z.infer<typeof insertPointsRuleSchema>
+export type UpdatePointsRule = z.infer<typeof updatePointsRuleSchema>
+
+export type LotterySetting = typeof lottery_settings.$inferSelect
+export type InsertLotterySetting = z.infer<typeof insertLotterySettingSchema>
+export type UpdateLotterySetting = z.infer<typeof updateLotterySettingSchema>
 
 
 

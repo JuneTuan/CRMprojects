@@ -12,7 +12,7 @@ export default function PointsRulePage() {
   const [editingRule, setEditingRule] = useState<any>(null)
   const [formData, setFormData] = useState({
     name: '',
-    pointsPerAmount: 1,
+    pointsPerAmount: '1',
     minAmount: '0',
     maxPoints: '',
     description: '',
@@ -59,7 +59,7 @@ export default function PointsRulePage() {
     setEditingRule(null)
     setFormData({
       name: '',
-      pointsPerAmount: 1,
+      pointsPerAmount: '1',
       minAmount: '0',
       maxPoints: '',
       description: '',
@@ -148,7 +148,7 @@ export default function PointsRulePage() {
       Taro.showToast({ title: '请输入规则名称', icon: 'none' })
       return
     }
-    if (!formData.pointsPerAmount || formData.pointsPerAmount <= 0) {
+    if (!formData.pointsPerAmount || parseInt(formData.pointsPerAmount) <= 0) {
       Taro.showToast({ title: '请输入正确的积分比例', icon: 'none' })
       return
     }
@@ -228,7 +228,7 @@ export default function PointsRulePage() {
                 type="number"
                 placeholder="请输入积分比例"
                 value={formData.pointsPerAmount}
-                onInput={(e) => setFormData({ ...formData, pointsPerAmount: parseInt(e.detail.value) || 1 })}
+                onInput={(e) => setFormData({ ...formData, pointsPerAmount: String(parseInt(e.detail.value) || 1) })}
               />
             </View>
             <Text className="block text-xs text-gray-500 mt-2">

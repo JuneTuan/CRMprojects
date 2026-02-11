@@ -11,6 +11,8 @@ export default function IndexPage() {
   const [lastResult, setLastResult] = useState<any>(null)
   const [userInfo, setUserInfo] = useState<any>(null)
   const [customer, setCustomer] = useState<any>(null)
+  const [lotterySetting, setLotterySetting] = useState<any>(null)
+  const [usePoints, setUsePoints] = useState(false) // 是否使用积分抽奖
 
   // 8个奖品，只有1个"谢谢参与"，87.5%中奖率
   const prizes = [
@@ -74,19 +76,50 @@ export default function IndexPage() {
     }
   }
 
+  const fetchLotterySetting = async () => {
+    try {
+      const res = await Network.request({
+        url: '/api/lottery-setting',
+        method: 'GET'
+      })
+      if (res.data.code === 200 && res.data.data.length > 0) {
+        setLotterySetting(res.data.data[0])
+      }
+    } catch (error) {
+      console.error('获取抽奖配置失败:', error)
+    }
+  }
+
   useEffect(() => {
     fetchUserInfo()
+    fetchLotterySetting()
   }, [fetchUserInfo])
 
   const handleSpin = async () => {
     if (isSpinning) return
-    if (remainingCount <= 0) {
-      Taro.showToast({ title: '今日抽奖次数已用完', icon: 'none' })
-      return
-    }
     if (!customer) {
       Taro.showToast({ title: '请先创建客户信息', icon: 'none' })
       return
+    }
+
+    // 检查抽奖资格
+    if (!usePoints) {
+      // 免费抽奖
+      if (remainingCount <= 0) {
+        Taro.showToast({ title: '今日免费次数已用完', icon: 'none' })
+        return
+      }
+    } else {
+      // 积分抽奖
+      if (!lotterySetting?.pointsEnabled) {
+        Taro.showToast({ title: '积分抽奖未开启', icon: 'none' })
+        return
+      }
+      const pointsCost = lotterySetting?.pointsPerDraw || 10
+      if (customer.points < pointsCost) {
+        Taro.showToast({ title: `积分不足，需要${pointsCost}积分`, icon: 'none' })
+        return
+      }
     }
 
     setIsSpinning(true)
@@ -96,7 +129,10 @@ export default function IndexPage() {
       const res = await Network.request({
         url: '/api/lottery/draw',
         method: 'POST',
-        data: { customerId: customer.id }
+        data: {
+          customerId: customer.id,
+          usePoints: usePoints
+        }
       })
 
       if (res.data.code === 200) {
@@ -157,15 +193,40 @@ export default function IndexPage() {
           <Text className="block text-xs text-gray-400">{userInfo?.name || '管理员'}</Text>
         </View>
         {customer && (
-          <View className="flex justify-between items-center">
-            <View className="flex items-center">
-              <Text className="block text-xs text-gray-500">积分:</Text>
-              <Text className="block text-lg font-bold text-orange-500 ml-2">{customer.points}</Text>
+          <View className="space-y-3">
+            <View className="flex justify-between items-center">
+              <View className="flex items-center">
+                <Text className="block text-xs text-gray-500">积分:</Text>
+                <Text className="block text-lg font-bold text-orange-500 ml-2">{customer.points}</Text>
+              </View>
+              <View className="flex items-center">
+                <Text className="block text-xs text-gray-500">剩余次数:</Text>
+                <Text className="block text-lg font-bold text-red-500 ml-2">{remainingCount}/3</Text>
+              </View>
             </View>
-            <View className="flex items-center">
-              <Text className="block text-xs text-gray-500">剩余次数:</Text>
-              <Text className="block text-lg font-bold text-red-500 ml-2">{remainingCount}/3</Text>
-            </View>
+            {/* 积分抽奖选项 */}
+            {lotterySetting?.pointsEnabled && remainingCount === 0 && (
+              <View className="flex items-center justify-between pt-2 border-t border-gray-100">
+                <Text className="block text-xs text-gray-600">
+                  使用积分抽奖 ({lotterySetting.pointsPerDraw}积分/次)
+                </Text>
+                <View className="flex items-center">
+                  <Text className="block text-xs text-orange-500 mr-2">
+                    {usePoints ? '✓ 已选择' : '未选择'}
+                  </Text>
+                  <button
+                    className={`px-3 py-1 rounded-lg text-xs font-bold ${
+                      usePoints
+                        ? 'bg-orange-500 text-white'
+                        : 'bg-gray-200 text-gray-600'
+                    }`}
+                    onClick={() => setUsePoints(!usePoints)}
+                  >
+                    {usePoints ? '取消' : '使用积分'}
+                  </button>
+                </View>
+              </View>
+            )}
           </View>
         )}
         {!customer && (
@@ -235,14 +296,16 @@ export default function IndexPage() {
       <View className="text-center mb-6">
         <button
           className={`w-56 py-4 rounded-full font-bold text-white shadow-xl transform transition-transform ${
-            isSpinning || remainingCount <= 0
+            isSpinning
               ? 'bg-gray-400'
-              : 'bg-gradient-to-r from-red-600 to-orange-500 active:scale-95'
+              : remainingCount > 0 || (usePoints && customer?.points >= (lotterySetting?.pointsPerDraw || 10))
+              ? 'bg-gradient-to-r from-red-600 to-orange-500 active:scale-95'
+              : 'bg-gray-400'
           }`}
           onClick={handleSpin}
-          disabled={isSpinning || remainingCount <= 0}
+          disabled={isSpinning || (remainingCount <= 0 && !usePoints) || (usePoints && customer?.points < (lotterySetting?.pointsPerDraw || 10))}
         >
-          {isSpinning ? '🎰 抽奖中...' : remainingCount > 0 ? '🎯 开始抽奖' : '❌ 次数已用完'}
+          {isSpinning ? '🎰 抽奖中...' : usePoints ? `💎 积分抽奖 (${lotterySetting?.pointsPerDraw || 10}积分)` : remainingCount > 0 ? '🎯 开始抽奖' : '❌ 次数已用完'}
         </button>
       </View>
 
@@ -252,12 +315,14 @@ export default function IndexPage() {
         <View className="space-y-2">
           <View className="flex items-start">
             <Text className="text-white/90 text-xs mr-2">•</Text>
-            <Text className="text-white/90 text-xs">每天可抽奖3次</Text>
+            <Text className="text-white/90 text-xs">每天可抽奖3次（免费）</Text>
           </View>
-          <View className="flex items-start">
-            <Text className="text-white/90 text-xs mr-2">•</Text>
-            <Text className="text-white/90 text-xs">抽奖不消耗积分，免费参与</Text>
-          </View>
+          {lotterySetting?.pointsEnabled && (
+            <View className="flex items-start">
+              <Text className="text-white/90 text-xs mr-2">•</Text>
+              <Text className="text-white/90 text-xs">免费次数用完后可使用积分抽奖（{lotterySetting.pointsPerDraw}积分/次）</Text>
+            </View>
+          )}
           <View className="flex items-start">
             <Text className="text-white/90 text-xs mr-2">•</Text>
             <Text className="text-white/90 text-xs font-bold">8个奖品，中奖概率87.5%</Text>

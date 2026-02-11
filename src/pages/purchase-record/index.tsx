@@ -7,7 +7,6 @@ import CustomTabBar from '@/components/CustomTabBar'
 export default function PurchaseRecordPage() {
   const [orders, setOrders] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
-  const [customer, setCustomer] = useState<any>(null)
   const [products, setProducts] = useState<any[]>([])
 
   // 获取关联的客户
@@ -20,7 +19,6 @@ export default function PurchaseRecordPage() {
       if (res.data.code === 200) {
         const customers = res.data.data || []
         if (customers.length > 0) {
-          setCustomer(customers[0])
           return customers[0]
         }
       }
