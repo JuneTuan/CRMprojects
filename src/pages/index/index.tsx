@@ -14,14 +14,14 @@ export default function IndexPage() {
 
   // 8个奖品，只有1个"谢谢参与"，87.5%中奖率
   const prizes = [
-    { name: '5元优惠券', color: '#FF6B6B', icon: '🧧', type: 'coupon' },
-    { name: '10元红包', color: '#4ECDC4', icon: '🧧', type: 'redpacket' },
-    { name: '20元优惠券', color: '#FF9F43', icon: '🎫', type: 'coupon' },
-    { name: '50元红包', color: '#5F27CD', icon: '🧧', type: 'redpacket' },
-    { name: '谢谢参与', color: '#FFE66D', icon: '😊', type: 'none' },
-    { name: '100元优惠券', color: '#95E1D3', icon: '🎁', type: 'coupon' },
-    { name: '神秘奖品', color: '#FF8C42', icon: '🎉', type: 'item' },
-    { name: '200元红包', color: '#6C5CE7', icon: '🧧', type: 'redpacket' },
+    { name: '5元优惠券', color: '#FF4757', icon: '🧧', type: 'coupon' },
+    { name: '10元红包', color: '#2ED573', icon: '🧧', type: 'redpacket' },
+    { name: '20元优惠券', color: '#FFA502', icon: '🎫', type: 'coupon' },
+    { name: '50元红包', color: '#5352ED', icon: '🧧', type: 'redpacket' },
+    { name: '谢谢参与', color: '#F1C40F', icon: '😊', type: 'none' },
+    { name: '100元优惠券', color: '#FF6348', icon: '🎁', type: 'coupon' },
+    { name: '神秘奖品', color: '#1E90FF', icon: '🎉', type: 'item' },
+    { name: '200元红包', color: '#9B59B6', icon: '🧧', type: 'redpacket' },
   ]
 
   const checkLogin = useCallback(() => {
@@ -176,8 +176,8 @@ export default function IndexPage() {
       {/* 转盘区域 - 8瓣饼图 */}
       <View className="relative mb-6">
         {/* 指针 */}
-        <View className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-3 z-20">
-          <View className="w-0 h-0 border-l-[10px] border-r-[10px] border-t-[20px] border-l-transparent border-r-transparent border-t-yellow-400" />
+        <View className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1 z-30">
+          <View className="w-0 h-0 border-l-[14px] border-r-[14px] border-t-[28px] border-l-transparent border-r-transparent border-t-red-600 drop-shadow-lg" />
         </View>
 
         {/* 转盘外圈 */}
@@ -189,7 +189,8 @@ export default function IndexPage() {
               background: prizes.map((prize, index) => {
                 const segmentAngle = 360 / prizes.length // 45度
                 const startAngle = index * segmentAngle
-                return `${prize.color} ${startAngle}deg ${startAngle + segmentAngle}deg`
+                const endAngle = startAngle + segmentAngle - 1 // 减1度留出分隔线间隙
+                return `${prize.color} ${startAngle}deg ${endAngle}deg, white ${endAngle}deg ${endAngle + 1}deg`
               }).join(', '),
               transform: `rotate(${rotation}deg)`,
               transition: isSpinning ? 'transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)' : 'none',
@@ -211,10 +212,11 @@ export default function IndexPage() {
                     left: '50%',
                     transform: `translateX(-50%) rotate(${midAngle}deg)`,
                     transformOrigin: '50% 133%',
+                    zIndex: 10,
                   }}
                 >
                   <Text className="block text-lg mb-0.5">{prize.icon}</Text>
-                  <Text className={`block text-[8px] font-bold leading-tight ${isEven ? 'text-white' : 'text-gray-800'}`}>
+                  <Text className={`block text-[8px] font-bold leading-tight ${isEven ? 'text-white' : 'text-white'}`}>
                     {prize.name}
                   </Text>
                 </View>
@@ -222,7 +224,7 @@ export default function IndexPage() {
             })}
 
             {/* 中心圆 */}
-            <View className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[15%] h-[15%] bg-gradient-to-br from-red-500 to-orange-400 rounded-full shadow-lg border-3 border-white flex items-center justify-center z-10">
+            <View className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[15%] h-[15%] bg-gradient-to-br from-red-600 to-orange-500 rounded-full shadow-lg border-[3px] border-white flex items-center justify-center z-20">
               <Text className="block text-xs font-bold text-white">抽奖</Text>
             </View>
           </View>
