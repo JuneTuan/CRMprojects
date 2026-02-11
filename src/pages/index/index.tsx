@@ -12,18 +12,16 @@ export default function IndexPage() {
   const [userInfo, setUserInfo] = useState<any>(null)
   const [customer, setCustomer] = useState<any>(null)
 
-  // 10个奖品，只有1个"谢谢参与"，95%中奖率
+  // 8个奖品，只有1个"谢谢参与"，87.5%中奖率
   const prizes = [
     { name: '5元优惠券', color: '#FF6B6B', icon: '🧧', type: 'coupon' },
     { name: '10元红包', color: '#4ECDC4', icon: '🧧', type: 'redpacket' },
     { name: '20元优惠券', color: '#FF9F43', icon: '🎫', type: 'coupon' },
-    { name: '30元红包', color: '#5F27CD', icon: '🧧', type: 'redpacket' },
-    { name: '50元优惠券', color: '#FF6B6B', icon: '🎁', type: 'coupon' },
+    { name: '50元红包', color: '#5F27CD', icon: '🧧', type: 'redpacket' },
     { name: '谢谢参与', color: '#FFE66D', icon: '😊', type: 'none' },
-    { name: '50元红包', color: '#4ECDC4', icon: '🧧', type: 'redpacket' },
-    { name: '100元优惠券', color: '#FF9F43', icon: '🎁', type: 'coupon' },
-    { name: '神秘奖品', color: '#95E1D3', icon: '🎉', type: 'item' },
-    { name: '200元红包', color: '#5F27CD', icon: '🧧', type: 'redpacket' },
+    { name: '100元优惠券', color: '#95E1D3', icon: '🎁', type: 'coupon' },
+    { name: '神秘奖品', color: '#FF8C42', icon: '🎉', type: 'item' },
+    { name: '200元红包', color: '#6C5CE7', icon: '🧧', type: 'redpacket' },
   ]
 
   const checkLogin = useCallback(() => {
@@ -175,15 +173,15 @@ export default function IndexPage() {
         )}
       </View>
 
-      {/* 转盘区域 - 占据页面高度的1/4 */}
+      {/* 转盘区域 - 8瓣饼图 */}
       <View className="relative mb-6">
         {/* 指针 */}
         <View className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-3 z-20">
           <View className="w-0 h-0 border-l-[10px] border-r-[10px] border-t-[20px] border-l-transparent border-r-transparent border-t-yellow-400" />
         </View>
 
-        {/* 转盘外圈 - 使用vh单位占据页面高度的1/4 */}
-        <View className="relative w-[25vh] h-[25vh] mx-auto rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 shadow-2xl p-2">
+        {/* 转盘外圈 */}
+        <View className="relative w-[25vh] h-[25vh] mx-auto rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 shadow-2xl p-1.5">
           {/* 转盘主体 */}
           <View
             className="w-full h-full rounded-full relative overflow-hidden bg-white"
@@ -192,47 +190,33 @@ export default function IndexPage() {
               transition: isSpinning ? 'transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)' : 'none',
             }}
           >
-            {/* 奖品区域 */}
+            {/* 8个扇形 - 使用conic-gradient绘制 */}
             {prizes.map((prize, index) => {
-              const segmentAngle = 360 / prizes.length // 36度
-              const startAngle = segmentAngle * index
+              const segmentAngle = 360 / prizes.length // 45度
+              const startAngle = index * segmentAngle
               const isEven = index % 2 === 0
 
               return (
                 <View
                   key={index}
-                  className="absolute"
+                  className="absolute top-0 left-0 w-full h-full"
                   style={{
-                    left: '50%',
-                    top: '50%',
-                    width: '50%',
-                    height: '50%',
-                    transformOrigin: 'top left',
-                    transform: `translate(-50%, -50%) rotate(${startAngle + segmentAngle / 2}deg)`,
+                    background: `conic-gradient(from ${startAngle}deg at 50% 50%, ${prize.color} 0deg, ${prize.color} ${segmentAngle}deg, transparent ${segmentAngle}deg)`,
+                    clipPath: 'polygon(50% 50%, 50% 0%, 100% 50%, 50% 100%, 0% 50%)',
                   }}
                 >
-                  {/* 扇形背景 */}
-                  <View
-                    className="absolute top-0 left-0 w-full h-full"
-                    style={{
-                      background: `conic-gradient(from ${270 - segmentAngle / 2}deg at 50% 0, ${prize.color} 0deg, ${prize.color} ${segmentAngle}deg, transparent ${segmentAngle}deg)`,
-                      clipPath: 'polygon(0 0, 100% 0, 50% 100%)',
-                    }}
-                  />
-
-                  {/* 奖品内容 - 调整字体大小以适应更小的转盘 */}
+                  {/* 奖品文字 */}
                   <View
                     className="absolute flex flex-col items-center"
                     style={{
-                      top: '35%',
+                      top: '22%',
                       left: '50%',
-                      transform: 'translateX(-50%)',
-                      width: '25%',
-                      textAlign: 'center',
+                      transform: `translateX(-50%) rotate(${startAngle + segmentAngle / 2}deg)`,
+                      transformOrigin: '50% 143%',
                     }}
                   >
                     <Text className="text-lg mb-0.5">{prize.icon}</Text>
-                    <Text className={`text-[9px] font-bold leading-tight ${isEven ? 'text-white' : 'text-gray-700'}`}>
+                    <Text className={`text-[8px] font-bold leading-tight ${isEven ? 'text-white' : 'text-gray-800'}`}>
                       {prize.name}
                     </Text>
                   </View>
@@ -240,9 +224,9 @@ export default function IndexPage() {
               )
             })}
 
-            {/* 中心圆 - 按比例缩小 */}
-            <View className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[12%] h-[12%] bg-gradient-to-br from-red-500 to-orange-400 rounded-full shadow-lg border-4 border-white flex items-center justify-center z-10">
-              <Text className="text-sm font-bold text-white">抽奖</Text>
+            {/* 中心圆 */}
+            <View className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[15%] h-[15%] bg-gradient-to-br from-red-500 to-orange-400 rounded-full shadow-lg border-3 border-white flex items-center justify-center z-10">
+              <Text className="text-xs font-bold text-white">抽奖</Text>
             </View>
           </View>
         </View>
@@ -277,7 +261,7 @@ export default function IndexPage() {
           </View>
           <View className="flex items-start">
             <Text className="text-white/90 text-xs mr-2">•</Text>
-            <Text className="text-white/90 text-xs font-bold">中奖概率高达95%</Text>
+            <Text className="text-white/90 text-xs font-bold">8个奖品，中奖概率87.5%</Text>
           </View>
           <View className="flex items-start">
             <Text className="text-white/90 text-xs mr-2">•</Text>
