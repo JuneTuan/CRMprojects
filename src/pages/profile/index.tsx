@@ -66,8 +66,8 @@ export default function ProfilePage() {
             onClick={() => navigateTo('/pages/my-coupon/index')}
           >
             <View className="flex items-center">
-              <Text className="text-2xl mr-3">🎫</Text>
-              <Text className="text-base font-semibold text-gray-800">我的卡券</Text>
+              <Text className="block text-2xl mr-3">🎫</Text>
+              <Text className="block text-base font-semibold text-gray-800">我的卡券</Text>
             </View>
             <Text className="text-gray-400">›</Text>
           </View>
@@ -77,8 +77,19 @@ export default function ProfilePage() {
             onClick={() => navigateTo('/pages/lottery-record/index')}
           >
             <View className="flex items-center">
-              <Text className="text-2xl mr-3">🎁</Text>
-              <Text className="text-base font-semibold text-gray-800">中奖记录</Text>
+              <Text className="block text-2xl mr-3">🎁</Text>
+              <Text className="block text-base font-semibold text-gray-800">中奖记录</Text>
+            </View>
+            <Text className="text-gray-400">›</Text>
+          </View>
+
+          <View
+            className="flex items-center justify-between p-4 border-b border-gray-100"
+            onClick={() => navigateTo('/pages/purchase-record/index')}
+          >
+            <View className="flex items-center">
+              <Text className="block text-2xl mr-3">🛒</Text>
+              <Text className="block text-base font-semibold text-gray-800">购买记录</Text>
             </View>
             <Text className="text-gray-400">›</Text>
           </View>
@@ -88,8 +99,8 @@ export default function ProfilePage() {
             onClick={() => navigateTo('/pages/points-history/index')}
           >
             <View className="flex items-center">
-              <Text className="text-2xl mr-3">⭐</Text>
-              <Text className="text-base font-semibold text-gray-800">积分明细</Text>
+              <Text className="block text-2xl mr-3">⭐</Text>
+              <Text className="block text-base font-semibold text-gray-800">积分明细</Text>
             </View>
             <Text className="text-gray-400">›</Text>
           </View>
@@ -99,8 +110,8 @@ export default function ProfilePage() {
             onClick={() => navigateTo('/pages/edit-profile/index')}
           >
             <View className="flex items-center">
-              <Text className="text-2xl mr-3">👤</Text>
-              <Text className="text-base font-semibold text-gray-800">个人资料</Text>
+              <Text className="block text-2xl mr-3">👤</Text>
+              <Text className="block text-base font-semibold text-gray-800">个人资料</Text>
             </View>
             <Text className="text-gray-400">›</Text>
           </View>

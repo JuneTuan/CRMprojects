@@ -11,6 +11,7 @@ export default defineAppConfig({
     'pages/points-rule/index',
     'pages/profile/index',
     'pages/my-coupon/index',
+    'pages/purchase-record/index',
     'pages/lottery-record/index',
     'pages/points-history/index',
     'pages/edit-profile/index'
