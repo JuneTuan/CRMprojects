@@ -79,6 +79,7 @@ export const lottery_records = pgTable("lottery_records", {
   id: varchar("id", { length: 36 }).primaryKey().default(sql`gen_random_uuid()`),
   customerId: varchar("customer_id", { length: 36 }).notNull(),
   prizeId: varchar("prize_id", { length: 36 }),
+  activityId: varchar("activity_id", { length: 36 }), // 活动ID
   isWon: boolean("is_won").default(false).notNull(),
   result: text("result"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
@@ -106,6 +107,43 @@ export const lottery_settings = pgTable("lottery_settings", {
   description: text("description"), // 配置说明
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }),
+})
+
+// 活动表
+export const activities = pgTable("activities", {
+  id: varchar("id", { length: 36 }).primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name", { length: 200 }).notNull(), // 活动名称
+  description: text("description"), // 活动描述
+  gameType: varchar("game_type", { length: 20 }).notNull(), // 游戏类型：wheel（转盘）、blindbox（盲盒）、slotmachine（老虎机）、scratchcard（刮刮乐）、lotterybox（抽奖箱）
+  startTime: timestamp("start_time", { withTimezone: true }).notNull(), // 开始时间
+  endTime: timestamp("end_time", { withTimezone: true }).notNull(), // 结束时间
+  status: varchar("status", { length: 20 }).notNull().default("draft"), // 状态：draft（草稿）、active（活动中）、paused（暂停）、ended（已结束）
+  dailyFreeDraws: integer("daily_free_draws").notNull().default(3), // 每日免费抽奖次数
+  pointsEnabled: boolean("points_enabled").notNull().default(false), // 是否启用积分抽奖
+  pointsPerDraw: integer("points_per_draw").notNull().default(10), // 积分抽奖消耗积分
+  imageUrl: text("image_url"), // 活动图片URL
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }),
+})
+
+// 活动配置表
+export const activity_configs = pgTable("activity_configs", {
+  id: varchar("id", { length: 36 }).primaryKey().default(sql`gen_random_uuid()`),
+  activityId: varchar("activity_id", { length: 36 }).notNull(), // 活动ID
+  configKey: varchar("config_key", { length: 100 }).notNull(), // 配置键
+  configValue: text("config_value").notNull(), // 配置值（JSON）
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+})
+
+// 活动奖品关联表
+export const activity_prizes = pgTable("activity_prizes", {
+  id: varchar("id", { length: 36 }).primaryKey().default(sql`gen_random_uuid()`),
+  activityId: varchar("activity_id", { length: 36 }).notNull(), // 活动ID
+  prizeId: varchar("prize_id", { length: 36 }).notNull(), // 奖品ID
+  probability: numeric("probability", { precision: 5, scale: 2 }).notNull().default("0"), // 中奖概率（0-100）
+  stock: integer("stock").notNull().default(0), // 库存数量
+  config: text("config"), // 额外配置（JSON，如位置、图案、颜色等）
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 })
 
 // 使用 createSchemaFactory 配置 date coercion
@@ -269,6 +307,68 @@ export const updateLotterySettingSchema = createCoercedInsertSchema(lottery_sett
   })
   .partial()
 
+// Activity schemas
+export const insertActivitySchema = createCoercedInsertSchema(activities).pick({
+  name: true,
+  description: true,
+  gameType: true,
+  startTime: true,
+  endTime: true,
+  status: true,
+  dailyFreeDraws: true,
+  pointsEnabled: true,
+  pointsPerDraw: true,
+  imageUrl: true,
+})
+
+export const updateActivitySchema = createCoercedInsertSchema(activities)
+  .pick({
+    name: true,
+    description: true,
+    gameType: true,
+    startTime: true,
+    endTime: true,
+    status: true,
+    dailyFreeDraws: true,
+    pointsEnabled: true,
+    pointsPerDraw: true,
+    imageUrl: true,
+  })
+  .partial()
+
+// Activity Config schemas
+export const insertActivityConfigSchema = createCoercedInsertSchema(activity_configs).pick({
+  activityId: true,
+  configKey: true,
+  configValue: true,
+})
+
+// Activity Prize schemas
+export const insertActivityPrizeSchema = createCoercedInsertSchema(activity_prizes)
+  .extend({
+    probability: z.union([z.string(), z.number()]).transform(String),
+  })
+  .pick({
+    activityId: true,
+    prizeId: true,
+    probability: true,
+    stock: true,
+    config: true,
+  })
+
+export const updateActivityPrizeSchema = createCoercedInsertSchema(activity_prizes)
+  .extend({
+    probability: z.union([z.string(), z.number()]).transform(String).optional(),
+  })
+  .pick({
+    activityId: true,
+    prizeId: true,
+    probability: true,
+    stock: true,
+    config: true,
+  })
+  .partial()
+
 // Lottery record schemas
 export const insertLotteryRecordSchema = createCoercedInsertSchema(lottery_records).pick({
   customerId: true,
@@ -311,6 +411,17 @@ export type UpdatePointsRule = z.infer<typeof updatePointsRuleSchema>
 export type LotterySetting = typeof lottery_settings.$inferSelect
 export type InsertLotterySetting = z.infer<typeof insertLotterySettingSchema>
 export type UpdateLotterySetting = z.infer<typeof updateLotterySettingSchema>
+
+export type Activity = typeof activities.$inferSelect
+export type InsertActivity = z.infer<typeof insertActivitySchema>
+export type UpdateActivity = z.infer<typeof updateActivitySchema>
+
+export type ActivityConfig = typeof activity_configs.$inferSelect
+export type InsertActivityConfig = z.infer<typeof insertActivityConfigSchema>
+
+export type ActivityPrize = typeof activity_prizes.$inferSelect
+export type InsertActivityPrize = Omit<z.infer<typeof insertActivityPrizeSchema>, 'probability'> & { probability: number | string }
+export type UpdateActivityPrize = Omit<z.infer<typeof updateActivityPrizeSchema>, 'probability'> & { probability?: number | string }
 
 
 

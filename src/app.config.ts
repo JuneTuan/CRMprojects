@@ -9,6 +9,7 @@ export default defineAppConfig({
     'pages/prize/index',
     'pages/coupon/index',
     'pages/points-rule/index',
+    'pages/activity/index',
     'pages/profile/index',
     'pages/my-coupon/index',
     'pages/purchase-record/index',

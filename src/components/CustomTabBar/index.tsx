@@ -25,6 +25,7 @@ export default function CustomTabBar() {
     } else {
       const staffTabs = [
         'pages/customer/index',
+        'pages/activity/index',
         'pages/product/index',
         'pages/order/index',
         'pages/prize/index',
@@ -50,9 +51,9 @@ export default function CustomTabBar() {
 
     // 判断是使用 switchTab 还是 navigateTo
     if (currentRoute.startsWith('pages/index') || currentRoute.startsWith('pages/profile') ||
-        currentRoute.startsWith('pages/customer') || currentRoute.startsWith('pages/product') ||
-        currentRoute.startsWith('pages/order') || currentRoute.startsWith('pages/prize') ||
-        currentRoute.startsWith('pages/coupon')) {
+        currentRoute.startsWith('pages/customer') || currentRoute.startsWith('pages/activity') ||
+        currentRoute.startsWith('pages/product') || currentRoute.startsWith('pages/order') ||
+        currentRoute.startsWith('pages/prize') || currentRoute.startsWith('pages/coupon')) {
       Taro.switchTab({ url })
     } else {
       Taro.redirectTo({ url })
@@ -68,6 +69,7 @@ export default function CustomTabBar() {
   // 员工角色的TabBar
   const staffTabs = [
     { text: '客户', icon: '👥', url: '/pages/customer/index' },
+    { text: '活动', icon: '🎪', url: '/pages/activity/index' },
     { text: '产品', icon: '📦', url: '/pages/product/index' },
     { text: '订单', icon: '📝', url: '/pages/order/index' },
     { text: '奖品', icon: '🎁', url: '/pages/prize/index' },

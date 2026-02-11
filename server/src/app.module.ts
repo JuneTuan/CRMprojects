@@ -10,6 +10,7 @@ import { LotteryModule } from '@/lottery/lottery.module';
 import { CouponModule } from '@/coupon/coupon.module';
 import { PointsRuleModule } from '@/points-rule/points-rule.module';
 import { LotterySettingModule } from '@/lottery-setting/lottery-setting.module';
+import { ActivityModule } from '@/activity/activity.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { LotterySettingModule } from '@/lottery-setting/lottery-setting.module';
     CouponModule,
     PointsRuleModule,
     LotterySettingModule,
+    ActivityModule,
   ],
   controllers: [AppController],
   providers: [AppService],
