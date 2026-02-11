@@ -50,7 +50,7 @@ export class LotteryService {
   }
 
   private randomPrize(prizes: any[]): any | null {
-    const WIN_RATE = 0.9;
+    const WIN_RATE = 0.95;
 
     if (Math.random() > WIN_RATE) {
       return null;
