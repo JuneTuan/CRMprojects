@@ -63,6 +63,7 @@ export default function ProfilePage() {
         <View className="mt-4 mx-4 bg-white rounded-2xl overflow-hidden shadow-sm">
           <View
             className="flex items-center justify-between p-4 border-b border-gray-100"
+            onClick={() => navigateTo('/pages/my-coupon/index')}
           >
             <View className="flex items-center">
               <Text className="text-2xl mr-3">🎫</Text>
@@ -73,6 +74,7 @@ export default function ProfilePage() {
 
           <View
             className="flex items-center justify-between p-4 border-b border-gray-100"
+            onClick={() => navigateTo('/pages/lottery-record/index')}
           >
             <View className="flex items-center">
               <Text className="text-2xl mr-3">🎁</Text>
@@ -82,11 +84,23 @@ export default function ProfilePage() {
           </View>
 
           <View
-            className="flex items-center justify-between p-4"
+            className="flex items-center justify-between p-4 border-b border-gray-100"
+            onClick={() => navigateTo('/pages/points-history/index')}
           >
             <View className="flex items-center">
               <Text className="text-2xl mr-3">⭐</Text>
               <Text className="text-base font-semibold text-gray-800">积分明细</Text>
+            </View>
+            <Text className="text-gray-400">›</Text>
+          </View>
+
+          <View
+            className="flex items-center justify-between p-4"
+            onClick={() => navigateTo('/pages/edit-profile/index')}
+          >
+            <View className="flex items-center">
+              <Text className="text-2xl mr-3">👤</Text>
+              <Text className="text-base font-semibold text-gray-800">个人资料</Text>
             </View>
             <Text className="text-gray-400">›</Text>
           </View>

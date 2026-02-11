@@ -8,7 +8,11 @@ export default defineAppConfig({
     'pages/order/index',
     'pages/prize/index',
     'pages/coupon/index',
-    'pages/profile/index'
+    'pages/profile/index',
+    'pages/my-coupon/index',
+    'pages/lottery-record/index',
+    'pages/points-history/index',
+    'pages/edit-profile/index'
   ],
   window: {
     backgroundTextStyle: 'light',
