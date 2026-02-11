@@ -347,15 +347,44 @@ export default function IndexPage() {
 
   const handleSpin = async () => {
     if (isSpinning) return
-    if (remainingCount <= 0) {
-      Taro.showToast({ title: '今日抽奖次数已用完', icon: 'none' })
-      return
-    }
     if (!customer) {
       Taro.showToast({ title: '请先创建客户信息', icon: 'none' })
       return
     }
 
+    // 判断是否需要使用积分抽奖
+    let usePoints = false
+    if (remainingCount <= 0) {
+      // 免费次数用完，检查是否启用积分抽奖
+      const pointsEnabled = activity?.pointsEnabled !== false
+      const pointsPerDraw = activity?.pointsPerDraw || 10
+
+      if (pointsEnabled) {
+        if (customer.points < pointsPerDraw) {
+          Taro.showToast({ title: `积分不足，需要${pointsPerDraw}积分`, icon: 'none' })
+          return
+        }
+        usePoints = true
+        Taro.showModal({
+          title: '使用积分抽奖',
+          content: `今日免费抽奖次数已用完，是否消耗${pointsPerDraw}积分继续抽奖？`,
+          success: (res) => {
+            if (res.confirm) {
+              performDraw(usePoints)
+            }
+          }
+        })
+        return
+      } else {
+        Taro.showToast({ title: '今日抽奖次数已用完', icon: 'none' })
+        return
+      }
+    }
+
+    performDraw(usePoints)
+  }
+
+  const performDraw = async (usePoints: boolean) => {
     setIsSpinning(true)
     setLastResult(null)
 
@@ -365,7 +394,8 @@ export default function IndexPage() {
         method: 'POST',
         data: {
           customerId: customer.id,
-          activityId: activity?.id // 传递活动ID
+          activityId: activity?.id,
+          usePoints // 传递是否使用积分抽奖
         }
       })
 

@@ -1,4 +1,4 @@
-import { View, Text } from '@tarojs/components'
+import { View, Text, Button } from '@tarojs/components'
 import { useState, useEffect } from 'react'
 import Taro from '@tarojs/taro'
 import { Network } from '@/network'
@@ -7,6 +7,7 @@ import CustomTabBar from '@/components/CustomTabBar'
 export default function LotteryRecordPage() {
   const [records, setRecords] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
+  const [customerId, setCustomerId] = useState<string>('')
 
   // 获取关联的客户
   const fetchCustomer = async () => {
@@ -18,6 +19,7 @@ export default function LotteryRecordPage() {
       if (res.data.code === 200) {
         const customers = res.data.data || []
         if (customers.length > 0) {
+          setCustomerId(customers[0].id)
           return customers[0]
         }
       }
@@ -28,13 +30,13 @@ export default function LotteryRecordPage() {
   }
 
   // 获取中奖记录
-  const fetchRecords = async (customerId?: string) => {
+  const fetchRecords = async (custId?: string) => {
     setLoading(true)
     try {
       const res = await Network.request({
         url: '/api/lottery/records',
         method: 'GET',
-        data: customerId ? { customerId } : {}
+        data: custId ? { customerId: custId } : {}
       })
       if (res.data.code === 200) {
         setRecords(res.data.data || [])
@@ -71,10 +73,44 @@ export default function LotteryRecordPage() {
     })
   }
 
+  // 重置今日抽奖次数
+  const handleResetTodayCount = () => {
+    if (!customerId) {
+      Taro.showToast({ title: '请先选择客户', icon: 'none' })
+      return
+    }
+
+    Taro.showModal({
+      title: '确认重置',
+      content: '确定要重置今日抽奖次数吗？',
+      success: async (res) => {
+        if (res.confirm) {
+          try {
+            await Network.request({
+              url: '/api/lottery/reset',
+              method: 'POST',
+              data: { customerId }
+            })
+            Taro.showToast({ title: '重置成功', icon: 'success' })
+            fetchRecords(customerId)
+          } catch (error) {
+            Taro.showToast({ title: '重置失败', icon: 'none' })
+          }
+        }
+      }
+    })
+  }
+
   return (
     <View className="lottery-record-page min-h-screen bg-gray-50 p-4 pb-20">
       <View className="flex justify-between items-center mb-4">
         <Text className="text-xl font-bold text-gray-800">中奖记录</Text>
+        <Button
+          className="bg-orange-500 text-white rounded-lg px-4 py-2 text-sm"
+          onClick={handleResetTodayCount}
+        >
+          重置次数
+        </Button>
       </View>
 
       {loading ? (

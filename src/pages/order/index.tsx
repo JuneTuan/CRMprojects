@@ -10,6 +10,7 @@ export default function OrderPage() {
   const [products, setProducts] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
   const [showForm, setShowForm] = useState(false)
+  const [editingOrder, setEditingOrder] = useState<any>(null)
   const [formData, setFormData] = useState({
     customerId: '',
     productId: '',
@@ -69,6 +70,7 @@ export default function OrderPage() {
   }, [])
 
   const handleAdd = () => {
+    setEditingOrder(null)
     setFormData({
       customerId: customers.length > 0 ? customers[0].id : '',
       productId: products.length > 0 ? products[0].id : '',
@@ -76,6 +78,38 @@ export default function OrderPage() {
       quantity: 1
     })
     setShowForm(true)
+  }
+
+  const handleEdit = (order: any) => {
+    setEditingOrder(order)
+    setFormData({
+      customerId: order.customerId,
+      productId: order.productId,
+      amount: String(order.amount),
+      quantity: order.quantity || 1
+    })
+    setShowForm(true)
+  }
+
+  const handleDelete = (id: string) => {
+    Taro.showModal({
+      title: '确认删除',
+      content: '确定要删除该订单吗？',
+      success: async (res) => {
+        if (res.confirm) {
+          try {
+            await Network.request({
+              url: `/api/order/${id}`,
+              method: 'DELETE'
+            })
+            Taro.showToast({ title: '删除成功', icon: 'success' })
+            fetchOrders()
+          } catch (error) {
+            Taro.showToast({ title: '删除失败', icon: 'none' })
+          }
+        }
+      }
+    })
   }
 
   const handleSubmit = async () => {
@@ -93,19 +127,33 @@ export default function OrderPage() {
     }
 
     try {
-      await Network.request({
-        url: '/api/order',
-        method: 'POST',
-        data: {
-          ...formData,
-          pointsEarned: Math.floor(parseFloat(formData.amount))
-        }
-      })
-      Taro.showToast({ title: '创建成功', icon: 'success' })
+      if (editingOrder) {
+        // 更新订单
+        await Network.request({
+          url: `/api/order/${editingOrder.id}`,
+          method: 'PUT',
+          data: {
+            ...formData,
+            pointsEarned: Math.floor(parseFloat(formData.amount))
+          }
+        })
+        Taro.showToast({ title: '更新成功', icon: 'success' })
+      } else {
+        // 创建订单
+        await Network.request({
+          url: '/api/order',
+          method: 'POST',
+          data: {
+            ...formData,
+            pointsEarned: Math.floor(parseFloat(formData.amount))
+          }
+        })
+        Taro.showToast({ title: '创建成功', icon: 'success' })
+      }
       setShowForm(false)
       fetchOrders()
     } catch (error) {
-      Taro.showToast({ title: '创建失败', icon: 'none' })
+      Taro.showToast({ title: editingOrder ? '更新失败' : '创建失败', icon: 'none' })
     }
   }
 
@@ -122,7 +170,7 @@ export default function OrderPage() {
       <View className="order-page min-h-screen bg-gray-50 p-4 pb-20">
         <View className="flex items-center mb-4">
           <Button onClick={() => setShowForm(false)} size="mini">返回</Button>
-          <Text className="ml-4 text-xl font-bold text-gray-800">新增订单</Text>
+          <Text className="ml-4 text-xl font-bold text-gray-800">{editingOrder ? '编辑订单' : '新增订单'}</Text>
         </View>
 
         <View className="bg-white rounded-2xl p-4 shadow-sm">
@@ -196,7 +244,7 @@ export default function OrderPage() {
             className="w-full bg-red-600 text-white rounded-xl py-3 font-semibold"
             onClick={handleSubmit}
           >
-            创建订单
+            {editingOrder ? '更新订单' : '创建订单'}
           </Button>
         </View>
       </View>
@@ -247,9 +295,27 @@ export default function OrderPage() {
                     获得积分: {order.pointsEarned}
                   </Text>
                 </View>
-                <Text className="text-xs text-gray-400">
-                  {new Date(order.createdAt).toLocaleDateString('zh-CN')}
-                </Text>
+                <View className="flex flex-col items-end gap-2">
+                  <Text className="text-xs text-gray-400">
+                    {new Date(order.createdAt).toLocaleDateString('zh-CN')}
+                  </Text>
+                  <View className="flex gap-2">
+                    <Button
+                      size="mini"
+                      type="primary"
+                      onClick={() => handleEdit(order)}
+                    >
+                      编辑
+                    </Button>
+                    <Button
+                      size="mini"
+                      type="warn"
+                      onClick={() => handleDelete(order.id)}
+                    >
+                      删除
+                    </Button>
+                  </View>
+                </View>
               </View>
             </View>
           ))}

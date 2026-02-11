@@ -58,4 +58,22 @@ export class LotteryController {
       }, HttpStatus.BAD_REQUEST);
     }
   }
+
+  @Post('reset')
+  async resetTodayCount(@Body() body: { customerId: string }) {
+    try {
+      await this.lotteryService.resetTodayCount(body.customerId);
+      return {
+        code: 200,
+        msg: '重置成功',
+        data: null
+      };
+    } catch (error: any) {
+      throw new HttpException({
+        code: 400,
+        msg: error.message,
+        data: null
+      }, HttpStatus.BAD_REQUEST);
+    }
+  }
 }

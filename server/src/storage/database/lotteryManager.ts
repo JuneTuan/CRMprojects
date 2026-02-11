@@ -27,6 +27,19 @@ export class LotteryManager {
     return result[0]?.count || 0;
   }
 
+  async resetTodayLotteryCount(customerId: string): Promise<void> {
+    const db = await getDb(schema);
+    // 删除今日的所有抽奖记录，从而重置抽奖次数
+    await db
+      .delete(lottery_records)
+      .where(
+        and(
+          eq(lottery_records.customerId, customerId),
+          sql`date(${lottery_records.createdAt}) = current_date`
+        )
+      );
+  }
+
   async getLotteryRecords(customerId: string, limit: number = 50): Promise<LotteryRecord[]> {
     const db = await getDb(schema);
     const results = await db.select().from(lottery_records)

@@ -134,4 +134,8 @@ export class LotteryService {
   async getTodayCount(customerId: string) {
     return lotteryManager.getTodayLotteryCount(customerId);
   }
+
+  async resetTodayCount(customerId: string) {
+    await lotteryManager.resetTodayLotteryCount(customerId);
+  }
 }
