@@ -1,4 +1,4 @@
-import { eq, and, desc, gte, lte } from "drizzle-orm";
+import { eq, and, desc, gte, lte, sql } from "drizzle-orm";
 import { getDb } from "coze-coding-dev-sdk";
 import {
   activities,
@@ -76,6 +76,20 @@ class ActivityManager {
       endTime: data.endTime ? (data.endTime instanceof Date ? data.endTime : new Date(data.endTime)) : undefined,
       updatedAt: new Date()
     }
+
+    // 如果要设置为 active，需要先禁用其他 active 活动
+    if (updateData.status === 'active') {
+      await db
+        .update(activities)
+        .set({ status: 'paused', updatedAt: new Date() })
+        .where(
+          and(
+            eq(activities.status, 'active'),
+            sql`${activities.id} != ${id}`
+          )
+        )
+    }
+
     const result = await db
       .update(activities)
       .set(updateData)

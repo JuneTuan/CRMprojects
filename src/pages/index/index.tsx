@@ -107,7 +107,7 @@ function BlindBoxGame({ onOpen, isOpening, selectedBoxIndex }: any) {
 }
 
 // 老虎机游戏组件
-function SlotMachineGame({ isSpinning, results }: any) {
+function SlotMachineGame({ onSpin, isSpinning, results }: any) {
   const defaultIcon = '🍒'
   const icons = ['🍒', '🍋', '🍊', '🍇', '💎', '7️⃣']
 
@@ -128,6 +128,7 @@ function SlotMachineGame({ isSpinning, results }: any) {
         </View>
         <button
           className="w-full py-3 bg-gradient-to-r from-red-600 to-orange-500 text-white rounded-lg font-bold text-lg shadow-lg"
+          onClick={onSpin}
           disabled={isSpinning}
         >
           {isSpinning ? '🎰 转动中...' : '开始'}
@@ -302,6 +303,7 @@ export default function IndexPage() {
       case 'slotmachine':
         return (
           <SlotMachineGame
+            onSpin={handleSpin}
             isSpinning={isSpinning}
             results={gameState.slotResults}
           />
@@ -369,9 +371,50 @@ export default function IndexPage() {
 
       if (res.data.code === 200) {
         const { prize, isWon } = res.data.data
+        const gameType = activity?.gameType || 'wheel'
 
-        // 根据奖品类型匹配转盘位置
-        let prizeIndex = 5
+        // 老虎机游戏特殊处理
+        if (gameType === 'slotmachine') {
+          const icons = ['🍒', '🍋', '🍊', '🍇', '💎', '7️⃣']
+          let finalResults: string[]
+
+          if (isWon) {
+            // 中奖：三个相同图标
+            const winIcon = icons[Math.floor(Math.random() * icons.length)]
+            finalResults = [winIcon, winIcon, winIcon]
+          } else {
+            // 未中奖：三个不同图标
+            finalResults = [
+              icons[Math.floor(Math.random() * icons.length)],
+              icons[Math.floor(Math.random() * icons.length)],
+              icons[Math.floor(Math.random() * icons.length)]
+            ]
+            // 确保三个图标不全部相同
+            while (finalResults[0] === finalResults[1] && finalResults[1] === finalResults[2]) {
+              finalResults[2] = icons[Math.floor(Math.random() * icons.length)]
+            }
+          }
+
+          setGameState({ ...gameState, slotResults: finalResults })
+
+          setTimeout(() => {
+            setIsSpinning(false)
+            setLastResult({ prize, isWon, result: res.data.data.record.result })
+            setRemainingCount(prev => Math.max(0, prev - 1))
+
+            Taro.showModal({
+              title: isWon ? '🎉 恭喜中奖！' : '😊 再接再厉',
+              content: res.data.data.record.result,
+              showCancel: false
+            })
+
+            fetchUserInfo()
+          }, 2000)
+        }
+        // 转盘游戏处理
+        else if (gameType === 'wheel') {
+          // 根据奖品类型匹配转盘位置
+          let prizeIndex = 5
         if (isWon && prize) {
           prizeIndex = prizes.findIndex(p => p.type === prize.type && p.name.includes(prize.type === 'coupon' ? '优惠券' : prize.type === 'redpacket' ? '红包' : '奖品'))
           if (prizeIndex === -1) {
@@ -399,6 +442,23 @@ export default function IndexPage() {
 
           fetchUserInfo()
         }, 4000)
+        }
+        // 其他游戏类型
+        else {
+          setTimeout(() => {
+            setIsSpinning(false)
+            setLastResult({ prize, isWon, result: res.data.data.record.result })
+            setRemainingCount(prev => Math.max(0, prev - 1))
+
+            Taro.showModal({
+              title: isWon ? '🎉 恭喜中奖！' : '😊 再接再厉',
+              content: res.data.data.record.result,
+              showCancel: false
+            })
+
+            fetchUserInfo()
+          }, 1500)
+        }
       }
     } catch (error: any) {
       setIsSpinning(false)

@@ -170,6 +170,33 @@ export default function ActivityPage() {
 
   const toggleActivityStatus = async (activity: any) => {
     const newStatus = activity.status === 'active' ? 'paused' : 'active'
+
+    // 如果要启用活动，需要检测冲突
+    if (newStatus === 'active') {
+      // 检查是否有其他活动是 active 状态
+      const otherActiveActivities = activities.filter(
+        a => a.id !== activity.id && a.status === 'active'
+      )
+
+      if (otherActiveActivities.length > 0) {
+        // 先禁用其他 active 活动
+        for (const otherActivity of otherActiveActivities) {
+          await Network.request({
+            url: `/api/activity/${otherActivity.id}`,
+            method: 'PUT',
+            data: { ...otherActivity, status: 'paused' }
+          })
+        }
+
+        // 显示提示
+        Taro.showModal({
+          title: '活动冲突检测',
+          content: `已自动禁用 ${otherActiveActivities.length} 个其他活动`,
+          showCancel: false
+        })
+      }
+    }
+
     try {
       await Network.request({
         url: `/api/activity/${activity.id}`,
