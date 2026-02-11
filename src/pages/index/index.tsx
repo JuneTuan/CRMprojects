@@ -182,44 +182,41 @@ export default function IndexPage() {
 
         {/* 转盘外圈 */}
         <View className="relative w-[25vh] h-[25vh] mx-auto rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 shadow-2xl p-1.5">
-          {/* 转盘主体 */}
+          {/* 转盘主体 - 一次性绘制所有扇形 */}
           <View
-            className="w-full h-full rounded-full relative overflow-hidden bg-white"
+            className="w-full h-full rounded-full relative overflow-hidden"
             style={{
+              background: prizes.map((prize, index) => {
+                const segmentAngle = 360 / prizes.length // 45度
+                const startAngle = index * segmentAngle
+                return `${prize.color} ${startAngle}deg ${startAngle + segmentAngle}deg`
+              }).join(', '),
               transform: `rotate(${rotation}deg)`,
               transition: isSpinning ? 'transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)' : 'none',
             }}
           >
-            {/* 8个扇形 - 使用conic-gradient绘制 */}
+            {/* 奖品文字 */}
             {prizes.map((prize, index) => {
               const segmentAngle = 360 / prizes.length // 45度
               const startAngle = index * segmentAngle
+              const midAngle = startAngle + segmentAngle / 2
               const isEven = index % 2 === 0
 
               return (
                 <View
                   key={index}
-                  className="absolute top-0 left-0 w-full h-full"
+                  className="absolute flex flex-col items-center"
                   style={{
-                    background: `conic-gradient(from ${startAngle}deg at 50% 50%, ${prize.color} 0deg, ${prize.color} ${segmentAngle}deg, transparent ${segmentAngle}deg)`,
-                    clipPath: 'polygon(50% 50%, 50% 0%, 100% 50%, 50% 100%, 0% 50%)',
+                    top: '25%',
+                    left: '50%',
+                    transform: `translateX(-50%) rotate(${midAngle}deg)`,
+                    transformOrigin: '50% 133%',
                   }}
                 >
-                  {/* 奖品文字 */}
-                  <View
-                    className="absolute flex flex-col items-center"
-                    style={{
-                      top: '22%',
-                      left: '50%',
-                      transform: `translateX(-50%) rotate(${startAngle + segmentAngle / 2}deg)`,
-                      transformOrigin: '50% 143%',
-                    }}
-                  >
-                    <Text className="text-lg mb-0.5">{prize.icon}</Text>
-                    <Text className={`text-[8px] font-bold leading-tight ${isEven ? 'text-white' : 'text-gray-800'}`}>
-                      {prize.name}
-                    </Text>
-                  </View>
+                  <Text className="text-lg mb-0.5">{prize.icon}</Text>
+                  <Text className={`text-[8px] font-bold leading-tight ${isEven ? 'text-white' : 'text-gray-800'}`}>
+                    {prize.name}
+                  </Text>
                 </View>
               )
             })}
