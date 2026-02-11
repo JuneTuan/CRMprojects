@@ -1,8 +1,7 @@
 import { View, Text, Picker } from '@tarojs/components'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Taro from '@tarojs/taro'
 import { Network } from '@/network'
-import './index.css'
 
 export default function IndexPage() {
   const [customers, setCustomers] = useState<any[]>([])
@@ -23,19 +22,7 @@ export default function IndexPage() {
     { name: '谢谢参与', color: '#FFE66D', icon: '😊' },
   ]
 
-  useEffect(() => {
-    fetchCustomers()
-    checkLogin()
-  }, [])
-
-  const checkLogin = () => {
-    const token = Taro.getStorageSync('token')
-    if (!token) {
-      Taro.redirectTo({ url: '/pages/login/index' })
-    }
-  }
-
-  const fetchCustomers = async () => {
+  const fetchCustomers = useCallback(async () => {
     try {
       const res = await Network.request({
         url: '/api/customer',
@@ -51,7 +38,19 @@ export default function IndexPage() {
     } catch (error) {
       console.error('获取客户列表失败:', error)
     }
-  }
+  }, [])
+
+  const checkLogin = useCallback(() => {
+    const token = Taro.getStorageSync('token')
+    if (!token) {
+      Taro.redirectTo({ url: '/pages/login/index' })
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchCustomers()
+    checkLogin()
+  }, [fetchCustomers, checkLogin])
 
   const fetchTodayCount = async (customerId: string) => {
     try {

@@ -2,7 +2,6 @@ import { View, Text } from '@tarojs/components'
 import { useState } from 'react'
 import Taro from '@tarojs/taro'
 import { Network } from '@/network'
-import './index.css'
 
 export default function LoginPage() {
   const [username, setUsername] = useState('')

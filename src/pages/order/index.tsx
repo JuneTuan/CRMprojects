@@ -1,7 +1,6 @@
 import { View, Text, Button } from '@tarojs/components'
 import { useState } from 'react'
 import Taro from '@tarojs/taro'
-import './index.css'
 
 export default function OrderPage() {
   const [orders] = useState<any[]>([])

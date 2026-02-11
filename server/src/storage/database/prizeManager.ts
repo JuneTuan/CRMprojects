@@ -1,11 +1,10 @@
-import { eq, and, SQL } from "drizzle-orm";
+import { eq, and, SQL, sql } from "drizzle-orm";
 import { getDb } from "coze-coding-dev-sdk";
 import { prizes, insertPrizeSchema, updatePrizeSchema } from "./shared/schema";
-import type { Prize, InsertPrize, UpdatePrize } from "./shared/schema";
 import * as schema from "./shared/schema";
 
 export class PrizeManager {
-  async createPrize(data: InsertPrize): Promise<Prize> {
+  async createPrize(data: any): Promise<any> {
     const db = await getDb(schema);
     const validated = insertPrizeSchema.parse(data);
     const [prize] = await db.insert(prizes).values(validated).returning();
@@ -15,8 +14,8 @@ export class PrizeManager {
   async getPrizes(options: {
     skip?: number;
     limit?: number;
-    filters?: Partial<Pick<Prize, 'id' | 'type' | 'isActive'>>
-  } = {}): Promise<Prize[]> {
+    filters?: Partial<Pick<any, 'id' | 'type'>>
+  } = {}): Promise<any[]> {
     const { skip = 0, limit = 100, filters = {} } = options;
     const db = await getDb(schema);
 
@@ -28,34 +27,33 @@ export class PrizeManager {
       conditions.push(eq(prizes.type, filters.type));
     }
 
-    const results = await db.query.prizes.findMany({
-      where: conditions.length > 0 ? and(...conditions) : undefined,
-      limit,
-      offset: skip,
-      orderBy: { createdAt: "desc" as any },
-    });
+    const results = await db.select().from(prizes)
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
+      .limit(limit)
+      .offset(skip)
+      .orderBy(sql`${prizes.createdAt} DESC`);
 
     return results;
   }
 
-  async getAvailablePrizes(): Promise<Prize[]> {
+  async getAvailablePrizes(): Promise<any[]> {
     const db = await getDb(schema);
-    const results = await db.query.prizes.findMany({
-      where: eq(prizes.isActive, true),
-      orderBy: { probability: "asc" as any },
-    });
+    const results = await db.select().from(prizes)
+      .orderBy(sql`${prizes.probability} ASC`);
+
     return results;
   }
 
-  async getPrizeById(id: string): Promise<Prize | null> {
+  async getPrizeById(id: string): Promise<any | null> {
     const db = await getDb(schema);
-    const prize = await db.query.prizes.findFirst({
-      where: eq(prizes.id, id),
-    });
-    return prize || null;
+    const prize = await db.select().from(prizes)
+      .where(eq(prizes.id, id))
+      .limit(1);
+
+    return prize[0] || null;
   }
 
-  async updatePrize(id: string, data: UpdatePrize): Promise<Prize | null> {
+  async updatePrize(id: string, data: any): Promise<any | null> {
     const db = await getDb(schema);
     const validated = updatePrizeSchema.parse(data);
     const [prize] = await db
@@ -74,17 +72,15 @@ export class PrizeManager {
 
   async decreasePrizeQuantity(prizeId: string): Promise<void> {
     const db = await getDb(schema);
-    await db.schema.updateTable('prizes')
+    await db
+      .update(prizes)
       .set({
-        remainingQuantity: sql`${prizes.remainingQuantity} - 1`
+        remainingQuantity: sql`${prizes.remainingQuantity} - 1`,
+        updatedAt: new Date()
       })
       .where(
-        and(
-          eq(prizes.id, prizeId),
-          eq(prizes.isActive, true)
-        )
-      )
-      .execute();
+        eq(prizes.id, prizeId)
+      );
   }
 }
 

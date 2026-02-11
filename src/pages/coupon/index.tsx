@@ -1,6 +1,5 @@
 import { View, Text } from '@tarojs/components'
 import { useState } from 'react'
-import './index.css'
 
 export default function CouponPage() {
   const [coupons] = useState<any[]>([])

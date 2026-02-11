@@ -1,6 +1,5 @@
 import { View, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import './index.css'
 
 export default function ProfilePage() {
   const navigateTo = (path: string) => {
