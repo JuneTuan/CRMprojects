@@ -1,58 +1,64 @@
-import { View, Text, Picker } from '@tarojs/components'
+import { View, Text } from '@tarojs/components'
 import { useState, useEffect, useCallback } from 'react'
 import Taro from '@tarojs/taro'
 import { Network } from '@/network'
 
 export default function IndexPage() {
-  const [customers, setCustomers] = useState<any[]>([])
-  const [selectedCustomerId, setSelectedCustomerId] = useState('')
   const [isSpinning, setIsSpinning] = useState(false)
   const [rotation, setRotation] = useState(0)
   const [remainingCount, setRemainingCount] = useState(3)
   const [lastResult, setLastResult] = useState<any>(null)
+  const [userInfo, setUserInfo] = useState<any>(null)
+  const [customer, setCustomer] = useState<any>(null)
 
+  // 10个奖品，只有1个"谢谢参与"，95%中奖率
   const prizes = [
-    { name: '5元优惠券', color: '#FF6B6B', icon: '🧧' },
-    { name: '10元红包', color: '#4ECDC4', icon: '🧧' },
-    { name: '20元优惠券', color: '#FF9F43', icon: '🎫' },
-    { name: '30元红包', color: '#5F27CD', icon: '🧧' },
-    { name: '50元优惠券', color: '#FF6B6B', icon: '🎁' },
-    { name: '谢谢参与', color: '#FFE66D', icon: '😊' },
-    { name: '50元红包', color: '#4ECDC4', icon: '🧧' },
-    { name: '100元优惠券', color: '#FF9F43', icon: '🎁' },
-    { name: '神秘奖品', color: '#95E1D3', icon: '🎉' },
-    { name: '200元红包', color: '#5F27CD', icon: '🧧' },
+    { name: '5元优惠券', color: '#FF6B6B', icon: '🧧', type: 'coupon' },
+    { name: '10元红包', color: '#4ECDC4', icon: '🧧', type: 'redpacket' },
+    { name: '20元优惠券', color: '#FF9F43', icon: '🎫', type: 'coupon' },
+    { name: '30元红包', color: '#5F27CD', icon: '🧧', type: 'redpacket' },
+    { name: '50元优惠券', color: '#FF6B6B', icon: '🎁', type: 'coupon' },
+    { name: '谢谢参与', color: '#FFE66D', icon: '😊', type: 'none' },
+    { name: '50元红包', color: '#4ECDC4', icon: '🧧', type: 'redpacket' },
+    { name: '100元优惠券', color: '#FF9F43', icon: '🎁', type: 'coupon' },
+    { name: '神秘奖品', color: '#95E1D3', icon: '🎉', type: 'item' },
+    { name: '200元红包', color: '#5F27CD', icon: '🧧', type: 'redpacket' },
   ]
 
-  const fetchCustomers = useCallback(async () => {
+  const checkLogin = useCallback(() => {
+    const token = Taro.getStorageSync('token')
+    const user = Taro.getStorageSync('userInfo')
+    if (!token || !user) {
+      Taro.redirectTo({ url: '/pages/login/index' })
+      return null
+    }
+    return user
+  }, [])
+
+  const fetchUserInfo = useCallback(async () => {
+    const user = checkLogin()
+    if (!user) return
+
+    setUserInfo(user)
+
+    // 查找与用户关联的客户
     try {
       const res = await Network.request({
         url: '/api/customer',
         method: 'GET'
       })
       if (res.data.code === 200) {
-        setCustomers(res.data.data || [])
-        if (res.data.data.length > 0) {
-          setSelectedCustomerId(res.data.data[0].id)
-          fetchTodayCount(res.data.data[0].id)
+        const customers = res.data.data || []
+        // 使用第一个客户作为当前用户的客户
+        if (customers.length > 0) {
+          setCustomer(customers[0])
+          fetchTodayCount(customers[0].id)
         }
       }
     } catch (error) {
-      console.error('获取客户列表失败:', error)
+      console.error('获取客户信息失败:', error)
     }
-  }, [])
-
-  const checkLogin = useCallback(() => {
-    const token = Taro.getStorageSync('token')
-    if (!token) {
-      Taro.redirectTo({ url: '/pages/login/index' })
-    }
-  }, [])
-
-  useEffect(() => {
-    fetchCustomers()
-    checkLogin()
-  }, [fetchCustomers, checkLogin])
+  }, [checkLogin])
 
   const fetchTodayCount = async (customerId: string) => {
     try {
@@ -69,10 +75,9 @@ export default function IndexPage() {
     }
   }
 
-  const handleCustomerChange = (e: any) => {
-    setSelectedCustomerId(e.detail.value)
-    fetchTodayCount(customers[e.detail.value].id)
-  }
+  useEffect(() => {
+    fetchUserInfo()
+  }, [fetchUserInfo])
 
   const handleSpin = async () => {
     if (isSpinning) return
@@ -80,8 +85,8 @@ export default function IndexPage() {
       Taro.showToast({ title: '今日抽奖次数已用完', icon: 'none' })
       return
     }
-    if (!selectedCustomerId) {
-      Taro.showToast({ title: '请选择客户', icon: 'none' })
+    if (!customer) {
+      Taro.showToast({ title: '请先创建客户信息', icon: 'none' })
       return
     }
 
@@ -92,19 +97,27 @@ export default function IndexPage() {
       const res = await Network.request({
         url: '/api/lottery/draw',
         method: 'POST',
-        data: { customerId: selectedCustomerId }
+        data: { customerId: customer.id }
       })
 
       if (res.data.code === 200) {
         const { prize, isWon } = res.data.data
 
-        const prizeIndex = isWon
-          ? prizes.findIndex(p => p.name.includes(prize.type === 'coupon' ? '优惠券' : prize.type === 'redpacket' ? '红包' : '奖品'))
-          : prizes.findIndex(p => p.name === '谢谢参与')
+        // 根据奖品类型匹配转盘位置
+        let prizeIndex = 5 // 默认"谢谢参与"的位置
+        if (isWon && prize) {
+          // 匹配对应类型的第一个奖品
+          prizeIndex = prizes.findIndex(p => p.type === prize.type && p.name.includes(prize.type === 'coupon' ? '优惠券' : prize.type === 'redpacket' ? '红包' : '奖品'))
+          if (prizeIndex === -1) {
+            // 如果没找到，随机选择一个中奖位置
+            const winnableIndices = [0, 1, 2, 3, 4, 6, 7, 8, 9]
+            prizeIndex = winnableIndices[Math.floor(Math.random() * winnableIndices.length)]
+          }
+        }
 
         const spins = 5
-        const segmentAngle = 360 / prizes.length
-        const finalAngle = rotation + (360 * spins) + (segmentAngle * prizeIndex) + (segmentAngle / 2)
+        const segmentAngle = 360 / prizes.length // 36度
+        const finalAngle = rotation + (360 * spins) - (segmentAngle * prizeIndex)
 
         setRotation(finalAngle)
 
@@ -118,6 +131,9 @@ export default function IndexPage() {
             content: res.data.data.record.result,
             showCancel: false
           })
+
+          // 刷新客户信息（积分可能变化）
+          fetchUserInfo()
         }, 4000)
       }
     } catch (error: any) {
@@ -125,8 +141,6 @@ export default function IndexPage() {
       Taro.showToast({ title: error.message || '抽奖失败', icon: 'none' })
     }
   }
-
-  const selectedCustomer = customers.find(c => c.id === selectedCustomerId)
 
   return (
     <View className="min-h-screen bg-gradient-to-b from-red-600 to-orange-500 p-4">
@@ -137,41 +151,34 @@ export default function IndexPage() {
         <Text className="text-sm text-red-100 mt-1">好运连连，惊喜不断</Text>
       </View>
 
-      {/* 客户选择 */}
+      {/* 用户信息卡片 */}
       <View className="bg-white rounded-2xl p-4 mb-6 shadow-lg">
-        <Text className="block text-sm font-semibold text-gray-800 mb-2">选择参与客户</Text>
-        <Picker
-          mode="selector"
-          range={customers.map(c => c.name)}
-          value={customers.findIndex(c => c.id === selectedCustomerId)}
-          onChange={handleCustomerChange}
-        >
-          <View className="bg-gray-50 rounded-lg p-3 flex justify-between items-center">
-            <Text className={selectedCustomer ? 'text-gray-800' : 'text-gray-400'}>
-              {selectedCustomer ? selectedCustomer.name : '请选择客户'}
-            </Text>
-            <Text className="text-gray-400">›</Text>
-          </View>
-        </Picker>
-        {selectedCustomer && (
-          <View className="mt-3 flex justify-between items-center">
+        <View className="flex justify-between items-center mb-3">
+          <Text className="text-sm font-bold text-gray-800">👤 用户信息</Text>
+          <Text className="text-xs text-gray-400">{userInfo?.name || '管理员'}</Text>
+        </View>
+        {customer && (
+          <View className="flex justify-between items-center">
             <View className="flex items-center">
               <Text className="text-xs text-gray-500">积分:</Text>
-              <Text className="text-xs font-bold text-orange-500 ml-1">{selectedCustomer.points}</Text>
+              <Text className="text-lg font-bold text-orange-500 ml-2">{customer.points}</Text>
             </View>
             <View className="flex items-center">
               <Text className="text-xs text-gray-500">剩余次数:</Text>
-              <Text className="text-xs font-bold text-red-500 ml-1">{remainingCount}/3</Text>
+              <Text className="text-lg font-bold text-red-500 ml-2">{remainingCount}/3</Text>
             </View>
           </View>
+        )}
+        {!customer && (
+          <Text className="text-xs text-gray-400">请先在客户管理中创建客户信息</Text>
         )}
       </View>
 
       {/* 转盘区域 */}
       <View className="relative mb-6">
         {/* 指针 */}
-        <View className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-4 z-20">
-          <View className="w-0 h-0 border-l-[12px] border-r-[12px] border-t-[24px] border-l-transparent border-r-transparent border-t-yellow-400" />
+        <View className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-3 z-20">
+          <View className="w-0 h-0 border-l-[10px] border-r-[10px] border-t-[20px] border-l-transparent border-r-transparent border-t-yellow-400" />
         </View>
 
         {/* 转盘外圈 */}
@@ -186,30 +193,28 @@ export default function IndexPage() {
           >
             {/* 奖品区域 */}
             {prizes.map((prize, index) => {
-              const angle = (360 / prizes.length) * index
-              const segmentAngle = 360 / prizes.length
+              const segmentAngle = 360 / prizes.length // 36度
+              const startAngle = segmentAngle * index
               const isEven = index % 2 === 0
 
               return (
                 <View
                   key={index}
-                  className="absolute w-full h-full"
+                  className="absolute"
                   style={{
-                    transform: `rotate(${angle}deg)`,
-                    transformOrigin: '50% 50%',
+                    left: '50%',
+                    top: '50%',
+                    width: '50%',
+                    height: '50%',
+                    transformOrigin: 'top left',
+                    transform: `translate(-50%, -50%) rotate(${startAngle + segmentAngle / 2}deg)`,
                   }}
                 >
                   {/* 扇形背景 */}
                   <View
-                    className="absolute"
+                    className="absolute top-0 left-0 w-full h-full"
                     style={{
-                      left: '50%',
-                      top: '50%',
-                      width: '160px',
-                      height: '160px',
-                      background: prize.color,
-                      transformOrigin: '0 0',
-                      transform: `translate(-50%, -50%) rotate(${segmentAngle / 2}deg)`,
+                      background: `conic-gradient(from ${270 - segmentAngle / 2}deg at 50% 0, ${prize.color} 0deg, ${prize.color} ${segmentAngle}deg, transparent ${segmentAngle}deg)`,
                       clipPath: 'polygon(0 0, 100% 0, 50% 100%)',
                     }}
                   />
@@ -218,10 +223,10 @@ export default function IndexPage() {
                   <View
                     className="absolute flex flex-col items-center"
                     style={{
+                      top: '30%',
                       left: '50%',
-                      top: '22%',
-                      transform: `translateX(-50%) rotate(${segmentAngle / 2}deg)`,
-                      width: '70px',
+                      transform: 'translateX(-50%)',
+                      width: '60px',
                       textAlign: 'center',
                     }}
                   >
@@ -263,7 +268,7 @@ export default function IndexPage() {
         <View className="space-y-2">
           <View className="flex items-start">
             <Text className="text-white/90 text-xs mr-2">•</Text>
-            <Text className="text-white/90 text-xs">每位客户每天可抽奖3次</Text>
+            <Text className="text-white/90 text-xs">每天可抽奖3次</Text>
           </View>
           <View className="flex items-start">
             <Text className="text-white/90 text-xs mr-2">•</Text>
