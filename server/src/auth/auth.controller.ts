@@ -1,59 +1,26 @@
-import { Controller, Post, Body, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, Get, UseGuards, Request } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { LoginDto } from './dto/login.dto';
+import { RegisterDto } from './dto/register.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private authService: AuthService) {}
 
   @Post('login')
-  async login(@Body() body: { username: string; password: string }) {
-    try {
-      console.log('登录请求:', body);
-      const result = await this.authService.login(body.username, body.password);
-      return {
-        code: 200,
-        msg: '登录成功',
-        data: result
-      };
-    } catch (error: any) {
-      console.error('登录错误:', error.message);
-      throw new HttpException(
-        {
-          code: 400,
-          msg: error.message || '登录失败',
-          data: null
-        },
-        HttpStatus.BAD_REQUEST
-      );
-    }
+  async login(@Body() loginDto: LoginDto) {
+    return this.authService.login(loginDto);
   }
 
   @Post('register')
-  async register(@Body() body: {
-    username: string;
-    password: string;
-    name: string;
-    role: string;
-    phone?: string;
-  }) {
-    try {
-      console.log('注册请求:', body);
-      const result = await this.authService.register(body);
-      return {
-        code: 200,
-        msg: '注册成功',
-        data: result
-      };
-    } catch (error: any) {
-      console.error('注册错误:', error.message);
-      throw new HttpException(
-        {
-          code: 400,
-          msg: error.message || '注册失败',
-          data: null
-        },
-        HttpStatus.BAD_REQUEST
-      );
-    }
+  async register(@Body() registerDto: RegisterDto) {
+    return this.authService.register(registerDto);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get('profile')
+  async getProfile(@Request() req) {
+    return req.user;
   }
 }

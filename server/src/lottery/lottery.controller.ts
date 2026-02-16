@@ -1,79 +1,38 @@
-import { Controller, Get, Post, Body, Query, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Put, Body, Param, UseGuards } from '@nestjs/common';
 import { LotteryService } from './lottery.service';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('lottery')
 export class LotteryController {
-  constructor(private readonly lotteryService: LotteryService) {}
+  constructor(private lotteryService: LotteryService) {}
 
-  @Post('draw')
-  async draw(@Body() body: { customerId: string, activityId?: string, usePoints?: boolean }) {
-    try {
-      const data = await this.lotteryService.draw(body.customerId, body.activityId, body.usePoints);
-      return {
-        code: 200,
-        msg: '抽奖成功',
-        data
-      };
-    } catch (error: any) {
-      throw new HttpException({
-        code: 400,
-        msg: error.message,
-        data: null
-      }, HttpStatus.BAD_REQUEST);
-    }
-  }
-
+  @UseGuards(AuthGuard('jwt'))
   @Get('records')
-  async getRecords(@Query() query: { customerId: string }) {
-    try {
-      const data = await this.lotteryService.getRecords(query.customerId);
-      return {
-        code: 200,
-        msg: '获取成功',
-        data
-      };
-    } catch (error: any) {
-      throw new HttpException({
-        code: 400,
-        msg: error.message,
-        data: null
-      }, HttpStatus.BAD_REQUEST);
-    }
+  async findAllRecords() {
+    return this.lotteryService.findAllRecords();
   }
 
-  @Get('count')
-  async getTodayCount(@Query() query: { customerId: string }) {
-    try {
-      const data = await this.lotteryService.getTodayCount(query.customerId);
-      return {
-        code: 200,
-        msg: '获取成功',
-        data: { count: data }
-      };
-    } catch (error: any) {
-      throw new HttpException({
-        code: 400,
-        msg: error.message,
-        data: null
-      }, HttpStatus.BAD_REQUEST);
-    }
+  @UseGuards(AuthGuard('jwt'))
+  @Get('records/customer/:customerId')
+  async findRecordsByCustomer(@Param('customerId') customerId: number) {
+    return this.lotteryService.findRecordsByCustomer(customerId);
   }
 
-  @Post('reset')
-  async resetTodayCount(@Body() body: { customerId: string }) {
-    try {
-      await this.lotteryService.resetTodayCount(body.customerId);
-      return {
-        code: 200,
-        msg: '重置成功',
-        data: null
-      };
-    } catch (error: any) {
-      throw new HttpException({
-        code: 400,
-        msg: error.message,
-        data: null
-      }, HttpStatus.BAD_REQUEST);
-    }
+  @UseGuards(AuthGuard('jwt'))
+  @Get('draw-info/:customerId/:activityId')
+  async getCustomerDrawInfo(@Param('customerId') customerId: number, @Param('activityId') activityId: number) {
+    return this.lotteryService.getCustomerDrawInfo(customerId, activityId);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Post('draw')
+  async draw(@Body() drawDto: any) {
+    return this.lotteryService.draw(drawDto.customerId, drawDto.activityId, drawDto.gameTypeId);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Put('records/:id/claim')
+  async claimPrize(@Param('id') id: number) {
+    return this.lotteryService.claimPrize(id);
   }
 }

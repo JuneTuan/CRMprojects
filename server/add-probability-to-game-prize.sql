@@ -1,0 +1,1 @@
+ALTER TABLE `game_prize` ADD COLUMN `probability` DECIMAL(5,2) NOT NULL DEFAULT 0 AFTER `prize_id`;

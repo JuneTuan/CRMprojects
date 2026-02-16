@@ -1,0 +1,1 @@
+ALTER TABLE `prize` DROP COLUMN `probability`;

@@ -1,0 +1,1 @@
+ALTER TABLE `order` ADD COLUMN `coupon_discount_amount` DECIMAL(10,2) NULL AFTER `coupon_id`;

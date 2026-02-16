@@ -1,34 +1,64 @@
-import { Injectable } from '@nestjs/common';
-import { prizeManager } from '../storage/database';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Prize } from './prize.entity';
+import { CreatePrizeDto } from './dto/create-prize.dto';
+import { UpdatePrizeDto } from './dto/update-prize.dto';
 
 @Injectable()
 export class PrizeService {
-  async getPrizes(query: any) {
-    const { skip, limit, ...filters } = query;
-    return prizeManager.getPrizes({
-      skip: skip ? parseInt(skip) : undefined,
-      limit: limit ? parseInt(limit) : undefined,
-      filters
+  constructor(
+    @InjectRepository(Prize) private prizeRepository: Repository<Prize>,
+  ) {}
+
+  async findAll(page: number = 1, pageSize: number = 10, keyword?: string) {
+    const queryBuilder = this.prizeRepository.createQueryBuilder('prize');
+
+    if (keyword) {
+      queryBuilder.andWhere(
+        '(prize.prizeName LIKE :keyword OR prize.description LIKE :keyword)',
+        { keyword: `%${keyword}%` }
+      );
+    }
+
+    queryBuilder.orderBy('prize.createdAt', 'DESC');
+
+    const [data, total] = await queryBuilder
+      .skip((page - 1) * pageSize)
+      .take(pageSize)
+      .getManyAndCount();
+
+    return {
+      data,
+      total,
+      page,
+      pageSize,
+    };
+  }
+
+  async findOne(id: number) {
+    const prize = await this.prizeRepository.findOne({
+      where: { prizeId: id },
     });
+    if (!prize) {
+      throw new NotFoundException(`Prize with ID ${id} not found`);
+    }
+    return prize;
   }
 
-  async getAvailablePrizes() {
-    return prizeManager.getAvailablePrizes();
+  async create(createPrizeDto: CreatePrizeDto) {
+    const prize = this.prizeRepository.create(createPrizeDto);
+    return this.prizeRepository.save(prize);
   }
 
-  async getPrizeById(id: string) {
-    return prizeManager.getPrizeById(id);
+  async update(id: number, updatePrizeDto: UpdatePrizeDto) {
+    const prize = await this.findOne(id);
+    Object.assign(prize, updatePrizeDto);
+    return this.prizeRepository.save(prize);
   }
 
-  async createPrize(data: any) {
-    return prizeManager.createPrize(data);
-  }
-
-  async updatePrize(id: string, data: any) {
-    return prizeManager.updatePrize(id, data);
-  }
-
-  async deletePrize(id: string) {
-    return prizeManager.deletePrize(id);
+  async remove(id: number) {
+    const prize = await this.findOne(id);
+    return this.prizeRepository.remove(prize);
   }
 }

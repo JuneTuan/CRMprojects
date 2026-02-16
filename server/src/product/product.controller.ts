@@ -1,111 +1,80 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { ProductService } from './product.service';
+import { CreateProductDto } from './dto/create-product.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
+import { CreateCategoryDto } from './dto/create-category.dto';
+import { UpdateCategoryDto } from './dto/update-category.dto';
+import { AuthGuard } from '@nestjs/passport';
 
-@Controller('product')
+@Controller('products')
 export class ProductController {
-  constructor(private readonly productService: ProductService) {}
+  constructor(private productService: ProductService) {}
 
   @Get()
-  async list(@Query() query: any) {
-    try {
-      const data = await this.productService.getProducts(query);
-      return {
-        code: 200,
-        msg: '获取成功',
-        data
-      };
-    } catch (error: any) {
-      throw new HttpException({
-        code: 400,
-        msg: error.message,
-        data: null
-      }, HttpStatus.BAD_REQUEST);
-    }
+  async findAll(
+    @Query('page') page: string = '1',
+    @Query('pageSize') pageSize: string = '10',
+    @Query('search') search?: string,
+    @Query('sortBy') sortBy: string = 'createdAt',
+    @Query('sortOrder') sortOrder: 'ASC' | 'DESC' = 'DESC',
+  ) {
+    return this.productService.findAll(
+      parseInt(page),
+      parseInt(pageSize),
+      search,
+      sortBy,
+      sortOrder
+    );
+  }
+
+  @Get('categories')
+  async getCategories() {
+    return this.productService.getCategories();
   }
 
   @Get(':id')
-  async get(@Param('id') id: string) {
-    try {
-      const data = await this.productService.getProductById(id);
-      if (!data) {
-        throw new HttpException({
-          code: 404,
-          msg: '产品不存在',
-          data: null
-        }, HttpStatus.NOT_FOUND);
-      }
-      return {
-        code: 200,
-        msg: '获取成功',
-        data
-      };
-    } catch (error: any) {
-      throw new HttpException({
-        code: 400,
-        msg: error.message,
-        data: null
-      }, HttpStatus.BAD_REQUEST);
-    }
+  async findOne(@Param('id') id: number) {
+    return this.productService.findOne(id);
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Post()
-  async create(@Body() body: any) {
-    try {
-      const data = await this.productService.createProduct(body);
-      return {
-        code: 200,
-        msg: '创建成功',
-        data
-      };
-    } catch (error: any) {
-      throw new HttpException({
-        code: 400,
-        msg: error.message,
-        data: null
-      }, HttpStatus.BAD_REQUEST);
-    }
+  async create(@Body() createProductDto: CreateProductDto) {
+    return this.productService.create(createProductDto);
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Put(':id')
-  async update(@Param('id') id: string, @Body() body: any) {
-    try {
-      const data = await this.productService.updateProduct(id, body);
-      if (!data) {
-        throw new HttpException({
-          code: 404,
-          msg: '产品不存在',
-          data: null
-        }, HttpStatus.NOT_FOUND);
-      }
-      return {
-        code: 200,
-        msg: '更新成功',
-        data
-      };
-    } catch (error: any) {
-      throw new HttpException({
-        code: 400,
-        msg: error.message,
-        data: null
-      }, HttpStatus.BAD_REQUEST);
-    }
+  async update(@Param('id') id: number, @Body() updateProductDto: UpdateProductDto) {
+    return this.productService.update(id, updateProductDto);
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
-  async delete(@Param('id') id: string) {
-    try {
-      const data = await this.productService.deleteProduct(id);
-      return {
-        code: 200,
-        msg: '删除成功',
-        data: { success: data }
-      };
-    } catch (error: any) {
-      throw new HttpException({
-        code: 400,
-        msg: error.message,
-        data: null
-      }, HttpStatus.BAD_REQUEST);
-    }
+  async remove(@Param('id') id: number) {
+    return this.productService.remove(id);
+  }
+
+  @Get('category/:category')
+  async findByCategory(@Param('category') category: string) {
+    return this.productService.findByCategory(parseInt(category));
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Post('categories')
+  async createCategory(@Body() createCategoryDto: CreateCategoryDto) {
+    return this.productService.createCategory(createCategoryDto);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Put('categories/:id')
+  async updateCategory(@Param('id') id: number, @Body() updateCategoryDto: UpdateCategoryDto) {
+    return this.productService.updateCategory(id, updateCategoryDto);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Delete('categories/:id')
+  async removeCategory(@Param('id') id: number) {
+    return this.productService.removeCategory(id);
   }
 }

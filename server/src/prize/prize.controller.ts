@@ -1,129 +1,40 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Query } from '@nestjs/common';
 import { PrizeService } from './prize.service';
+import { CreatePrizeDto } from './dto/create-prize.dto';
+import { UpdatePrizeDto } from './dto/update-prize.dto';
+import { AuthGuard } from '@nestjs/passport';
 
-@Controller('prize')
+@Controller('prizes')
 export class PrizeController {
-  constructor(private readonly prizeService: PrizeService) {}
+  constructor(private prizeService: PrizeService) {}
 
   @Get()
-  async list(@Query() query: any) {
-    try {
-      const data = await this.prizeService.getPrizes(query);
-      return {
-        code: 200,
-        msg: '获取成功',
-        data
-      };
-    } catch (error: any) {
-      throw new HttpException({
-        code: 400,
-        msg: error.message,
-        data: null
-      }, HttpStatus.BAD_REQUEST);
-    }
-  }
-
-  @Get('available')
-  async getAvailable() {
-    try {
-      const data = await this.prizeService.getAvailablePrizes();
-      return {
-        code: 200,
-        msg: '获取成功',
-        data
-      };
-    } catch (error: any) {
-      throw new HttpException({
-        code: 400,
-        msg: error.message,
-        data: null
-      }, HttpStatus.BAD_REQUEST);
-    }
+  async findAll(@Query('page') page: string = '1', @Query('pageSize') pageSize: string = '10', @Query('keyword') keyword?: string) {
+    const pageNum = parseInt(page, 10) || 1;
+    const pageSizeNum = parseInt(pageSize, 10) || 10;
+    return this.prizeService.findAll(pageNum, pageSizeNum, keyword);
   }
 
   @Get(':id')
-  async get(@Param('id') id: string) {
-    try {
-      const data = await this.prizeService.getPrizeById(id);
-      if (!data) {
-        throw new HttpException({
-          code: 404,
-          msg: '奖品不存在',
-          data: null
-        }, HttpStatus.NOT_FOUND);
-      }
-      return {
-        code: 200,
-        msg: '获取成功',
-        data
-      };
-    } catch (error: any) {
-      throw new HttpException({
-        code: 400,
-        msg: error.message,
-        data: null
-      }, HttpStatus.BAD_REQUEST);
-    }
+  async findOne(@Param('id') id: number) {
+    return this.prizeService.findOne(id);
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Post()
-  async create(@Body() body: any) {
-    try {
-      const data = await this.prizeService.createPrize(body);
-      return {
-        code: 200,
-        msg: '创建成功',
-        data
-      };
-    } catch (error: any) {
-      throw new HttpException({
-        code: 400,
-        msg: error.message,
-        data: null
-      }, HttpStatus.BAD_REQUEST);
-    }
+  async create(@Body() createPrizeDto: CreatePrizeDto) {
+    return this.prizeService.create(createPrizeDto);
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Put(':id')
-  async update(@Param('id') id: string, @Body() body: any) {
-    try {
-      const data = await this.prizeService.updatePrize(id, body);
-      if (!data) {
-        throw new HttpException({
-          code: 404,
-          msg: '奖品不存在',
-          data: null
-        }, HttpStatus.NOT_FOUND);
-      }
-      return {
-        code: 200,
-        msg: '更新成功',
-        data
-      };
-    } catch (error: any) {
-      throw new HttpException({
-        code: 400,
-        msg: error.message,
-        data: null
-      }, HttpStatus.BAD_REQUEST);
-    }
+  async update(@Param('id') id: number, @Body() updatePrizeDto: UpdatePrizeDto) {
+    return this.prizeService.update(id, updatePrizeDto);
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
-  async delete(@Param('id') id: string) {
-    try {
-      const data = await this.prizeService.deletePrize(id);
-      return {
-        code: 200,
-        msg: '删除成功',
-        data: { success: data }
-      };
-    } catch (error: any) {
-      throw new HttpException({
-        code: 400,
-        msg: error.message,
-        data: null
-      }, HttpStatus.BAD_REQUEST);
-    }
+  async remove(@Param('id') id: number) {
+    return this.prizeService.remove(id);
   }
 }

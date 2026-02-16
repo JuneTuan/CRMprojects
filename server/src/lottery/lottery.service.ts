@@ -1,141 +1,204 @@
-import { Injectable } from '@nestjs/common';
-import { lotteryManager, prizeManager, couponManager, customerManager, lotterySettingManager, activityManager } from '../storage/database';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { LotteryRecord } from './lottery-record.entity';
+import { ActivityService } from '../activity/activity.service';
+import { CustomerService } from '../customer/customer.service';
+import { PrizeService } from '../prize/prize.service';
+import { CouponService } from '../coupon/coupon.service';
+import { CustomerCoupon } from '../coupon/customer-coupon.entity';
 
 @Injectable()
 export class LotteryService {
-  async draw(customerId: string, activityId?: string, usePoints: boolean = false) {
-    const customer = await customerManager.getCustomerById(customerId);
-    if (!customer) {
-      throw new Error('客户不存在');
-    }
+  constructor(
+    @InjectRepository(LotteryRecord) private lotteryRecordRepository: Repository<LotteryRecord>,
+    @InjectRepository(CustomerCoupon) private customerCouponRepository: Repository<CustomerCoupon>,
+    private activityService: ActivityService,
+    private customerService: CustomerService,
+    private prizeService: PrizeService,
+    private couponService: CouponService,
+  ) {}
 
-    // 优先使用活动配置，否则使用全局配置
-    let freeDrawsPerDay = 3;
-    let pointsPerDraw = 10;
-    let enablePointsDraw = true;
+  async findAllRecords() {
+    return this.lotteryRecordRepository.find({
+      relations: ['customer', 'activity', 'gameType', 'prize'],
+      order: { drawTime: 'DESC' },
+    });
+  }
 
-    if (activityId) {
-      const activity = await activityManager.getActivityById(activityId);
-      if (activity) {
-        freeDrawsPerDay = activity.dailyFreeDraws || 3;
-        pointsPerDraw = activity.pointsPerDraw || 10;
-        enablePointsDraw = activity.pointsEnabled !== false;
-      }
-    } else {
-      // 使用全局配置
-      const lotterySetting = await lotterySettingManager.getActiveLotterySetting();
-      freeDrawsPerDay = lotterySetting?.freeDrawsPerDay || 3;
-      pointsPerDraw = lotterySetting?.pointsPerDraw || 10;
-      enablePointsDraw = lotterySetting?.enablePointsDraw !== false;
-    }
+  async findRecordsByCustomer(customerId: number) {
+    await this.customerService.findOne(customerId);
 
-    // 检查今日免费抽奖次数
-    const todayCount = await lotteryManager.getTodayLotteryCount(customerId);
+    return this.lotteryRecordRepository.find({
+      where: { customerId },
+      relations: ['activity', 'gameType', 'prize'],
+      order: { drawTime: 'DESC' },
+    });
+  }
 
-    // 判断是免费抽奖还是积分抽奖
-    let isPointsDraw = usePoints;
-    let pointsConsumed = 0;
+  async getCustomerDrawInfo(customerId: number, activityId: number) {
+    const customer = await this.customerService.findOne(customerId);
+    const activity = await this.activityService.findOne(activityId);
 
-    if (todayCount < freeDrawsPerDay) {
-      // 还有免费次数
-      isPointsDraw = false;
-    } else if (usePoints && enablePointsDraw) {
-      // 主动使用积分抽奖
-      isPointsDraw = true;
-    } else if (todayCount >= freeDrawsPerDay && !enablePointsDraw) {
-      // 免费次数用完且未启用积分抽奖
-      throw new Error('今日免费抽奖次数已用完');
-    } else {
-      // 免费次数用完，需要消耗积分
-      isPointsDraw = true;
-    }
-
-    // 积分抽奖检查
-    if (isPointsDraw) {
-      if (!enablePointsDraw) {
-        throw new Error('积分抽奖未启用');
-      }
-      if ((customer.points || 0) < pointsPerDraw) {
-        throw new Error(`积分不足，需要${pointsPerDraw}积分`);
-      }
-    }
-
-    const prizes = await prizeManager.getAvailablePrizes();
-    if (prizes.length === 0) {
-      throw new Error('暂无可用奖品');
-    }
-
-    // 扣除积分（如果是积分抽奖）
-    if (isPointsDraw) {
-      await customerManager.updateCustomer(customerId, {
-        points: (customer.points || 0) - pointsPerDraw
-      });
-      pointsConsumed = pointsPerDraw;
-    }
-
-    const result = this.randomPrize(prizes);
-    const isWon = result !== null;
-
-    const record = await lotteryManager.createLotteryRecord({
-      customerId,
-      prizeId: isWon ? result!.id : null,
-      isWon,
-      result: isWon ? `恭喜获得${result!.name}` : '很遗憾，未中奖'
+    const freeDrawsPerActivity = 3;
+    const usedFreeDraws = await this.lotteryRecordRepository.count({
+      where: { 
+        customerId, 
+        activityId,
+        costPoints: 0 
+      },
     });
 
-    if (isWon && result) {
-      await prizeManager.decreasePrizeQuantity(result.id);
-
-      if (result.type === 'coupon' || result.type === 'redpacket') {
-        await couponManager.createCoupon({
-          customerId,
-          prizeId: result.id,
-          code: `CPN${Date.now()}${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
-          status: 'claimed'
-        });
-      }
-    }
+    const remainingFreeDraws = Math.max(0, freeDrawsPerActivity - usedFreeDraws);
+    const canUsePoints = remainingFreeDraws === 0 && customer.points >= activity.minPoints;
 
     return {
-      record,
-      prize: result,
-      isWon,
-      isPointsDraw,
-      pointsConsumed
+      remainingFreeDraws,
+      pointsCost: activity.minPoints,
+      customerPoints: customer.points,
+      canUsePoints,
+      canDraw: remainingFreeDraws > 0 || canUsePoints,
     };
   }
 
-  private randomPrize(prizes: any[]): any | null {
-    const WIN_RATE = 0.95;
+  async draw(customerId: number, activityId: number, gameTypeId: number) {
+    const customer = await this.customerService.findOne(customerId);
+    const activity = await this.activityService.findOne(activityId);
 
-    if (Math.random() > WIN_RATE) {
-      return null;
+    if (activity.status !== '进行中') {
+      throw new BadRequestException('活动未进行中');
     }
 
-    const totalProbability = prizes.reduce((sum, p) => sum + p.probability, 0);
-    let random = Math.random() * totalProbability;
+    const now = new Date();
+    if (now < activity.startTime || now > activity.endTime) {
+      throw new BadRequestException('活动不在有效期内');
+    }
 
-    for (const prize of prizes) {
-      if (prize.remainingQuantity <= 0) continue;
+    const activityGame = activity.activityGames.find(
+      game => game.gameTypeId === gameTypeId && game.isActive,
+    );
+    if (!activityGame) {
+      throw new BadRequestException('该游戏在此活动中不可用');
+    }
 
-      random -= prize.probability;
-      if (random <= 0) {
-        return prize;
+    const gamePrizes = activityGame.gamePrizes;
+    if (!gamePrizes || gamePrizes.length === 0) {
+      throw new BadRequestException('该游戏暂无可用奖品');
+    }
+
+    const freeDrawsPerActivity = 3;
+    const usedFreeDraws = await this.lotteryRecordRepository.count({
+      where: { 
+        customerId, 
+        activityId,
+        costPoints: 0 
+      },
+    });
+
+    const remainingFreeDraws = Math.max(0, freeDrawsPerActivity - usedFreeDraws);
+    let costPoints = 0;
+
+    if (remainingFreeDraws > 0) {
+      costPoints = 0;
+    } else {
+      costPoints = activity.minPoints;
+      if (customer.points < costPoints) {
+        throw new BadRequestException(`积分不足，需要${costPoints}积分`);
       }
     }
 
-    return prizes.find(p => p.remainingQuantity > 0) || null;
+    const totalProbability = gamePrizes.reduce((sum, gp) => sum + gp.probability, 0);
+    const random = Math.random() * totalProbability;
+
+    let currentProbability = 0;
+    let winningPrize = null;
+
+    for (const gp of gamePrizes) {
+      currentProbability += gp.probability;
+      if (random <= currentProbability) {
+        winningPrize = gp.prize;
+        break;
+      }
+    }
+
+    if (winningPrize && winningPrize.remainingQuantity <= 0) {
+      winningPrize = null;
+    }
+
+    if (costPoints > 0) {
+      await this.customerService.usePoints(customerId, costPoints, '抽奖消耗');
+    }
+
+    let assignedCouponId = null;
+    if (winningPrize && winningPrize.type === '券') {
+      const availableCoupons = await this.couponService.findAvailableCoupons();
+      if (availableCoupons.length === 0) {
+        throw new BadRequestException('暂无可用优惠券');
+      }
+
+      const randomCoupon = availableCoupons[Math.floor(Math.random() * availableCoupons.length)];
+      
+      const customerCoupon = this.customerCouponRepository.create({
+        customerId,
+        couponId: randomCoupon.couponId,
+        status: '未使用',
+        receivedAt: new Date(),
+      });
+      const savedCustomerCoupon = await this.customerCouponRepository.save(customerCoupon);
+      assignedCouponId = savedCustomerCoupon.id;
+
+      randomCoupon.remainingQuantity -= 1;
+      await this.couponService.update(randomCoupon.couponId, {
+        totalQuantity: randomCoupon.totalQuantity,
+        remainingQuantity: randomCoupon.remainingQuantity,
+      });
+    }
+
+    const lotteryRecord = this.lotteryRecordRepository.create({
+      customerId,
+      activityId,
+      gameTypeId,
+      prizeId: winningPrize?.prizeId || null,
+      prizeName: winningPrize?.prizeName || null,
+      couponId: assignedCouponId,
+      status: winningPrize ? '未领取' : '未中奖',
+      drawCount: 1,
+      costPoints,
+      drawTime: new Date(),
+    });
+
+    if (winningPrize) {
+      winningPrize.remainingQuantity -= 1;
+      await this.prizeService.update(winningPrize.prizeId, {
+        prizeName: winningPrize.prizeName,
+        description: winningPrize.description,
+        type: winningPrize.type,
+        value: winningPrize.value,
+        imageUrl: winningPrize.imageUrl,
+        quantity: winningPrize.quantity,
+        remainingQuantity: winningPrize.remainingQuantity,
+        status: winningPrize.status,
+      });
+    }
+
+    return this.lotteryRecordRepository.save(lotteryRecord);
   }
 
-  async getRecords(customerId: string) {
-    return lotteryManager.getLotteryRecords(customerId);
-  }
+  async claimPrize(id: number) {
+    const lotteryRecord = await this.lotteryRecordRepository.findOne({
+      where: { lotteryRecordId: id },
+    });
+    if (!lotteryRecord) {
+      throw new NotFoundException(`抽奖记录不存在`);
+    }
 
-  async getTodayCount(customerId: string) {
-    return lotteryManager.getTodayLotteryCount(customerId);
-  }
+    if (lotteryRecord.status !== '未领取') {
+      throw new BadRequestException('奖品已领取或未中奖');
+    }
 
-  async resetTodayCount(customerId: string) {
-    await lotteryManager.resetTodayLotteryCount(customerId);
+    lotteryRecord.status = '已领取';
+    lotteryRecord.claimTime = new Date();
+
+    return this.lotteryRecordRepository.save(lotteryRecord);
   }
 }

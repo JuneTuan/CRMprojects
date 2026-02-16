@@ -1,0 +1,1 @@
+ALTER TABLE `lottery_record` ADD COLUMN `coupon_id` INT NULL AFTER `prize_name`;

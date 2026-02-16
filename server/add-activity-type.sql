@@ -1,0 +1,1 @@
+ALTER TABLE `activity` ADD COLUMN `activity_type` ENUM('游戏活动', '积分活动', '优惠券活动', '混合活动') DEFAULT '游戏活动' AFTER `activity_code`;

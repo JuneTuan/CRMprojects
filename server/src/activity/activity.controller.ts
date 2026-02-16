@@ -1,229 +1,67 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards } from '@nestjs/common';
 import { ActivityService } from './activity.service';
+import { CreateActivityDto } from './dto/create-activity.dto';
+import { UpdateActivityDto } from './dto/update-activity.dto';
+import { AuthGuard } from '@nestjs/passport';
 
-@Controller('activity')
+@Controller('activities')
 export class ActivityController {
-  constructor(private readonly activityService: ActivityService) {}
+  constructor(private activityService: ActivityService) {}
 
-  // 获取所有活动
   @Get()
-  async list() {
-    try {
-      const data = await this.activityService.getAll();
-      return {
-        code: 200,
-        msg: '获取成功',
-        data
-      };
-    } catch (error: any) {
-      throw new HttpException({
-        code: 400,
-        msg: error.message,
-        data: null
-      }, HttpStatus.BAD_REQUEST);
-    }
+  async findAll() {
+    return this.activityService.findAll();
   }
 
-  // 获取游戏类型列表
-  @Get('game-types')
-  async getGameTypes() {
-    try {
-      const data = this.activityService.getGameTypes();
-      return {
-        code: 200,
-        msg: '获取成功',
-        data
-      };
-    } catch (error: any) {
-      throw new HttpException({
-        code: 400,
-        msg: error.message,
-        data: null
-      }, HttpStatus.BAD_REQUEST);
-    }
-  }
-
-  // 获取当前活动的活动
-  @Get('active')
-  async getActive() {
-    try {
-      const data = await this.activityService.getActive();
-      if (!data) {
-        return {
-          code: 200,
-          msg: '当前无活动',
-          data: null
-        }
-      }
-      return {
-        code: 200,
-        msg: '获取成功',
-        data
-      };
-    } catch (error: any) {
-      throw new HttpException({
-        code: 400,
-        msg: error.message,
-        data: null
-      }, HttpStatus.BAD_REQUEST);
-    }
-  }
-
-  // 获取单个活动
   @Get(':id')
-  async get(@Param('id') id: string) {
-    try {
-      const data = await this.activityService.getById(id);
-      return {
-        code: 200,
-        msg: '获取成功',
-        data
-      };
-    } catch (error: any) {
-      throw new HttpException({
-        code: 400,
-        msg: error.message,
-        data: null
-      }, HttpStatus.BAD_REQUEST);
-    }
+  async findOne(@Param('id') id: number) {
+    return this.activityService.findOne(id);
   }
 
-  // 创建活动
+  @UseGuards(AuthGuard('jwt'))
   @Post()
-  async create(@Body() body: any) {
-    try {
-      const data = await this.activityService.create(body);
-      return {
-        code: 200,
-        msg: '创建成功',
-        data
-      };
-    } catch (error: any) {
-      throw new HttpException({
-        code: 400,
-        msg: error.message,
-        data: null
-      }, HttpStatus.BAD_REQUEST);
-    }
+  async create(@Body() createActivityDto: CreateActivityDto) {
+    return this.activityService.create(createActivityDto);
   }
 
-  // 更新活动
+  @UseGuards(AuthGuard('jwt'))
   @Put(':id')
-  async update(@Param('id') id: string, @Body() body: any) {
-    try {
-      const data = await this.activityService.update(id, body);
-      return {
-        code: 200,
-        msg: '更新成功',
-        data
-      };
-    } catch (error: any) {
-      throw new HttpException({
-        code: 400,
-        msg: error.message,
-        data: null
-      }, HttpStatus.BAD_REQUEST);
-    }
+  async update(@Param('id') id: number, @Body() updateActivityDto: UpdateActivityDto) {
+    return this.activityService.update(id, updateActivityDto);
   }
 
-  // 删除活动
+  @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
-  async delete(@Param('id') id: string) {
-    try {
-      await this.activityService.delete(id);
-      return {
-        code: 200,
-        msg: '删除成功',
-        data: null
-      };
-    } catch (error: any) {
-      throw new HttpException({
-        code: 400,
-        msg: error.message,
-        data: null
-      }, HttpStatus.BAD_REQUEST);
-    }
+  async remove(@Param('id') id: number) {
+    return this.activityService.remove(id);
   }
 
-  // 获取活动配置
-  @Get(':id/configs')
-  async getConfigs(@Param('id') id: string) {
-    try {
-      const data = await this.activityService.getConfigs(id);
-      return {
-        code: 200,
-        msg: '获取成功',
-        data
-      };
-    } catch (error: any) {
-      throw new HttpException({
-        code: 400,
-        msg: error.message,
-        data: null
-      }, HttpStatus.BAD_REQUEST);
-    }
+  @Get('game-types/all')
+  async findAllGameTypes() {
+    return this.activityService.findAllGameTypes();
   }
 
-  // 添加活动配置
-  @Post(':id/configs')
-  async addConfig(@Param('id') id: string, @Body() body: any) {
-    try {
-      const data = await this.activityService.addConfig({
-        ...body,
-        activityId: id
-      });
-      return {
-        code: 200,
-        msg: '添加成功',
-        data
-      };
-    } catch (error: any) {
-      throw new HttpException({
-        code: 400,
-        msg: error.message,
-        data: null
-      }, HttpStatus.BAD_REQUEST);
-    }
+  @UseGuards(AuthGuard('jwt'))
+  @Post('game-types')
+  async createGameType(@Body() createGameTypeDto: any) {
+    return this.activityService.createGameType(createGameTypeDto);
   }
 
-  // 获取活动奖品列表
-  @Get(':id/prizes')
-  async getPrizes(@Param('id') id: string) {
-    try {
-      const data = await this.activityService.getPrizes(id);
-      return {
-        code: 200,
-        msg: '获取成功',
-        data
-      };
-    } catch (error: any) {
-      throw new HttpException({
-        code: 400,
-        msg: error.message,
-        data: null
-      }, HttpStatus.BAD_REQUEST);
-    }
+  @UseGuards(AuthGuard('jwt'))
+  @Post(':id/games')
+  async addGameToActivity(@Param('id') activityId: number, @Body() addGameDto: any) {
+    return this.activityService.addGameToActivity(activityId, addGameDto);
   }
 
-  // 添加活动奖品
-  @Post(':id/prizes')
-  async addPrize(@Param('id') id: string, @Body() body: any) {
-    try {
-      const data = await this.activityService.addPrize({
-        ...body,
-        activityId: id
-      });
-      return {
-        code: 200,
-        msg: '添加成功',
-        data
-      };
-    } catch (error: any) {
-      throw new HttpException({
-        code: 400,
-        msg: error.message,
-        data: null
-      }, HttpStatus.BAD_REQUEST);
-    }
+  @UseGuards(AuthGuard('jwt'))
+  @Post(':activityId/games/:gameId/prizes')
+  async addPrizeToGame(@Param('activityId') activityId: number, @Param('gameId') gameId: number, @Body() addPrizeDto: any) {
+    return this.activityService.addPrizeToGame(activityId, gameId, addPrizeDto);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Put(':id/games')
+  async updateActivityGames(@Param('id') id: number, @Body() gamesData: any) {
+    return this.activityService.updateActivityGames(id, gamesData);
   }
 }
