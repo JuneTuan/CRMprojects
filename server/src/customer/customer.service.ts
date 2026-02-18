@@ -20,7 +20,7 @@ export class CustomerService {
 
     if (search) {
       queryBuilder.where(
-        '(customer.customerName LIKE :search OR customer.phone LIKE :search OR customer.email LIKE :search)',
+        '(customer.customerName LIKE :search OR customer.customerCode LIKE :search OR customer.phone LIKE :search OR customer.email LIKE :search)',
         { search: `%${search}%` }
       );
     }
@@ -152,5 +152,18 @@ export class CustomerService {
     await this.pointsRecordRepository.save(pointsRecord);
 
     return { customer, pointsRecord };
+  }
+
+  async updateConsumption(id: number, amount: number) {
+    const customer = await this.findOne(id);
+    if (amount <= 0) {
+      throw new BadRequestException('Amount must be positive');
+    }
+
+    const currentConsumption = parseFloat(customer.totalConsumption?.toString() || '0');
+    const newConsumption = parseFloat((currentConsumption + amount).toFixed(2));
+    customer.totalConsumption = newConsumption;
+    const saved = await this.customerRepository.save(customer);
+    return saved;
   }
 }

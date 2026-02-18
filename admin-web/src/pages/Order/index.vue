@@ -56,6 +56,24 @@
             </el-tag>
           </template>
         </el-table-column>
+        <el-table-column prop="memberLevel" label="会员等级" width="100">
+          <template #default="scope">
+            <div v-if="scope.row.customer?.memberLevel" style="display: flex; align-items: center; gap: 5px;">
+              <el-icon v-if="scope.row.customer.memberLevel.iconCode" :size="16" color="#409eff">
+                <component :is="scope.row.customer.memberLevel.iconCode" />
+              </el-icon>
+              <el-tag :type="getLevelTagType(scope.row.customer.memberLevel.levelName)">
+                {{ scope.row.customer.memberLevel.levelName }}
+              </el-tag>
+            </div>
+            <el-tag v-else type="info">普通会员</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="totalConsumption" label="消费额" width="120">
+          <template #default="scope">
+            ¥{{ Number(scope.row.customer?.totalConsumption || 0).toFixed(2) }}
+          </template>
+        </el-table-column>
         <el-table-column prop="isPoints" label="积分" width="100">
           <template #default="scope">
             <el-tag v-if="scope.row.isPoints" type="success">+{{ scope.row.points }}</el-tag>
@@ -99,7 +117,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="客户" prop="customerId">
-              <el-select v-model="form.customerId" placeholder="请选择客户" filterable>
+              <el-select v-model="form.customerId" placeholder="请选择客户" filterable @change="handleCustomerChange">
                 <el-option
                   v-for="customer in customers"
                   :key="customer.customerId"
@@ -113,14 +131,39 @@
 
         <el-row :gutter="20">
           <el-col :span="12">
+            <el-form-item label="当前消费额">
+              <span v-if="currentCustomer">¥{{ Number(currentCustomer.totalConsumption || 0).toFixed(2) }}</span>
+              <span v-else>-</span>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="预计消费额">
+              <span v-if="currentCustomer && form.actualAmount">¥{{ (Number(currentCustomer.totalConsumption || 0) + form.actualAmount).toFixed(2) }}</span>
+              <span v-else>-</span>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row :gutter="20">
+          <el-col :span="12">
             <el-form-item label="订单状态" prop="status">
-              <el-select v-model="form.status" placeholder="请选择状态">
+              <el-select v-model="form.status" placeholder="请选择状态" @change="handleStatusChange">
                 <el-option label="待支付" value="待支付" />
                 <el-option label="已支付" value="已支付" />
                 <el-option label="已发货" value="已发货" />
                 <el-option label="已完成" value="已完成" />
                 <el-option label="已取消" value="已取消" />
               </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12" v-if="form.status === '已完成' && predictedLevel">
+            <el-form-item label="预计等级">
+              <el-tag :type="getLevelTagType(predictedLevel.levelName)" effect="dark">
+                {{ predictedLevel.levelName }}
+              </el-tag>
+              <el-icon v-if="currentCustomerLevel && predictedLevel.levelId !== currentCustomerLevel.levelId" style="margin-left: 10px; color: #67c23a;">
+                <ArrowUp />
+              </el-icon>
             </el-form-item>
           </el-col>
         </el-row>
@@ -224,7 +267,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
 import { ElMessage, ElMessageBox, ElForm } from 'element-plus';
-import { Search, Plus, Delete } from '@element-plus/icons-vue';
+import { Search, Plus, Delete, ArrowUp } from '@element-plus/icons-vue';
 import type { FormInstance, FormRules } from 'element-plus';
 import request from '@/api';
 
@@ -237,11 +280,15 @@ const formRef = ref<FormInstance>();
 const tableData = ref<any[]>([]);
 const customers = ref<any[]>([]);
 const products = ref<any[]>([]);
+const memberLevels = ref<any[]>([]);
 const searchKeyword = ref('');
 const currentPage = ref(1);
 const pageSize = ref(10);
 const total = ref(0);
 const currentOrder = ref<any>({});
+const currentCustomer = ref<any>(null);
+const currentCustomerLevel = ref<any>(null);
+const predictedLevel = ref<any>(null);
 
 const form = reactive({
   orderId: null as number | null,
@@ -326,6 +373,71 @@ const getProducts = async () => {
     console.log('产品列表:', products.value);
   } catch (error) {
     console.error('获取产品列表失败:', error);
+  }
+};
+
+const getMemberLevels = async () => {
+  try {
+    const response: any = await request.get('/member-level');
+    memberLevels.value = response || [];
+    console.log('会员等级列表:', memberLevels.value);
+  } catch (error) {
+    console.error('获取会员等级列表失败:', error);
+  }
+};
+
+const getLevelTagType = (levelName: string) => {
+  const map: Record<string, any> = {
+    '普通会员': 'info',
+    '白银会员': '',
+    '黄金会员': 'warning',
+    '钻石会员': 'danger',
+  };
+  return map[levelName] || '';
+};
+
+const handleCustomerChange = async () => {
+  if (!form.customerId) {
+    currentCustomer.value = null;
+    currentCustomerLevel.value = null;
+    predictedLevel.value = null;
+    return;
+  }
+
+  const customer = customers.value.find(c => c.customerId === form.customerId);
+  if (customer) {
+    currentCustomer.value = customer;
+    currentCustomerLevel.value = customer.memberLevel || null;
+    calculatePredictedLevel();
+  }
+};
+
+const calculatePredictedLevel = () => {
+  if (!currentCustomer.value || !form.actualAmount) {
+    predictedLevel.value = null;
+    return;
+  }
+
+  const currentConsumption = Number(currentCustomer.value.totalConsumption || 0);
+  const predictedConsumption = currentConsumption + form.actualAmount;
+
+  const sortedLevels = [...memberLevels.value].sort((a, b) => a.minConsumption - b.minConsumption);
+  
+  for (let i = sortedLevels.length - 1; i >= 0; i--) {
+    if (predictedConsumption >= sortedLevels[i].minConsumption) {
+      predictedLevel.value = sortedLevels[i];
+      return;
+    }
+  }
+
+  predictedLevel.value = sortedLevels[0] || null;
+};
+
+const handleStatusChange = () => {
+  if (form.status === '已完成') {
+    calculatePredictedLevel();
+  } else {
+    predictedLevel.value = null;
   }
 };
 
@@ -441,6 +553,7 @@ const calculateTotal = () => {
   } else {
     form.points = 0;
   }
+  calculatePredictedLevel();
 };
 
 const handlePointsChange = () => {
@@ -511,6 +624,7 @@ onMounted(() => {
   getOrders();
   getCustomers();
   getProducts();
+  getMemberLevels();
 });
 </script>
 

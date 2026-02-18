@@ -25,6 +25,10 @@
           <el-icon><Document /></el-icon>
           <span>订单管理</span>
         </el-menu-item>
+        <el-menu-item index="/member-level">
+          <el-icon><Medal /></el-icon>
+          <span>会员等级</span>
+        </el-menu-item>
         <el-menu-item index="/coupon">
           <el-icon><Ticket /></el-icon>
           <span>优惠券管理</span>

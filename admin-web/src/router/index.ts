@@ -71,6 +71,12 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/pages/Role/index.vue'),
         meta: { title: '角色管理' },
       },
+      {
+        path: '/member-level',
+        name: 'MemberLevel',
+        component: () => import('@/pages/MemberLevel/index.vue'),
+        meta: { title: '会员等级管理' },
+      },
     ],
   },
 ];

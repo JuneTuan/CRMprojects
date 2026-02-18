@@ -18,6 +18,7 @@ import { GameType } from '../activity/game-type.entity';
 import { GamePrize } from '../activity/game-prize.entity';
 import { Prize } from '../prize/prize.entity';
 import { LotteryRecord } from '../lottery/lottery-record.entity';
+import { MemberLevel } from '../member-level/member-level.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from '../auth/strategies/jwt.strategy';
@@ -39,6 +40,7 @@ import { AuthModule } from '../auth/auth.module';
       GamePrize,
       Prize,
       LotteryRecord,
+      MemberLevel,
     ]),
     JwtModule.register({
       secret: 'your-secret-key',

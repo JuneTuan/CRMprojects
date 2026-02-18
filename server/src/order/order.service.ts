@@ -9,6 +9,7 @@ import { ProductService } from '../product/product.service';
 import { CustomerService } from '../customer/customer.service';
 import { PointsRecordService } from '../customer/points-record.service';
 import { CouponService } from '../coupon/coupon.service';
+import { MemberLevelService } from '../member-level/member-level.service';
 
 @Injectable()
 export class OrderService {
@@ -19,6 +20,7 @@ export class OrderService {
     private customerService: CustomerService,
     private pointsRecordService: PointsRecordService,
     private couponService: CouponService,
+    private memberLevelService: MemberLevelService,
   ) {}
 
   async findAll(
@@ -32,6 +34,7 @@ export class OrderService {
     
     const queryBuilder = this.orderRepository.createQueryBuilder('o')
       .leftJoinAndSelect('o.customer', 'customer')
+      .leftJoinAndSelect('customer.memberLevel', 'memberLevel')
       .leftJoinAndSelect('o.coupon', 'coupon')
       .leftJoinAndSelect('o.orderItems', 'orderItems');
 
@@ -59,7 +62,7 @@ export class OrderService {
   async findOne(id: number) {
     const order = await this.orderRepository.findOne({
       where: { orderId: id },
-      relations: ['customer', 'coupon', 'orderItems'],
+      relations: ['customer', 'customer.memberLevel', 'coupon', 'orderItems'],
     });
     if (!order) {
       throw new NotFoundException(`Order with ID ${id} not found`);
@@ -76,7 +79,7 @@ export class OrderService {
   }
 
   async create(createOrderDto: CreateOrderDto) {
-    await this.customerService.findOne(createOrderDto.customerId);
+    const customer = await this.customerService.findOne(createOrderDto.customerId);
 
     for (const item of createOrderDto.orderItems) {
       const product = await this.productService.findOne(item.productId);
@@ -136,6 +139,12 @@ export class OrderService {
         savedOrder.points,
         `订单 ${savedOrder.orderNo} 完成获得积分`,
       );
+    }
+
+    if (savedOrder.status === '已完成') {
+      await this.customerService.updateConsumption(savedOrder.customerId, Number(savedOrder.actualAmount));
+
+      await this.memberLevelService.checkAndUpgradeLevel(savedOrder.customerId);
     }
 
     return this.findOne(savedOrder.orderId);
@@ -206,6 +215,10 @@ export class OrderService {
           `订单 ${order.orderNo} 完成获得积分`,
         );
       }
+
+      await this.customerService.updateConsumption(order.customerId, Number(order.actualAmount));
+
+      await this.memberLevelService.checkAndUpgradeLevel(order.customerId);
     }
     
     return this.findOne(id);

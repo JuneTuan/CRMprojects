@@ -14,6 +14,7 @@ import { LotteryModule } from './lottery/lottery.module';
 import { StatisticsModule } from './statistics/statistics.module';
 import { H5Module } from './h5/h5.module';
 import { UploadModule } from './upload/upload.module';
+import { MemberLevelModule } from './member-level/member-level.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -56,6 +57,7 @@ import { AppService } from './app.service';
     StatisticsModule,
     H5Module,
     UploadModule,
+    MemberLevelModule,
   ],
   controllers: [AppController],
   providers: [AppService],

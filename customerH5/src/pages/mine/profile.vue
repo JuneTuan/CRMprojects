@@ -105,6 +105,7 @@
         <view class="info-item">
           <text class="info-label">会员等级</text>
           <view class="level-badge">
+            <text class="level-icon">{{ getLevelIcon(formData.levelIcon) }}</text>
             <text class="level-text">{{ formData.level || '普通会员' }}</text>
           </view>
         </view>
@@ -141,6 +142,36 @@ const formData = ref({
 })
 
 const loading = ref(false)
+
+const iconMap = {
+  'User': '👤',
+  'UserFilled': '👤',
+  'Avatar': '👤',
+  'Medal': '🏅',
+  'Trophy': '🏆',
+  'Star': '⭐',
+  'StarFilled': '⭐',
+  'Crown': '👑',
+  'Diamond': '💎',
+  'Sunny': '☀️',
+  'Moon': '🌙',
+  'CircleCheck': '✅',
+  'CircleCheckFilled': '✅',
+  'SuccessFilled': '✅',
+  'Warning': '⚠️',
+  'WarningFilled': '⚠️',
+  'CirclePlus': '➕',
+  'CirclePlusFilled': '➕',
+  'Promotion': '📈',
+  'TrendCharts': '📊',
+  'DataAnalysis': '📈',
+  'PieChart': '📊',
+  'Histogram': '📊',
+}
+
+const getLevelIcon = (iconCode) => {
+  return iconMap[iconCode] || '👤'
+}
 
 onMounted(() => {
   console.log('个人资料页面已挂载')
@@ -455,6 +486,13 @@ const handleSave = async () => {
   padding: 8rpx 24rpx;
   border-radius: 30rpx;
   box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.level-icon {
+  font-size: 28rpx;
 }
 
 .level-text {

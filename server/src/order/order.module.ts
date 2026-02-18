@@ -7,6 +7,7 @@ import { OrderItem } from './order-item.entity';
 import { ProductModule } from '../product/product.module';
 import { CustomerModule } from '../customer/customer.module';
 import { CouponModule } from '../coupon/coupon.module';
+import { MemberLevelModule } from '../member-level/member-level.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { CouponModule } from '../coupon/coupon.module';
     ProductModule,
     CustomerModule,
     CouponModule,
+    MemberLevelModule,
   ],
   controllers: [OrderController],
   providers: [OrderService],

@@ -12,7 +12,7 @@
       <div class="search-bar">
         <el-input
           v-model="searchKeyword"
-          placeholder="搜索姓名、手机号或邮箱"
+          placeholder="搜索姓名、用户名、手机号或邮箱"
           clearable
           @clear="handleSearch"
           @keyup.enter="handleSearch"
@@ -26,7 +26,7 @@
       
       <el-table :data="tableData" style="width: 100%" v-loading="loading">
         <el-table-column prop="customerName" label="姓名" />
-        <el-table-column prop="customerCode" label="客户编码" />
+        <el-table-column prop="customerCode" label="用户名" />
         <el-table-column prop="phone" label="手机号" />
         <el-table-column prop="email" label="邮箱" />
         <el-table-column prop="level" label="会员等级" />
@@ -190,7 +190,10 @@ const form = reactive({
 
 const rules = reactive<FormRules>({
   customerName: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
-  phone: [{ required: true, message: '请输入手机号', trigger: 'blur' }],
+  phone: [
+    { required: true, message: '请输入手机号', trigger: 'blur' },
+    { pattern: /^1[3-9]\d{9}$/, message: '请输入有效的手机号（以1开头，共11位）', trigger: 'blur' }
+  ],
   email: [{ type: 'email', message: '请输入有效的邮箱地址', trigger: 'blur' }],
   level: [{ required: true, message: '请选择会员等级', trigger: 'change' }],
 });

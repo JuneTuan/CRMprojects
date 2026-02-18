@@ -82,7 +82,7 @@ const handleLogin = async () => {
     })
     setTimeout(() => {
       uni.switchTab({
-        url: '/pages/index/index'
+        url: '/pages/activity/index'
       })
     }, 1000)
   } catch (error) {

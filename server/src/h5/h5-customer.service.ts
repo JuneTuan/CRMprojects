@@ -3,22 +3,27 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Customer } from '../customer/customer.entity';
 import { PointsRecord } from '../customer/points-record.entity';
+import { MemberLevel } from '../member-level/member-level.entity';
 
 @Injectable()
 export class H5CustomerService {
   constructor(
     @InjectRepository(Customer) private customerRepository: Repository<Customer>,
     @InjectRepository(PointsRecord) private pointsRecordRepository: Repository<PointsRecord>,
+    @InjectRepository(MemberLevel) private memberLevelRepository: Repository<MemberLevel>,
   ) {}
 
   async getCustomerInfo(customerId: number) {
     const customer = await this.customerRepository.findOne({
       where: { customerId },
+      relations: ['memberLevel'],
     });
 
     if (!customer) {
       throw new NotFoundException('客户不存在');
     }
+
+    const memberLevel = customer.memberLevel;
 
     return {
       customerId: customer.customerId,
@@ -27,10 +32,14 @@ export class H5CustomerService {
       phone: customer.phone,
       email: customer.email,
       points: customer.points,
-      level: customer.level,
+      level: memberLevel ? memberLevel.levelName : '普通会员',
+      levelCode: memberLevel ? memberLevel.levelCode : 'normal',
+      levelIcon: memberLevel ? memberLevel.iconCode : 'User',
       avatar: customer.avatar,
       position: customer.position,
-      address: customer.address
+      address: customer.address,
+      totalConsumption: customer.totalConsumption,
+      memberLevelId: customer.memberLevelId,
     };
   }
 
@@ -53,11 +62,14 @@ export class H5CustomerService {
   async getProfile(customerId: number) {
     const customer = await this.customerRepository.findOne({
       where: { customerId },
+      relations: ['memberLevel'],
     });
 
     if (!customer) {
       throw new NotFoundException('客户不存在');
     }
+
+    const memberLevel = customer.memberLevel;
 
     return {
       id: customer.customerId,
@@ -66,16 +78,21 @@ export class H5CustomerService {
       phone: customer.phone,
       email: customer.email,
       points: customer.points,
-      level: customer.level,
+      level: memberLevel ? memberLevel.levelName : '普通会员',
+      levelCode: memberLevel ? memberLevel.levelCode : 'normal',
+      levelIcon: memberLevel ? memberLevel.iconCode : 'User',
       avatar: customer.avatar,
       position: customer.position,
-      address: customer.address
+      address: customer.address,
+      totalConsumption: customer.totalConsumption,
+      memberLevelId: customer.memberLevelId,
     };
   }
 
   async updateProfile(customerId: number, data: any) {
     const customer = await this.customerRepository.findOne({
       where: { customerId },
+      relations: ['memberLevel'],
     });
 
     if (!customer) {
@@ -91,6 +108,8 @@ export class H5CustomerService {
 
     await this.customerRepository.save(customer);
 
+    const memberLevel = customer.memberLevel;
+
     return {
       id: customer.customerId,
       customerCode: customer.customerCode,
@@ -98,10 +117,14 @@ export class H5CustomerService {
       phone: customer.phone,
       email: customer.email,
       points: customer.points,
-      level: customer.level,
+      level: memberLevel ? memberLevel.levelName : '普通会员',
+      levelCode: memberLevel ? memberLevel.levelCode : 'normal',
+      levelIcon: memberLevel ? memberLevel.iconCode : 'User',
       avatar: customer.avatar,
       position: customer.position,
-      address: customer.address
+      address: customer.address,
+      totalConsumption: customer.totalConsumption,
+      memberLevelId: customer.memberLevelId,
     };
   }
 }

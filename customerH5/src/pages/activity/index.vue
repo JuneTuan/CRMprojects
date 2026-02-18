@@ -15,7 +15,10 @@
         <view class="info-item">
           <text class="info-icon">⭐</text>
           <text class="info-label">会员等级</text>
-          <text class="info-value">{{ userStore.user?.level || '普通会员' }}</text>
+          <view class="level-display">
+            <text class="level-icon">{{ getLevelIcon(userStore.user?.levelIcon) }}</text>
+            <text class="info-value">{{ userStore.user?.level || '普通会员' }}</text>
+          </view>
         </view>
       </view>
     </view>
@@ -87,6 +90,36 @@ const userStore = useUserStore()
 const activities = ref([])
 const userPoints = ref(0)
 const loading = ref(true)
+
+const iconMap = {
+  'User': '👤',
+  'UserFilled': '👤',
+  'Avatar': '👤',
+  'Medal': '🏅',
+  'Trophy': '🏆',
+  'Star': '⭐',
+  'StarFilled': '⭐',
+  'Crown': '👑',
+  'Diamond': '💎',
+  'Sunny': '☀️',
+  'Moon': '🌙',
+  'CircleCheck': '✅',
+  'CircleCheckFilled': '✅',
+  'SuccessFilled': '✅',
+  'Warning': '⚠️',
+  'WarningFilled': '⚠️',
+  'CirclePlus': '➕',
+  'CirclePlusFilled': '➕',
+  'Promotion': '📈',
+  'TrendCharts': '📊',
+  'DataAnalysis': '📈',
+  'PieChart': '📊',
+  'Histogram': '📊',
+}
+
+const getLevelIcon = (iconCode) => {
+  return iconMap[iconCode] || '👤'
+}
 
 const filteredActivities = computed(() => {
   if (!userStore.user) return []
@@ -236,6 +269,16 @@ const getActivityTypeClass = (type) => {
   font-size: 32rpx;
   font-weight: bold;
   color: #fff;
+}
+
+.level-display {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.level-icon {
+  font-size: 28rpx;
 }
 
 .login-tip {

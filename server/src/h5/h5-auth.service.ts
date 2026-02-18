@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/co
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Customer } from '../customer/customer.entity';
+import { MemberLevel } from '../member-level/member-level.entity';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
@@ -9,12 +10,14 @@ import * as bcrypt from 'bcrypt';
 export class H5AuthService {
   constructor(
     @InjectRepository(Customer) private customerRepository: Repository<Customer>,
+    @InjectRepository(MemberLevel) private memberLevelRepository: Repository<MemberLevel>,
     private jwtService: JwtService,
   ) {}
 
   async login(loginDto: any) {
     const customer = await this.customerRepository.findOne({
       where: { customerCode: loginDto.username, isActive: true },
+      relations: ['memberLevel'],
     });
 
     if (!customer) {
@@ -25,6 +28,8 @@ export class H5AuthService {
     if (!isPasswordValid) {
       throw new UnauthorizedException('用户名或密码错误');
     }
+
+    const memberLevel = customer.memberLevel;
 
     const payload = { 
       username: customer.customerCode, 
@@ -43,9 +48,13 @@ export class H5AuthService {
         phone: customer.phone,
         email: customer.email,
         points: customer.points,
-        level: customer.level,
+        level: memberLevel ? memberLevel.levelName : '普通会员',
+        levelCode: memberLevel ? memberLevel.levelCode : 'normal',
+        levelIcon: memberLevel ? memberLevel.iconCode : 'User',
         avatar: customer.avatar,
-        position: customer.position
+        position: customer.position,
+        totalConsumption: customer.totalConsumption,
+        memberLevelId: customer.memberLevelId,
       },
     };
   }
@@ -69,6 +78,8 @@ export class H5AuthService {
       email: registerDto.email,
       points: 0,
       level: '普通会员',
+      memberLevelId: 1,
+      totalConsumption: 0,
       isActive: true,
       source: 'H5注册',
     });
@@ -77,10 +88,13 @@ export class H5AuthService {
     
     const customerWithId = await this.customerRepository.findOne({
       where: { customerCode: savedCustomer.customerCode },
+      relations: ['memberLevel'],
     });
 
     const payload = { username: customerWithId.customerCode, sub: customerWithId.customerId, role: 'customer', userType: 'customer' };
     const user = { ...customerWithId, password: undefined, userType: 'customer' };
+    
+    const memberLevel = customerWithId.memberLevel;
     
     console.log('注册用户ID:', customerWithId.customerId);
     
@@ -90,7 +104,18 @@ export class H5AuthService {
       user: {
         id: customerWithId.customerId,
         customerId: customerWithId.customerId,
-        ...user
+        customerCode: customerWithId.customerCode,
+        customerName: customerWithId.customerName,
+        phone: customerWithId.phone,
+        email: customerWithId.email,
+        points: customerWithId.points,
+        level: memberLevel ? memberLevel.levelName : '普通会员',
+        levelCode: memberLevel ? memberLevel.levelCode : 'normal',
+        levelIcon: memberLevel ? memberLevel.iconCode : 'User',
+        avatar: customerWithId.avatar,
+        position: customerWithId.position,
+        totalConsumption: customerWithId.totalConsumption,
+        memberLevelId: customerWithId.memberLevelId,
       },
     };
   }

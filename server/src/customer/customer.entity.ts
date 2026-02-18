@@ -4,6 +4,7 @@ import { CustomerCoupon } from '../coupon/customer-coupon.entity';
 import { LotteryRecord } from '../lottery/lottery-record.entity';
 import { PointsRecord } from './points-record.entity';
 import { User } from '../auth/user.entity';
+import { MemberLevel } from '../member-level/member-level.entity';
 
 @Entity()
 export class Customer {
@@ -34,6 +35,12 @@ export class Customer {
   @Column({ name: 'points', type: 'bigint', default: 0 })
   points: number;
 
+  @Column({ name: 'member_level_id', type: 'int', nullable: true })
+  memberLevelId: number;
+
+  @Column({ name: 'total_consumption', type: 'decimal', precision: 10, scale: 2, default: 0 })
+  totalConsumption: number;
+
   @Column({ name: 'level', type: 'enum', enum: ['普通会员', '白银会员', '黄金会员', '钻石会员'], default: '普通会员' })
   level: string;
 
@@ -52,6 +59,10 @@ export class Customer {
   @ManyToOne(() => User, user => user.customers)
   @JoinColumn({ name: 'owner_id' })
   owner: User;
+
+  @ManyToOne(() => MemberLevel)
+  @JoinColumn({ name: 'member_level_id' })
+  memberLevel: MemberLevel;
 
   @Column({ name: 'is_active', type: 'tinyint', default: 1 })
   isActive: boolean;
