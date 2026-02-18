@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CRM系统</title>
+    <style>
+        body { font-family: Arial; margin: 50px; }
+        .form { max-width: 400px; margin: 0 auto; }
+        input { width: 100%; padding: 8px; margin: 5px 0; }
+        button { width: 100%; background: #007bff; color: white; padding: 10px; }
+    </style>
+</head>
+<body>
+    <div class="form">
+        <h2>登录</h2>
+        <input id="username" placeholder="用户名" value="admin">
+        <input id="password" type="password" placeholder="密码" value="123456">
+        <button onclick="login()">登录</button>
+        <div id="result" style="margin-top: 20px;"></div>
+    </div>
+
+    <script>
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const res = await fetch('http://localhost:3001/auth/login', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({username, password})
+                });
+                const data = await res.json();
+                document.getElementById('result').innerText = 
+                    '状态: ' + data.code + ' - ' + data.msg;
+                console.log(data);
+            } catch (e) {
+                document.getElementById('result').innerText = '错误: ' + e.message;
+            }
+        }
+    </script>
+</body>
+</html>

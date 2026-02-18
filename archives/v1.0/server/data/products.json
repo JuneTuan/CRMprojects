@@ -1,0 +1,32 @@
+[
+  {
+    "id": "1770827919832bxy1gytzt",
+    "name": "iPhone 15",
+    "description": "最新款苹果手机",
+    "price": 5999,
+    "stock": 46,
+    "category": "电子产品",
+    "createdAt": "2026-02-11T16:38:39.832Z",
+    "updatedAt": "2026-02-12T15:14:33.933Z"
+  },
+  {
+    "id": "1770827919832xdxxwstwy",
+    "name": "MacBook Pro",
+    "description": "专业笔记本电脑",
+    "price": 12999,
+    "stock": 20,
+    "category": "电子产品",
+    "createdAt": "2026-02-11T16:38:39.832Z",
+    "updatedAt": "2026-02-11T16:38:39.832Z"
+  },
+  {
+    "id": "1770827919832uonjzd9i2",
+    "name": "Nike运动鞋",
+    "description": "舒适透气运动鞋",
+    "price": 899,
+    "stock": 100,
+    "category": "服装鞋帽",
+    "createdAt": "2026-02-11T16:38:39.832Z",
+    "updatedAt": "2026-02-11T16:38:39.832Z"
+  }
+]

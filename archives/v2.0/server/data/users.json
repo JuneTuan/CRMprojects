@@ -1,0 +1,29 @@
+[
+  {
+    "id": "1770828720807bl5cpx8s8",
+    "username": "admin",
+    "password": "hash_MTIzNDU2",
+    "name": "管理员",
+    "role": "admin",
+    "isActive": true,
+    "createdAt": "2026-02-11T16:52:00.807Z"
+  },
+  {
+    "id": "1770906267929cy532wwlk",
+    "username": "user2",
+    "password": "hash_MTIzNDU2",
+    "name": "111",
+    "role": "customer",
+    "isActive": true,
+    "createdAt": "2026-02-12T14:24:27.929Z"
+  },
+  {
+    "id": "1770908535148xyfip5jlb",
+    "username": "customer_1770908535148",
+    "password": "hash_MTIzNDU2",
+    "name": "houtai1",
+    "role": "customer",
+    "isActive": true,
+    "createdAt": "2026-02-12T15:02:15.148Z"
+  }
+]

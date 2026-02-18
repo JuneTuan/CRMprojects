@@ -21,6 +21,7 @@ import { LotteryRecord } from '../lottery/lottery-record.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from '../auth/strategies/jwt.strategy';
+import { H5JwtStrategy } from './strategies/h5-jwt.strategy';
 import { AuthModule } from '../auth/auth.module';
 
 @Module({
@@ -54,6 +55,7 @@ import { AuthModule } from '../auth/auth.module';
     H5CustomerService,
     H5LotteryService,
     JwtStrategy,
+    H5JwtStrategy,
   ],
   exports: [
     H5AuthService,

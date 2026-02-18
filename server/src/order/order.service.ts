@@ -129,6 +129,15 @@ export class OrderService {
       await this.productService.update(product.productId, updateProductDto);
     }
 
+    if (savedOrder.status === '已完成' && savedOrder.isPoints && savedOrder.points > 0) {
+      await this.pointsRecordService.createPointsRecord(
+        savedOrder.customerId,
+        '订单完成',
+        savedOrder.points,
+        `订单 ${savedOrder.orderNo} 完成获得积分`,
+      );
+    }
+
     return this.findOne(savedOrder.orderId);
   }
 

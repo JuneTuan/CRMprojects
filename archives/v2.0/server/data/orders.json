@@ -1,0 +1,42 @@
+[
+  {
+    "id": "1770908554486dcljpae52",
+    "customerId": "1770906232220yymry6qdw",
+    "productId": "1770827919832bxy1gytzt",
+    "quantity": 1,
+    "totalPrice": 5999,
+    "status": "pending",
+    "createdAt": "2026-02-12T15:02:34.486Z",
+    "updatedAt": "2026-02-12T15:02:34.486Z"
+  },
+  {
+    "id": "1770908825422pqjw6qzo9",
+    "customerId": "1770906232220yymry6qdw",
+    "productId": "1770827919832bxy1gytzt",
+    "quantity": 1,
+    "totalPrice": 5999,
+    "status": "pending",
+    "createdAt": "2026-02-12T15:07:05.422Z",
+    "updatedAt": "2026-02-12T15:07:05.422Z"
+  },
+  {
+    "id": "1770908945695l9ecwk0nu",
+    "customerId": "1770906232220yymry6qdw",
+    "productId": "1770827919832bxy1gytzt",
+    "quantity": 1,
+    "totalPrice": 5999,
+    "status": "pending",
+    "createdAt": "2026-02-12T15:09:05.695Z",
+    "updatedAt": "2026-02-12T15:09:05.695Z"
+  },
+  {
+    "id": "17709092739338sp942fn5",
+    "customerId": "1770906232220yymry6qdw",
+    "productId": "1770827919832bxy1gytzt",
+    "quantity": 1,
+    "totalPrice": 5999,
+    "status": "completed",
+    "createdAt": "2026-02-12T15:14:33.933Z",
+    "updatedAt": "2026-02-12T15:14:33.933Z"
+  }
+]

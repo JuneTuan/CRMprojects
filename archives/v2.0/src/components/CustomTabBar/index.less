@@ -1,0 +1,42 @@
+.custom-tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 50px;
+  background: #ffffff;
+  display: flex;
+  border-top: 1px solid #e5e5e5;
+  padding-bottom: env(safe-area-inset-bottom);
+  z-index: 1000;
+
+  .tab-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 0;
+
+    .tab-icon {
+      font-size: 20px;
+      margin-bottom: 2px;
+    }
+
+    .tab-text {
+      font-size: 10px;
+      color: #999999;
+    }
+
+    &.active {
+      .tab-icon {
+        // 可以在这里添加激活状态的图标样式
+      }
+
+      .tab-text {
+        color: #dc2626;
+        font-weight: 500;
+      }
+    }
+  }
+}

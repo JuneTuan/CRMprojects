@@ -1,0 +1,85 @@
+[
+  {
+    "id": "1770902088001rjdzwjbro",
+    "customerId": "17708279198317bdrns835",
+    "prizeId": "prize001",
+    "code": "CPN1770902088001OP5N3GX93",
+    "status": "claimed",
+    "createdAt": "2026-02-12T13:14:48.001Z",
+    "updatedAt": "2026-02-12T13:14:48.001Z"
+  },
+  {
+    "id": "1770902092744vtedncq9b",
+    "customerId": "17708279198317bdrns835",
+    "prizeId": "prize001",
+    "code": "CPN1770902092744FKKZKZMME",
+    "status": "claimed",
+    "createdAt": "2026-02-12T13:14:52.744Z",
+    "updatedAt": "2026-02-12T13:14:52.744Z"
+  },
+  {
+    "id": "1770905002634v2ocgtnk2",
+    "customerId": "17708279198313ifrzzu00",
+    "prizeId": "prize003",
+    "code": "CPN17709050026332XMF62JXH",
+    "status": "claimed",
+    "createdAt": "2026-02-12T14:03:22.634Z",
+    "updatedAt": "2026-02-12T14:03:22.634Z"
+  },
+  {
+    "id": "17709058215776m24qpok6",
+    "customerId": "1770904271761ayvr83r95",
+    "prizeId": "prize005",
+    "code": "CPN17709058215761Y4UE196P",
+    "status": "claimed",
+    "createdAt": "2026-02-12T14:17:01.577Z",
+    "updatedAt": "2026-02-12T14:17:01.577Z"
+  },
+  {
+    "id": "17709136877162p26yzwao",
+    "customerId": "1770906232220yymry6qdw",
+    "prizeId": "prize005",
+    "code": "CPN1770913687715DEETWMGAT",
+    "status": "used",
+    "createdAt": "2026-02-12T16:28:07.716Z",
+    "updatedAt": "2026-02-12T16:28:43.376Z",
+    "usedAt": "2026-02-12T16:28:43.376Z"
+  },
+  {
+    "id": "17709139400221ra1aoa07",
+    "customerId": "1770906232220yymry6qdw",
+    "prizeId": "prize003",
+    "code": "CPN1770913940022E2TVJK1OA",
+    "status": "claimed",
+    "createdAt": "2026-02-12T16:32:20.022Z",
+    "updatedAt": "2026-02-12T16:32:20.022Z"
+  },
+  {
+    "id": "1770914249141mvvqimfds",
+    "customerId": "1770906232220yymry6qdw",
+    "prizeId": "prize002",
+    "prizeName": "2元红包",
+    "prizeType": "redpacket",
+    "prizeValue": 2,
+    "code": "CPN17709142491414SCYEQO38",
+    "status": "used",
+    "expiryDate": "2026-03-14T16:37:29.141Z",
+    "createdAt": "2026-02-12T16:37:29.141Z",
+    "updatedAt": "2026-02-12T16:38:04.208Z",
+    "usedAt": "2026-02-12T16:38:04.208Z"
+  },
+  {
+    "id": "1770914820281qi0hpzk1d",
+    "customerId": "1770906232220yymry6qdw",
+    "prizeId": "prize007",
+    "prizeName": "15元优惠券",
+    "prizeType": "coupon",
+    "prizeValue": 15,
+    "code": "CPN1770914820281FEBPC72L4",
+    "status": "used",
+    "expiryDate": "2026-03-14T16:47:00.281Z",
+    "createdAt": "2026-02-12T16:47:00.281Z",
+    "updatedAt": "2026-02-12T16:48:11.967Z",
+    "usedAt": "2026-02-12T16:48:11.967Z"
+  }
+]

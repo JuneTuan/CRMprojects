@@ -1,0 +1,38 @@
+[
+  {
+    "id": "1770902088001rjdzwjbro",
+    "customerId": "17708279198317bdrns835",
+    "prizeId": "prize001",
+    "code": "CPN1770902088001OP5N3GX93",
+    "status": "claimed",
+    "createdAt": "2026-02-12T13:14:48.001Z",
+    "updatedAt": "2026-02-12T13:14:48.001Z"
+  },
+  {
+    "id": "1770902092744vtedncq9b",
+    "customerId": "17708279198317bdrns835",
+    "prizeId": "prize001",
+    "code": "CPN1770902092744FKKZKZMME",
+    "status": "claimed",
+    "createdAt": "2026-02-12T13:14:52.744Z",
+    "updatedAt": "2026-02-12T13:14:52.744Z"
+  },
+  {
+    "id": "1770905002634v2ocgtnk2",
+    "customerId": "17708279198313ifrzzu00",
+    "prizeId": "prize003",
+    "code": "CPN17709050026332XMF62JXH",
+    "status": "claimed",
+    "createdAt": "2026-02-12T14:03:22.634Z",
+    "updatedAt": "2026-02-12T14:03:22.634Z"
+  },
+  {
+    "id": "17709058215776m24qpok6",
+    "customerId": "1770904271761ayvr83r95",
+    "prizeId": "prize005",
+    "code": "CPN17709058215761Y4UE196P",
+    "status": "claimed",
+    "createdAt": "2026-02-12T14:17:01.577Z",
+    "updatedAt": "2026-02-12T14:17:01.577Z"
+  }
+]

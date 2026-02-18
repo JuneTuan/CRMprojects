@@ -1,0 +1,11 @@
+[
+  {
+    "id": "setting001",
+    "name": "默认抽奖设置",
+    "freeDrawsPerDay": 3,
+    "pointsPerDraw": 10,
+    "enablePointsDraw": true,
+    "isActive": true,
+    "createdAt": "2026-02-12T00:00:00.000Z"
+  }
+]

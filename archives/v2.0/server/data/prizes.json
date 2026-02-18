@@ -1,0 +1,102 @@
+[
+  {
+    "id": "prize001",
+    "name": "1元优惠券",
+    "type": "coupon",
+    "value": 1,
+    "probability": 0.15,
+    "remainingQuantity": 1000,
+    "totalQuantity": 1000,
+    "createdAt": "2026-02-12T00:00:00.000Z"
+  },
+  {
+    "id": "prize002",
+    "name": "2元红包",
+    "type": "redpacket",
+    "value": 2,
+    "probability": 0.12,
+    "remainingQuantity": 800,
+    "totalQuantity": 800,
+    "createdAt": "2026-02-12T00:00:00.000Z"
+  },
+  {
+    "id": "prize003",
+    "name": "3元优惠券",
+    "type": "coupon",
+    "value": 3,
+    "probability": 0.12,
+    "remainingQuantity": 800,
+    "totalQuantity": 800,
+    "createdAt": "2026-02-12T00:00:00.000Z"
+  },
+  {
+    "id": "prize004",
+    "name": "5元红包",
+    "type": "redpacket",
+    "value": 5,
+    "probability": 0.12,
+    "remainingQuantity": 600,
+    "totalQuantity": 600,
+    "createdAt": "2026-02-12T00:00:00.000Z"
+  },
+  {
+    "id": "prize005",
+    "name": "8元优惠券",
+    "type": "coupon",
+    "value": 8,
+    "probability": 0.12,
+    "remainingQuantity": 500,
+    "totalQuantity": 500,
+    "createdAt": "2026-02-12T00:00:00.000Z"
+  },
+  {
+    "id": "prize006",
+    "name": "10元红包",
+    "type": "redpacket",
+    "value": 10,
+    "probability": 0.12,
+    "remainingQuantity": 400,
+    "totalQuantity": 400,
+    "createdAt": "2026-02-12T00:00:00.000Z"
+  },
+  {
+    "id": "prize007",
+    "name": "15元优惠券",
+    "type": "coupon",
+    "value": 15,
+    "probability": 0.10,
+    "remainingQuantity": 300,
+    "totalQuantity": 300,
+    "createdAt": "2026-02-12T00:00:00.000Z"
+  },
+  {
+    "id": "prize008",
+    "name": "20元红包",
+    "type": "redpacket",
+    "value": 20,
+    "probability": 0.08,
+    "remainingQuantity": 200,
+    "totalQuantity": 200,
+    "createdAt": "2026-02-12T00:00:00.000Z"
+  },
+  {
+    "id": "prize009",
+    "name": "30元优惠券",
+    "type": "coupon",
+    "value": 30,
+    "probability": 0.05,
+    "remainingQuantity": 100,
+    "totalQuantity": 100,
+    "createdAt": "2026-02-12T00:00:00.000Z"
+  },
+  {
+    "id": "prize010",
+    "name": "50元红包",
+    "type": "redpacket",
+    "value": 50,
+    "probability": 0.02,
+    "remainingQuantity": 50,
+    "totalQuantity": 50,
+    "createdAt": "2026-02-12T00:00:00.000Z"
+  }
+]

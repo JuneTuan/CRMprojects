@@ -1,0 +1,24 @@
+{
+  "name": "crm-apps",
+  "version": "2.0.0",
+  "description": "CRM系统 - 用户端和管理端分离",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "server"
+  ],
+  "scripts": {
+    "dev:client": "cd apps/client && pnpm run dev",
+    "dev:admin": "cd apps/admin && pnpm run dev",
+    "dev:server": "cd server && pnpm run dev",
+    "dev": "pnpm run dev:server & pnpm run dev:client & pnpm run dev:admin",
+    "build:client": "cd apps/client && pnpm run build",
+    "build:admin": "cd apps/admin && pnpm run build",
+    "build:server": "cd server && pnpm run build",
+    "build": "pnpm run build:server && pnpm run build:client && pnpm run build:admin"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}

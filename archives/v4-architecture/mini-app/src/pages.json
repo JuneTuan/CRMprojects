@@ -1,0 +1,130 @@
+{
+  "pages": [
+    {
+      "path": "pages/index/index",
+      "style": {
+        "navigationBarTitleText": "春节幸运大转盘",
+        "navigationBarBackgroundColor": "#dc2626",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/login/index",
+      "style": {
+        "navigationBarTitleText": "登录",
+        "navigationBarBackgroundColor": "#dc2626",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/register/index",
+      "style": {
+        "navigationBarTitleText": "注册",
+        "navigationBarBackgroundColor": "#dc2626",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/profile/index",
+      "style": {
+        "navigationBarTitleText": "个人中心",
+        "navigationBarBackgroundColor": "#dc2626",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/my-coupon/index",
+      "style": {
+        "navigationBarTitleText": "我的优惠券",
+        "navigationBarBackgroundColor": "#dc2626",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/purchase-record/index",
+      "style": {
+        "navigationBarTitleText": "购买记录",
+        "navigationBarBackgroundColor": "#dc2626",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/lottery-record/index",
+      "style": {
+        "navigationBarTitleText": "抽奖记录",
+        "navigationBarBackgroundColor": "#dc2626",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/points-history/index",
+      "style": {
+        "navigationBarTitleText": "积分历史",
+        "navigationBarBackgroundColor": "#dc2626",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/edit-profile/index",
+      "style": {
+        "navigationBarTitleText": "编辑资料",
+        "navigationBarBackgroundColor": "#dc2626",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/coupon-verify/index",
+      "style": {
+        "navigationBarTitleText": "优惠券核销",
+        "navigationBarBackgroundColor": "#dc2626",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/game/index",
+      "style": {
+        "navigationBarTitleText": "抽奖游戏",
+        "navigationBarBackgroundColor": "#dc2626",
+        "navigationBarTextStyle": "white"
+      }
+    },
+    {
+      "path": "pages/test/index",
+      "style": {
+        "navigationBarTitleText": "点击测试",
+        "navigationBarBackgroundColor": "#dc2626",
+        "navigationBarTextStyle": "white"
+      }
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "春节幸运大转盘",
+    "navigationBarBackgroundColor": "#dc2626",
+    "backgroundColor": "#f5f5f5"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#dc2626",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/lottery-record/index",
+        "text": "抽奖"
+      },
+      {
+        "pagePath": "pages/my-coupon/index",
+        "text": "优惠券"
+      },
+      {
+        "pagePath": "pages/profile/index",
+        "text": "我的"
+      }
+    ]
+  }
+}

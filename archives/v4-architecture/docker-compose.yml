@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: crm-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: crm_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - crm-network
+    profiles:
+      - postgres
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: crm-server
+    restart: always
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DB_TYPE: ${DB_TYPE:-json}
+      DATA_DIR: /app/data
+      DB_PATH: /app/data/crm.db
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      DB_DATABASE: crm_db
+      JWT_SECRET: ${JWT_SECRET:-your-secret-key-change-in-production}
+    ports:
+      - "3001:3001"
+    depends_on:
+      - postgres
+    volumes:
+      - server_data:/app/data
+    networks:
+      - crm-network
+
+  admin-web:
+    build:
+      context: ./admin-web
+      dockerfile: Dockerfile
+    container_name: crm-admin-web
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - server
+    networks:
+      - crm-network
+
+volumes:
+  postgres_data:
+  server_data:
+
+networks:
+  crm-network:
+    driver: bridge

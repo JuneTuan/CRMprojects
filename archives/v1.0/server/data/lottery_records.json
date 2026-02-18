@@ -1,0 +1,42 @@
+[
+  {
+    "id": "1770902088000qhcu95muw",
+    "customerId": "17708279198317bdrns835",
+    "prizeId": "prize001",
+    "isWon": true,
+    "result": "恭喜获得5元优惠券",
+    "createdAt": "2026-02-12T13:14:48.000Z"
+  },
+  {
+    "id": "1770902092743dnoeprb6a",
+    "customerId": "17708279198317bdrns835",
+    "prizeId": "prize001",
+    "isWon": true,
+    "result": "恭喜获得5元优惠券",
+    "createdAt": "2026-02-12T13:14:52.743Z"
+  },
+  {
+    "id": "177090215854469bl3pnvk",
+    "customerId": "17708279198317bdrns835",
+    "prizeId": "prize006",
+    "isWon": true,
+    "result": "恭喜获得神秘奖品",
+    "createdAt": "2026-02-12T13:15:58.544Z"
+  },
+  {
+    "id": "1770905002633m3oxn7u41",
+    "customerId": "17708279198313ifrzzu00",
+    "prizeId": "prize003",
+    "isWon": true,
+    "result": "恭喜获得3元优惠券",
+    "createdAt": "2026-02-12T14:03:22.633Z"
+  },
+  {
+    "id": "1770905821575xuynbdziv",
+    "customerId": "1770904271761ayvr83r95",
+    "prizeId": "prize005",
+    "isWon": true,
+    "result": "恭喜获得8元优惠券",
+    "createdAt": "2026-02-12T14:17:01.575Z"
+  }
+]

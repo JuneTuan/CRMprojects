@@ -37,6 +37,7 @@ export class H5AuthService {
       access_token: this.jwtService.sign(payload),
       user: {
         id: customer.customerId,
+        customerId: customer.customerId,
         customerCode: customer.customerCode,
         customerName: customer.customerName,
         phone: customer.phone,
@@ -69,14 +70,28 @@ export class H5AuthService {
       points: 0,
       level: '普通会员',
       isActive: true,
+      source: 'H5注册',
     });
     
-    await this.customerRepository.save(customer);
+    const savedCustomer = await this.customerRepository.save(customer);
+    
+    const customerWithId = await this.customerRepository.findOne({
+      where: { customerCode: savedCustomer.customerCode },
+    });
 
-    const payload = { username: customer.customerCode, sub: customer.customerId, role: 'customer', userType: 'customer' };
+    const payload = { username: customerWithId.customerCode, sub: customerWithId.customerId, role: 'customer', userType: 'customer' };
+    const user = { ...customerWithId, password: undefined, userType: 'customer' };
+    
+    console.log('注册用户ID:', customerWithId.customerId);
+    
     return {
       access_token: this.jwtService.sign(payload),
-      user: { ...customer, password: undefined, userType: 'customer' },
+      customerId: customerWithId.customerId,
+      user: {
+        id: customerWithId.customerId,
+        customerId: customerWithId.customerId,
+        ...user
+      },
     };
   }
 

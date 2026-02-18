@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>登录测试</title>
+    <script>
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const response = await fetch('http://localhost:3001/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await response.json();
+                document.getElementById('result').innerText = JSON.stringify(data);
+            } catch (error) {
+                document.getElementById('result').innerText = '错误: ' + error.message;
+            }
+        }
+    </script>
+</head>
+<body>
+    <h2>登录测试</h2>
+    用户名: <input id="username" value="admin"><br>
+    密码: <input id="password" type="password" value="123456"><br>
+    <button onclick="login()">登录</button>
+    <div id="result"></div>
+</body>
+</html>

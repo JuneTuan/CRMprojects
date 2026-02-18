@@ -26,79 +26,79 @@ export class H5Controller {
     return this.h5AuthService.register(registerDto);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('h5-jwt'))
   @Get('orders')
   async getOrders(@Request() req) {
     return this.h5OrderService.getOrders(req.user.customerId);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('h5-jwt'))
   @Get('orders/:id')
   async getOrderDetail(@Param('id') id: number, @Request() req) {
     return this.h5OrderService.getOrderDetail(id, req.user.customerId);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('h5-jwt'))
   @Get('coupons')
   async getCoupons(@Request() req) {
     return this.h5CouponService.getCoupons(req.user.customerId);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('h5-jwt'))
   @Post('coupons/verify')
   async verifyCoupon(@Body() data: any, @Request() req) {
     return this.h5CouponService.verifyCoupon(data.code, req.user.customerId);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('h5-jwt'))
   @Get('customer/info')
   async getCustomerInfo(@Request() req) {
     return this.h5CustomerService.getCustomerInfo(req.user.customerId);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('h5-jwt'))
   @Get('customer/points-history')
   async getPointsHistory(@Request() req) {
     return this.h5CustomerService.getPointsHistory(req.user.customerId);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('h5-jwt'))
   @Get('customer/profile')
   async getProfile(@Request() req) {
     return this.h5CustomerService.getProfile(req.user.customerId);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('h5-jwt'))
   @Put('customer/profile')
   async updateProfile(@Body() data: any, @Request() req) {
     return this.h5CustomerService.updateProfile(req.user.customerId, data);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('h5-jwt'))
   @Get('activities')
   async getActivities() {
     return this.h5LotteryService.getActivities();
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('h5-jwt'))
   @Get('lottery/draw-info/:activityId')
   async getDrawInfo(@Param('activityId') activityId: number, @Request() req) {
     return this.h5LotteryService.getDrawInfo(req.user.customerId, activityId);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('h5-jwt'))
   @Post('lottery/draw')
   async draw(@Body() data: any, @Request() req) {
     return this.h5LotteryService.draw(req.user.customerId, data.activityId, data.gameTypeId);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('h5-jwt'))
   @Get('lottery/records')
   async getRecords(@Request() req) {
     return this.h5LotteryService.getRecords(req.user.customerId);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('h5-jwt'))
   @Put('lottery/records/:recordId/claim')
   async claimPrize(@Param('recordId') recordId: number, @Request() req) {
     return this.h5LotteryService.claimPrize(recordId, req.user.customerId);

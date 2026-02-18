@@ -1,0 +1,17 @@
+[
+  {
+    "id": "1770901838877g3mj5pmke",
+    "name": "测试",
+    "description": "",
+    "gameType": "slotmachine",
+    "status": "active",
+    "dailyFreeDraws": "3",
+    "pointsEnabled": true,
+    "pointsPerDraw": "10",
+    "imageUrl": "",
+    "startTime": "2026-02-12T13:10:38.872Z",
+    "endTime": "2026-02-19T13:10:38.872Z",
+    "createdAt": "2026-02-12T13:10:38.877Z",
+    "updatedAt": "2026-02-12T13:50:52.706Z"
+  }
+]

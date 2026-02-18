@@ -1,687 +1,588 @@
-# Coze Mini Program
+# CRM System v5.0
 
-这是一个基于 [Taro 4](https://docs.taro.zone/docs/) + [Nest.js](https://nestjs.com/) 的前后端分离项目，由扣子编程 CLI 创建。
+## 📋 项目概述
 
-## 技术栈
+CRM System v5.0 是一个完整的客户关系管理系统，采用现代化的前后端分离架构，提供管理端和小程序端双端支持。
 
-- **整体框架**: Taro 4.1.9
-- **语言**: TypeScript 5.4.5
-- **渲染**: React 18.0.0
-- **样式**: TailwindCSS 4.1.18
-- **Tailwind 适配层**: weapp-tailwindcss 4.9.2
-- **状态管理**: Zustand 5.0.9
-- **图标库**: lucide-react 0.511.0
-- **工程化**: Vite 4.2.0
-- **包管理**: pnpm
-- **运行时**: Node.js >= 18
-- **服务端**: NestJS 10.4.15
-- **数据库 ORM**: Drizzle ORM 0.45.1
-- **类型校验**: Zod 4.3.5
+### 核心特性
 
-## 项目结构
+- 🎯 **完整的功能模块**：客户管理、产品管理、订单管理、优惠券管理、活动管理、抽奖系统、员工管理、统计分析
+- 🚀 **现代化技术栈**：Vue 3、NestJS、TypeScript、MySQL
+- 📱 **双端支持**：Web管理端 + UniApp小程序端
+- 🔐 **完善的权限系统**：基于角色的访问控制（RBAC）
+- 🎁 **营销活动**：优惠券、抽奖活动、积分系统
+- 📊 **数据统计**：仪表板、销售统计、客户分析
+
+---
+
+## 📁 目录结构
 
 ```
-├── .cozeproj/                # Coze 平台配置
-│   └── scripts/              # 构建和运行脚本
-├── config/                   # Taro 构建配置
-│   ├── index.ts              # 主配置文件
-│   ├── dev.ts                # 开发环境配置
-│   └── prod.ts               # 生产环境配置
-├── server/                   # NestJS 后端服务
-│   └── src/  
-│       ├── main.ts           # 服务入口
-│       ├── app.module.ts     # 根模块
-│       ├── app.controller.ts # 应用控制器
-│       └── app.service.ts    # 应用服务
-├── src/                      # 前端源码
-│   ├── pages/                # 页面组件
-│   ├── utils/                # 工具函数
-│   ├── app.ts                # 应用入口
-│   ├── app.config.ts         # 应用配置
-│   └── app.css               # 全局样式
-├── types/                    # TypeScript 类型定义
-├── key/                      # 小程序密钥（CI 上传用）
-├── .env.local                # 环境变量
-└── project.config.json       # 微信小程序项目配置
+CRMprojects/
+├── admin-web/              # Web管理端
+│   ├── src/
+│   │   ├── api/          # API请求配置
+│   │   ├── assets/       # 静态资源
+│   │   ├── components/   # 公共组件
+│   │   ├── pages/        # 页面组件
+│   │   │   ├── Activity/     # 活动管理
+│   │   │   ├── Coupon/       # 优惠券管理
+│   │   │   ├── Customer/     # 客户管理
+│   │   │   ├── Dashboard/    # 仪表板
+│   │   │   ├── Login/        # 登录页
+│   │   │   ├── Lottery/      # 抽奖管理
+│   │   │   ├── Order/        # 订单管理
+│   │   │   ├── Permission/   # 权限管理
+│   │   │   ├── Product/      # 产品管理
+│   │   │   ├── Staff/        # 员工管理
+│   │   │   └── Statistics/   # 统计分析
+│   │   ├── router/       # 路由配置
+│   │   ├── App.vue
+│   │   └── main.ts
+│   ├── package.json
+│   ├── vite.config.ts
+│   └── tsconfig.json
+│
+├── mini-app/               # 小程序端
+│   ├── src/
+│   │   ├── pages/        # 页面组件
+│   │   │   ├── coupon-verify/    # 优惠券核销
+│   │   │   ├── edit-profile/     # 编辑资料
+│   │   │   ├── game/            # 抽奖游戏
+│   │   │   ├── index/           # 首页
+│   │   │   ├── login/           # 登录页
+│   │   │   ├── lottery-record/   # 抽奖记录
+│   │   │   ├── my-coupon/       # 我的优惠券
+│   │   │   ├── points-history/   # 积分记录
+│   │   │   ├── profile/         # 个人中心
+│   │   │   ├── purchase-record/  # 购买记录
+│   │   │   └── register/        # 注册页
+│   │   ├── services/     # API服务
+│   │   ├── stores/       # 状态管理
+│   │   ├── types/        # 类型定义
+│   │   ├── utils/        # 工具函数
+│   │   ├── App.vue
+│   │   ├── main.ts
+│   │   ├── manifest.json
+│   │   └── pages.json
+│   ├── package.json
+│   ├── vite.config.ts
+│   └── tsconfig.json
+│
+├── server/                 # 后端服务
+│   ├── src/
+│   │   ├── activity/     # 活动模块
+│   │   │   ├── dto/           # 数据传输对象
+│   │   │   ├── activity.entity.ts
+│   │   │   ├── activity.controller.ts
+│   │   │   ├── activity.service.ts
+│   │   │   ├── activity.module.ts
+│   │   │   ├── activity-game.entity.ts
+│   │   │   ├── game-prize.entity.ts
+│   │   │   └── game-type.entity.ts
+│   │   ├── auth/         # 认证授权模块
+│   │   │   ├── dto/
+│   │   │   ├── strategies/
+│   │   │   ├── auth.controller.ts
+│   │   │   ├── auth.service.ts
+│   │   │   ├── auth.module.ts
+│   │   │   ├── permission.controller.ts
+│   │   │   ├── permission.service.ts
+│   │   │   ├── role.controller.ts
+│   │   │   ├── role.service.ts
+│   │   │   ├── user.controller.ts
+│   │   │   └── user.service.ts
+│   │   ├── coupon/       # 优惠券模块
+│   │   │   ├── dto/
+│   │   │   ├── coupon.controller.ts
+│   │   │   ├── coupon.service.ts
+│   │   │   ├── coupon.module.ts
+│   │   │   ├── coupon.entity.ts
+│   │   │   └── customer-coupon.entity.ts
+│   │   ├── customer/     # 客户模块
+│   │   │   ├── dto/
+│   │   │   ├── customer.controller.ts
+│   │   │   ├── customer.service.ts
+│   │   │   ├── customer.module.ts
+│   │   │   ├── customer.entity.ts
+│   │   │   └── points-record.entity.ts
+│   │   ├── dashboard/    # 仪表板模块
+│   │   ├── lottery/      # 抽奖模块
+│   │   ├── order/        # 订单模块
+│   │   ├── prize/        # 奖品模块
+│   │   ├── product/      # 产品模块
+│   │   ├── staff/        # 员工模块
+│   │   ├── statistics/   # 统计模块
+│   │   ├── app.module.ts
+│   │   ├── app.controller.ts
+│   │   ├── app.service.ts
+│   │   └── main.ts
+│   ├── database-init-v3.sql    # 数据库初始化脚本
+│   ├── package.json
+│   ├── nest-cli.json
+│   └── tsconfig.json
+│
+├── archives/               # 版本归档
+├── .git/                  # Git版本控制
+├── .gitignore             # Git忽略规则
+└── .env.local             # 本地环境变量
 ```
 
-## 快速开始
+---
 
-### 安装依赖
+## 🛠️ 技术栈
+
+### 后端服务
+
+| 技术 | 版本 | 用途 |
+|------|------|------|
+| Node.js | 18+ | 运行环境 |
+| NestJS | 10.0.0 | 后端框架 |
+| TypeScript | 5.x | 类型安全 |
+| TypeORM | 0.3.0 | ORM框架 |
+| MySQL | 8.0+ | 数据库 |
+| Passport | 0.6.0 | 认证中间件 |
+| JWT | 10.0.0 | Token认证 |
+| bcrypt | 5.0.0 | 密码加密 |
+| class-validator | 0.14.0 | 数据验证 |
+
+### Web管理端
+
+| 技术 | 版本 | 用途 |
+|------|------|------|
+| Vue | 3.4.21 | 前端框架 |
+| Vite | 5.4.21 | 构建工具 |
+| TypeScript | 5.4.5 | 类型安全 |
+| Element Plus | 2.13.2 | UI组件库 |
+| Vue Router | 4.6.4 | 路由管理 |
+| Pinia | 2.3.1 | 状态管理 |
+| Axios | 1.13.5 | HTTP客户端 |
+| Day.js | 1.11.19 | 日期处理 |
+
+### 小程序端
+
+| 技术 | 版本 | 用途 |
+|------|------|------|
+| Vue | 3.4.21 | 前端框架 |
+| UniApp | 3.0.0 | 跨平台框架 |
+| TypeScript | 5.4.5 | 类型安全 |
+| Pinia | 2.1.7 | 状态管理 |
+| Vite | 5.2.8 | 构建工具 |
+
+---
+
+## 🏗️ 系统架构
+
+### 整体架构
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    CRM System v5.0                      │
+└─────────────────────────────────────────────────────────────┘
+                            │
+        ┌───────────────────┼───────────────────┐
+        │                   │                   │
+┌───────▼──────┐    ┌──────▼──────┐    ┌──────▼──────┐
+│  Admin Web   │    │   Server    │    │  Mini App   │
+│  (Vue 3)    │    │  (NestJS)  │    │  (UniApp)   │
+└───────┬──────┘    └──────┬──────┘    └──────┬──────┘
+        │                   │                   │
+        └───────────────────┼───────────────────┘
+                            │
+                      ┌───────▼────────┐
+                      │    MySQL DB    │
+                      │   (17 Tables)  │
+                      └────────────────┘
+```
+
+### 后端架构
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                   NestJS Application                  │
+├─────────────────────────────────────────────────────────────┤
+│  Controllers  →  Services  →  Entities  →  Database  │
+│     │              │            │             │          │
+│  Auth Module    Auth Module  User Entity   users     │
+│  Customer Module Customer Module Customer Entity customers │
+│  Product Module Product Module Product Entity products   │
+│  Order Module   Order Module   Order Entity   orders     │
+│  Coupon Module  Coupon Module  Coupon Entity  coupons    │
+│  Activity Module Activity Module Activity Entity activities │
+│  Prize Module   Prize Module   Prize Entity   prizes     │
+│  Lottery Module Lottery Module Lottery Entity lottery    │
+│  Staff Module   Staff Module   Staff Entity   staff      │
+│  Statistics Module Statistics Module               stats      │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### 数据库设计
+
+系统包含17张核心数据表：
+
+| 表名 | 用途 | 关键字段 |
+|------|------|----------|
+| roles | 角色管理 | id, name, description |
+| permissions | 权限管理 | id, name, code |
+| users | 用户管理 | id, username, password, role_id |
+| customers | 客户管理 | id, name, phone, points |
+| products | 产品管理 | id, name, price, stock |
+| coupons | 优惠券管理 | id, name, type, value |
+| orders | 订单管理 | id, order_no, total_amount |
+| order_items | 订单明细 | id, order_id, product_id |
+| customer_coupons | 客户优惠券 | id, customer_id, coupon_id |
+| game_types | 游戏类型 | id, type, name |
+| activities | 活动管理 | id, name, start_time |
+| activity_games | 活动游戏 | id, activity_id, game_type_id |
+| prizes | 奖品管理 | id, name, type, probability |
+| game_prizes | 游戏奖品 | id, activity_game_id, prize_id |
+| lottery_records | 抽奖记录 | id, customer_id, prize_id |
+| points_records | 积分记录 | id, customer_id, points |
+| role_permissions | 角色权限 | id, role_id, permission_id |
+
+---
+
+## 🚀 快速开始
+
+### 环境要求
+
+- Node.js 18+
+- MySQL 8.0+
+- npm 或 pnpm
+
+### 1. 数据库初始化
 
 ```bash
-pnpm install
+# 创建数据库
+mysql -u root -p < server/database-init-v3.sql
 ```
 
-### 本地开发
-
-同时启动 H5 前端和 NestJS 后端：
-
-```bash
-pnpm dev
-```
-
-- 前端地址：http://localhost:5000
-- 后端地址：http://localhost:3000
-
-单独启动：
-
-```bash
-pnpm dev:web      # 仅 H5 前端
-pnpm dev:weapp    # 仅微信小程序
-pnpm dev:server   # 仅后端服务
-```
-
-### 构建
-
-```bash
-pnpm build        # 构建所有（H5 + 小程序 + 后端）
-pnpm build:web    # 仅构建 H5，输出到 dist-web
-pnpm build:weapp  # 仅构建微信小程序，输出到 dist
-pnpm build:server # 仅构建后端
-```
-
-### 预览小程序
-
-```bash
-pnpm preview:weapp # 构建并生成预览小程序二维码
-```
-
-## 前端核心开发规范
-
-### 新建页面流程
-
-1. 在 \`src/pages/\` 下创建页面目录
-2. 创建 \`index.tsx\`（页面组件）
-3. 创建 \`index.config.ts\`（页面配置）
-4. 创建 \`index.css\`（页面样式，可选）
-5. 在 \`src/app.config.ts\` 的 \`pages\` 数组中注册页面路径
-
-或使用 Taro 脚手架命令：
-
-```bash
-pnpm new      # 交互式创建页面/组件
-```
-
-### 常用 Taro 组件
-
-引入方式
-
-```typescript
-import { Text } from '@tarojs/components'
-```
-- 基础组件
-  - Text
-  - Icon
-  - Progress
-  - RichText
-- 表单组件
-  - Button
-  - Checkbox
-  - CheckboxGroup
-  - Editor
-  - Form
-  - Input
-  - Label
-  - Picker
-  - PickerView
-  - PickerViewColumn
-  - Radio
-  - RadioGroup
-  - Slider
-  - Switch
-  - Textarea
-- 导航组件
-  - FunctionalPageNavigator
-  - NavigationBar
-  - Navigator
-  - TabItem
-  - Tabs
-- 媒体组件
-  - Camera
-  - Image
-  - Video
-- 视图容器
-  - ScrollView
-  - Swiper
-  - SwiperItem
-  - View
-
-### 路径别名
-
-项目配置了 `@/*` 路径别名指向 `src/*`：
-
-```typescript
-import { SomeComponent } from '@/components/SomeComponent'
-import { useUserStore } from '@/stores/user'
-```
-
-### 代码模板
-
-#### 页面组件 (TypeScript + React)
-
-```tsx
-// src/pages/example/index.tsx
-import { View, Text } from '@tarojs/components'
-import { useLoad, useDidShow } from '@tarojs/taro'
-import type { FC } from 'react'
-import './index.css'
-
-const ExamplePage: FC = () => {
-  useLoad(() => {
-    console.log('Page loaded.')
-  })
-
-  useDidShow(() => {
-    console.log('Page showed.')
-  })
-
-  return (
-    <View className="flex flex-col items-center p-4">
-      <Text className="text-lg font-bold">Hello Taro!</Text>
-    </View>
-  )
-}
-
-export default ExamplePage
-```
-
-#### 页面配置
-
-```typescript
-// src/pages/example/index.config.ts
-import { definePageConfig } from '@tarojs/taro'
-
-export default definePageConfig({
-  navigationBarTitleText: '示例页面',
-  enablePullDownRefresh: true,
-  backgroundTextStyle: 'dark',
-})
-```
-
-#### 应用配置
-
-```typescript
-// src/app.config.ts
-import { defineAppConfig } from '@tarojs/taro'
-
-export default defineAppConfig({
-  pages: [
-    'pages/index/index',
-    'pages/example/index',
-  ],
-  window: {
-    backgroundTextStyle: 'light',
-    navigationBarBackgroundColor: '#fff',
-    navigationBarTitleText: 'App',
-    navigationBarTextStyle: 'black',
-  },
-  // TabBar 配置 (可选)
-  // tabBar: {
-  //   list: [
-  //     { pagePath: 'pages/index/index', text: '首页' },
-  //   ],
-  // },
-})
-```
-
-### 发送请求
-
-**IMPORTANT: 禁止直接使用 Taro.request、Taro.uploadFile、Taro.downloadFile，使用 Network.request、Network.uploadFile、Network.downloadFile 替代。**
-
-Network 是对 Taro.request、Taro.uploadFile、Taro.downloadFile 的封装，自动添加项目域名前缀，参数与 Taro 一致。
-
-✅ 正确使用方式
-
-```typescript
-import { Network } from '@/network'
-
-// GET 请求
-const data = await Network.request({ 
-  url: '/api/hello' 
-})
-
-// POST 请求
-const result = await Network.request({
-  url: '/api/user/login',
-  method: 'POST',
-  data: { username, password }
-})
-
-// 文件上传
-await Network.uploadFile({
-  url: '/api/upload',
-  filePath: tempFilePath,
-  name: 'file'
-})
-
-// 文件下载
-await Network.downloadFile({
-  url: '/api/download/file.pdf'
-})
-```
-
-❌ 错误用法
-
-```typescript
-import Taro from '@tarojs/taro'
-
-// ❌ 会导致自动域名拼接无法生效，除非是特殊指定域名
-const data = await Network.request({ 
-  url: 'http://localhost/api/hello' 
-})
-
-// ❌ 不要直接使用 Taro.request
-await Taro.request({ url: '/api/hello' })
-
-// ❌ 不要直接使用 Taro.uploadFile
-await Taro.uploadFile({ url: '/api/upload', filePath, name: 'file' })
-```
-
-### Zustand 状态管理
-
-```typescript
-// src/stores/user.ts
-import { create } from 'zustand'
-
-interface UserState {
-  userInfo: UserInfo | null
-  token: string
-  setUserInfo: (info: UserInfo) => void
-  setToken: (token: string) => void
-  logout: () => void
-}
-
-interface UserInfo {
-  id: string
-  name: string
-  avatar: string
-}
-
-export const useUserStore = create<UserState>((set) => ({
-  userInfo: null,
-  token: '',
-  setUserInfo: (info) => set({ userInfo: info }),
-  setToken: (token) => set({ token }),
-  logout: () => set({ userInfo: null, token: '' }),
-}))
-```
-
-### Taro 生命周期 Hooks
-
-```typescript
-import {
-  useLoad,             // 页面加载 (onLoad)
-  useReady,            // 页面初次渲染完成 (onReady)
-  useDidShow,          // 页面显示 (onShow)
-  useDidHide,          // 页面隐藏 (onHide)
-  usePullDownRefresh,  // 下拉刷新 (onPullDownRefresh)
-  useReachBottom,      // 触底加载 (onReachBottom)
-  useShareAppMessage,  // 分享 (onShareAppMessage)
-  useRouter,           // 获取路由参数
-} from '@tarojs/taro'
-```
-
-### 路由导航
-
-```typescript
-import Taro from '@tarojs/taro'
-
-// 保留当前页面，跳转到新页面
-Taro.navigateTo({ url: '/pages/detail/index?id=1' })
-
-// 关闭当前页面，跳转到新页面
-Taro.redirectTo({ url: '/pages/detail/index' })
-
-// 跳转到 tabBar 页面
-Taro.switchTab({ url: '/pages/index/index' })
-
-// 返回上一页
-Taro.navigateBack({ delta: 1 })
-
-// 获取路由参数
-const router = useRouter()
-const { id } = router.params
-```
-
-### 图标使用 (lucide-react)
-
-项目集成了 [lucide-react](https://lucide.dev/) 图标库，提供丰富的 SVG 图标：
-
-```tsx
-import { View } from '@tarojs/components'
-import { Home, Settings, User, Search, Heart, Star } from 'lucide-react'
-
-const IconDemo = () => {
-  return (
-    <View className="flex gap-4">
-      <Home size={24} color="#333" />
-      <Settings size={24} className="text-blue-500" />
-      <User size={20} strokeWidth={1.5} />
-      <Search size={24} />
-      <Heart size={24} fill="red" color="red" />
-      <Star size={24} className="text-yellow-500" />
-    </View>
-  )
-}
-```
-
-常用属性：
-- `size` - 图标大小（默认 24）
-- `color` - 图标颜色
-- `strokeWidth` - 线条粗细（默认 2）
-- `className` - 支持 Tailwind 类名
-
-更多图标请访问：https://lucide.dev/icons
-
-### Tailwind CSS 样式开发
-
-IMPORTANT：必须使用 tailwindcss 实现样式，只有在必要情况下才能 fallback 到 css / less
-
-> 项目已集成 Tailwind CSS 4.x + weapp-tailwindcss，支持跨端原子化样式：
-
-```tsx
-<View className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-  <Text className="text-2xl font-bold text-blue-600 mb-4">标题</Text>
-  <View className="w-full px-4">
-    <Button className="w-full bg-blue-500 text-white rounded-lg py-3">
-      按钮
-    </Button>
-  </View>
-</View>
-```
-
-### 性能优化
-
-#### 图片懒加载
-
-```tsx
-import { Image } from '@tarojs/components'
-
-<Image src={imageUrl} lazyLoad mode="aspectFill" />
-```
-
-#### 虚拟列表
-
-```tsx
-import { VirtualList } from '@tarojs/components'
-
-<VirtualList
-  height={500}
-  itemData={list}
-  itemCount={list.length}
-  itemSize={100}
-  renderItem={({ index, style, data }) => (
-    <View style={style}>{data[index].name}</View>
-  )}
-/>
-```
-
-#### 分包加载
-
-```typescript
-// src/app.config.ts
-export default defineAppConfig({
-  pages: ['pages/index/index'],
-  subPackages: [
-    {
-      root: 'packageA',
-      pages: ['pages/detail/index'],
-    },
-  ],
-})
-```
-
-### 小程序限制
-
-| 限制项   | 说明                                     |
-| -------- | ---------------------------------------- |
-| 主包体积 | ≤ 2MB                                    |
-| 总包体积 | ≤ 20MB                                   |
-| 域名配置 | 生产环境需在小程序后台配置合法域名       |
-| 本地开发 | 需在微信开发者工具开启「不校验合法域名」 |
-
-### 权限配置
-
-```typescript
-// src/app.config.ts
-export default defineAppConfig({
-  // ...其他配置
-  permission: {
-    'scope.userLocation': {
-      desc: '你的位置信息将用于小程序位置接口的效果展示'
-    }
-  },
-  requiredPrivateInfos: ['getLocation', 'chooseAddress']
-})
-```
-
-### 位置服务
-
-```typescript
-// 需先在 app.config.ts 中配置 permission
-async function getLocation(): Promise<Taro.getLocation.SuccessCallbackResult> {
-  return await Taro.getLocation({ type: 'gcj02' })
-}
-```
-
-## 后端核心开发规范
-
-本项目后端基于 NestJS + TypeScript 构建，提供高效、可扩展的服务端能力。
-
-### 项目结构
-
-```sh
-.
-├── server/                   # NestJS 后端服务
-│   └── src/
-│       ├── main.ts           # 服务入口
-│       ├── app.module.ts     # 根模块
-│       ├── app.controller.ts # 根控制器
-│       └── app.service.ts    # 根服务
-```
-
-### 开发命令
-
-```sh
-pnpm dev:server // 启动开发服务 (热重载, 默认端口 3000)
-pnpm build:server // 构建生产版本
-```
-
-### 新建模块流程 (CLI)
-
-快速生成样板代码：
+### 2. 后端服务启动
 
 ```bash
 cd server
-
-# 生成完整的 CRUD 资源 (包含 Module, Controller, Service, DTO, Entity)
-npx nest g resource modules/product
-
-# 仅生成特定部分
-npx nest g module modules/order
-npx nest g controller modules/order
-npx nest g service modules/order
+npm install
+cp .env.example .env
+# 配置数据库连接信息
+npm run start:dev
 ```
 
-### 环境变量配置
+后端服务将在 `http://localhost:3001` 启动
 
-在 server/ 根目录创建 .env 文件：
+### 3. Web管理端启动
 
-```sh
-## 服务端口
-PORT=3000
-
-## 微信小程序配置
-WX_APP_ID=你的AppID
-WX_APP_SECRET=你的AppSecret
-
-## JWT 密钥
-JWT_SECRET=your-super-secret-key
+```bash
+cd admin-web
+npm install
+npm run dev
 ```
 
-在代码中使用 @nestjs/config 读取环境变量：
+管理端将在 `http://localhost:5173` 启动
 
-```typescript
-import { ConfigService } from '@nestjs/config';
+### 4. 小程序端启动
 
-// 在 Service 中注入
-constructor(private configService: ConfigService) {}
-
-getWxConfig() {
-  return {
-    appId: this.configService.get<string>('WX_APP_ID'),
-    secret: this.configService.get<string>('WX_APP_SECRET'),
-  };
-}
+```bash
+cd mini-app
+npm install
+npm run dev:h5
 ```
 
-### 标准响应封装
-
-建议使用拦截器 (Interceptor) 统一 API 响应格式：
-
-```typeScript
-// src/common/interceptors/transform.interceptor.ts
-import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-
-export interface Response<T> {
-  code: number;
-  data: T;
-  message: string;
-}
-
-@Injectable()
-export class TransformInterceptor<T> implements NestInterceptor<T, Response<T>> {
-  intercept(context: ExecutionContext, next: CallHandler): Observable<Response<T>> {
-    return next.handle().pipe(
-      map((data) => ({
-        code: 200,
-        data,
-        message: 'success',
-      })),
-    );
-  }
-}
+H5版本将在浏览器中启动，或使用：
+```bash
+npm run dev:mp-weixin
 ```
 
-在 main.ts 中全局注册：
+启动微信小程序开发工具
 
-```typescript
-app.useGlobalInterceptors(new TransformInterceptor());
-```
+---
 
-### 微信登录后端实现
+## 📦 功能模块
 
-```typescript
-// src/modules/auth/auth.service.ts
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { HttpService } from '@nestjs/axios';
-import { ConfigService } from '@nestjs/config';
-import { lastValueFrom } from 'rxjs';
+### 管理端功能
 
-@Injectable()
-export class AuthService {
-  constructor(
-    private httpService: HttpService,
-    private configService: ConfigService,
-  ) {}
+| 模块 | 功能 |
+|------|------|
+| 仪表板 | 数据概览、统计图表 |
+| 客户管理 | 客户CRUD、积分管理、积分历史 |
+| 产品管理 | 产品CRUD、库存管理 |
+| 订单管理 | 订单CRUD、支付、取消 |
+| 优惠券管理 | 优惠券CRUD、核销 |
+| 活动管理 | 活动CRUD、游戏配置 |
+| 抽奖管理 | 奖品管理、抽奖记录 |
+| 员工管理 | 员工CRUD、角色权限 |
+| 统计分析 | 销售统计、客户分析 |
 
-  async code2Session(code: string) {
-    const appId = this.configService.get('WX_APP_ID');
-    const secret = this.configService.get('WX_APP_SECRET');
-    const url = `https://api.weixin.qq.com/sns/jscode2session?appid=${appId}&secret=${secret}&js_code=${code}&grant_type=authorization_code`;
+### 小程序端功能
 
-    const { data } = await lastValueFrom(this.httpService.get(url));
+| 模块 | 功能 |
+|------|------|
+| 登录注册 | 用户认证 |
+| 首页 | 活动列表、游戏入口 |
+| 抽奖游戏 | 参与抽奖活动 |
+| 我的优惠券 | 优惠券列表、使用 |
+| 积分记录 | 积分余额、积分历史 |
+| 购买记录 | 订单列表、订单详情 |
+| 抽奖记录 | 抽奖历史、奖品领取 |
+| 个人中心 | 用户信息、设置 |
+| 优惠券核销 | 扫码核销优惠券 |
 
-    if (data.errcode) {
-      throw new UnauthorizedException(`微信登录失败: ${data.errmsg}`);
-    }
+---
 
-    return data; // 包含 openid, session_key
-  }
-}
-```
+## 🔌 API接口
 
-### 异常处理
-
-使用全局异常过滤器 (Filter) 统一错误响应：
-
-```typescript
-// src/common/filters/http-exception.filter.ts
-import { ExceptionFilter, Catch, ArgumentsHost, HttpException } from '@nestjs/common';
-import { Response } from 'express';
-
-@Catch(HttpException)
-export class HttpExceptionFilter implements ExceptionFilter {
-  catch(exception: HttpException, host: ArgumentsHost) {
-    const ctx = host.switchToHttp();
-    const response = ctx.getResponse<Response>();
-    const status = exception.getStatus();
-    const exceptionResponse = exception.getResponse();
-
-    response.status(status).json({
-      code: status,
-      message: typeof exceptionResponse === 'string' ? exceptionResponse : (exceptionResponse as any).message,
-      data: null,
-    });
-  }
-}
-```
-
-在 main.ts 中注册：
+### 认证接口
 
 ```
-app.useGlobalFilters(new HttpExceptionFilter());
+POST /auth/login        # 用户登录
+POST /auth/register     # 用户注册
+GET  /auth/profile      # 获取用户信息（需认证）
 ```
 
-### 数据库 (Drizzle ORM)
+### 客户接口
 
-推荐使用 [Drizzle ORM](https://orm.drizzle.team/)，已预安装。
-
-### 类型校验 (Zod)
-
-项目集成了 [Zod](https://zod.dev/) 用于运行时类型校验。
-
-#### 定义 Schema
-
-```typescript
-import { z } from 'zod';
-
-// 基础类型
-const userSchema = z.object({
-  id: z.number(),
-  name: z.string().min(1).max(50),
-  email: z.string().email(),
-  age: z.number().int().positive().optional(),
-});
-
-// 从 schema 推导 TypeScript 类型
-type User = z.infer<typeof userSchema>;
+```
+GET    /customers              # 获取客户列表
+GET    /customers/:id          # 获取客户详情
+POST   /customers              # 创建客户（需认证）
+PUT    /customers/:id          # 更新客户（需认证）
+DELETE /customers/:id          # 删除客户（需认证）
+GET    /customers/:id/points-history # 获取积分历史
+POST   /customers/:id/add-points    # 增加积分
+POST   /customers/:id/use-points    # 使用积分
 ```
 
-#### 请求校验
+### 产品接口
 
-```typescript
-// src/modules/user/dto/create-user.dto.ts
-import { z } from 'zod';
-
-export const createUserSchema = z.object({
-  nickname: z.string().min(1, '昵称不能为空').max(20, '昵称最多20个字符'),
-  avatar: z.string().url('头像必须是有效的URL').optional(),
-  phone: z.string().regex(/^1[3-9]\d{9}$/, '手机号格式不正确').optional(),
-});
-
-export type CreateUserDto = z.infer<typeof createUserSchema>;
-
-// 在 Controller 中使用
-@Post()
-create(@Body() body: unknown) {
-  const result = createUserSchema.safeParse(body);
-  if (!result.success) {
-    throw new BadRequestException(result.error.errors);
-  }
-  return this.userService.create(result.data);
-}
 ```
+GET    /products              # 获取产品列表
+GET    /products/:id          # 获取产品详情
+POST   /products              # 创建产品（需认证）
+PUT    /products/:id          # 更新产品（需认证）
+DELETE /products/:id          # 删除产品（需认证）
+GET    /products/category/:category # 按分类查询
+```
+
+### 订单接口
+
+```
+GET    /orders                # 获取订单列表
+GET    /orders/:id            # 获取订单详情
+GET    /orders/customer/:customerId # 按客户查询
+POST   /orders                # 创建订单（需认证）
+PUT    /orders/:id            # 更新订单（需认证）
+PUT    /orders/:id/pay        # 支付订单
+PUT    /orders/:id/cancel     # 取消订单
+DELETE /orders/:id            # 删除订单（需认证）
+```
+
+### 优惠券接口
+
+```
+GET    /coupons                       # 获取优惠券列表
+GET    /coupons/:id                   # 获取优惠券详情
+GET    /coupons/customer/:customerId  # 按客户查询
+POST   /coupons                       # 创建优惠券（需认证）
+PUT    /coupons/:id                   # 更新优惠券（需认证）
+DELETE /coupons/:id                   # 删除优惠券（需认证）
+POST   /coupons/customer/:customerId/claim/:couponId  # 领取优惠券
+POST   /coupons/customer/:customerId/use/:couponId     # 使用优惠券
+```
+
+### 活动接口
+
+```
+GET    /activities              # 获取活动列表
+GET    /activities/:id          # 获取活动详情
+POST   /activities              # 创建活动（需认证）
+PUT    /activities/:id          # 更新活动（需认证）
+DELETE /activities/:id          # 删除活动（需认证）
+GET    /activities/game-types/all # 获取所有游戏类型
+POST   /activities/game-types   # 创建游戏类型（需认证）
+POST   /activities/:id/games   # 添加游戏到活动
+POST   /activities/:activityId/games/:gameId/prizes # 添加奖品到游戏
+```
+
+### 奖品接口
+
+```
+GET    /prizes         # 获取奖品列表
+GET    /prizes/:id     # 获取奖品详情
+POST   /prizes         # 创建奖品（需认证）
+PUT    /prizes/:id     # 更新奖品（需认证）
+DELETE /prizes/:id     # 删除奖品（需认证）
+```
+
+### 抽奖接口
+
+```
+GET    /lottery/records              # 获取抽奖记录
+GET    /lottery/records/customer/:customerId # 按客户查询
+POST   /lottery/draw                 # 抽奖（需认证）
+PUT    /lottery/records/:id/claim    # 领取奖品（需认证）
+```
+
+### 员工接口
+
+```
+GET    /staff              # 获取员工列表
+GET    /staff/:id          # 获取员工详情
+POST   /staff              # 创建员工（需认证）
+PUT    /staff/:id          # 更新员工（需认证）
+DELETE /staff/:id          # 删除员工（需认证）
+GET    /staff/roles/all    # 获取所有角色
+POST   /staff/roles        # 创建角色（需认证）
+GET    /staff/permissions/all # 获取所有权限
+POST   /staff/permissions     # 创建权限（需认证）
+POST   /staff/roles/:roleId/permissions # 添加权限到角色
+```
+
+---
+
+## 🔐 认证与授权
+
+系统采用JWT Token认证机制：
+
+1. **登录流程**
+   - 用户提交用户名和密码
+   - 后端验证并生成JWT Token
+   - 前端存储Token到localStorage
+   - 后续请求携带Token
+
+2. **权限控制**
+   - 基于角色的访问控制（RBAC）
+   - 角色包含多个权限
+   - 接口级别的权限验证
+
+3. **默认角色**
+   - 超级管理员：拥有所有权限
+   - 管理员：拥有大部分权限
+   - 员工：拥有基本操作权限
+
+---
+
+## 📊 数据库配置
+
+### 环境变量
+
+在 `server/.env` 中配置数据库连接：
+
+```env
+DB_HOST=localhost
+DB_PORT=3306
+DB_USERNAME=root
+DB_PASSWORD=your_password
+DB_DATABASE=crm_system
+PORT=3001
+```
+
+### 数据库初始化
+
+```bash
+# 执行初始化脚本
+mysql -u root -p < server/database-init-v3.sql
+```
+
+---
+
+## 🚢 部署指南
+
+### 生产环境部署
+
+#### 1. 后端部署
+
+```bash
+cd server
+npm run build
+npm run start:prod
+```
+
+#### 2. 管理端部署
+
+```bash
+cd admin-web
+npm run build
+# 将dist目录部署到Web服务器
+```
+
+#### 3. 小程序部署
+
+```bash
+cd mini-app
+npm run build:mp-weixin
+# 使用微信开发者工具上传代码
+```
+
+### Docker部署（可选）
+
+```bash
+# 构建镜像
+docker-compose build
+
+# 启动服务
+docker-compose up -d
+```
+
+---
+
+## 📝 开发规范
+
+### 代码风格
+
+- 使用TypeScript进行类型检查
+- 遵循ESLint规则
+- 使用Prettier格式化代码
+
+### Git提交规范
+
+```
+feat: 新功能
+fix: 修复bug
+docs: 文档更新
+style: 代码格式调整
+refactor: 重构
+test: 测试相关
+chore: 构建/工具链相关
+```
+
+---
+
+## 🐛 常见问题
+
+### Q1: 后端启动失败？
+
+A: 检查数据库连接配置，确保MySQL服务已启动，数据库已创建。
+
+### Q2: 前端无法连接后端？
+
+A: 检查后端服务是否在3001端口运行，检查防火墙设置。
+
+### Q3: 小程序API调用失败？
+
+A: 检查API BaseURL配置，确保指向正确的后端地址。
+
+---
+
+## 📄 许可证
+
+本项目仅供学习和研究使用。
+
+---
+
+## 👥 贡献
+
+欢迎提交Issue和Pull Request来改进项目。
+
+---
+
+## 📞 联系方式
+
+如有问题，请通过以下方式联系：
+
+- 提交Issue
+- 发送邮件
+
+---
+
+**版本**: v5.0  
+**最后更新**: 2026-02-14  
+**状态**: ✅ 生产就绪

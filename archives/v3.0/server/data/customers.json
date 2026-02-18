@@ -1,0 +1,22 @@
+[
+  {
+    "id": "1770906232220yymry6qdw",
+    "name": "user1",
+    "phone": "",
+    "points": 23986,
+    "createdAt": "2026-02-12T14:23:52.220Z",
+    "updatedAt": "2026-02-12T16:47:00.279Z",
+    "userId": "1770906267929cy532wwlk",
+    "password": "hash_MTIzNDU2"
+  },
+  {
+    "id": "1770908535146bn0yfraf6",
+    "name": "houtai1",
+    "phone": "",
+    "points": 0,
+    "createdAt": "2026-02-12T15:02:15.146Z",
+    "updatedAt": "2026-02-12T15:02:15.148Z",
+    "userId": "1770908535148xyfip5jlb",
+    "password": "hash_MTIzNDU2"
+  }
+]

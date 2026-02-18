@@ -1,0 +1,116 @@
+{
+	"pages": [
+		{
+			"path": "pages/activity/index",
+			"style": {
+				"navigationBarTitleText": "精彩活动",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/activity/detail",
+			"style": {
+				"navigationBarTitleText": "活动详情",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationBarTitleText": "抽奖游戏"
+			}
+		},
+		{
+			"path": "pages/index/slot",
+			"style": {
+				"navigationBarTitleText": "幸运老虎机"
+			}
+		},
+		{
+			"path": "pages/index/wheel",
+			"style": {
+				"navigationBarTitleText": "幸运大转盘"
+			}
+		},
+		{
+			"path": "pages/login/login",
+			"style": {
+				"navigationBarTitleText": "登录"
+			}
+		},
+		{
+			"path": "pages/register/register",
+			"style": {
+				"navigationBarTitleText": "注册"
+			}
+		},
+		{
+			"path": "pages/mine/index",
+			"style": {
+				"navigationBarTitleText": "我的中心"
+			}
+		},
+		{
+			"path": "pages/mine/orders",
+			"style": {
+				"navigationBarTitleText": "我的订单"
+			}
+		},
+		{
+			"path": "pages/mine/coupons",
+			"style": {
+				"navigationBarTitleText": "我的券"
+			}
+		},
+		{
+			"path": "pages/mine/points",
+			"style": {
+				"navigationBarTitleText": "我的积分"
+			}
+		},
+		{
+			"path": "pages/mine/profile",
+			"style": {
+				"navigationBarTitleText": "我的资料"
+			}
+		},
+		{
+			"path": "pages/mine/lottery-records",
+			"style": {
+				"navigationBarTitleText": "抽奖记录"
+			}
+		},
+		{
+			"path": "pages/mine/order-detail",
+			"style": {
+				"navigationBarTitleText": "订单详情"
+			}
+		}
+	],
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "客户中心",
+		"navigationBarBackgroundColor": "#FFFFFF",
+		"backgroundColor": "#F5F5F5"
+	},
+	"tabBar": {
+		"color": "#999999",
+		"selectedColor": "#667eea",
+		"backgroundColor": "#FFFFFF",
+		"borderStyle": "black",
+		"list": [
+			{
+				"pagePath": "pages/activity/index",
+				"text": "活动",
+				"iconPath": "static/tabbar/home.svg",
+				"selectedIconPath": "static/tabbar/home-active.svg"
+			},
+			{
+				"pagePath": "pages/mine/index",
+				"text": "我的中心",
+				"iconPath": "static/tabbar/mine.svg",
+				"selectedIconPath": "static/tabbar/mine-active.svg"
+			}
+		]
+	}
+}

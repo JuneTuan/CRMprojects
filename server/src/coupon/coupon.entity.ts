@@ -16,6 +16,9 @@ export class Coupon {
   @Column({ name: 'value', type: 'decimal', precision: 10, scale: 2, nullable: false })
   value: number;
 
+  @Column({ name: 'type', type: 'enum', enum: ['代金券', '实物券'], nullable: false })
+  type: string;
+
   @Column({ name: 'start_time', nullable: false, type: 'timestamp' })
   startTime: Date;
 
