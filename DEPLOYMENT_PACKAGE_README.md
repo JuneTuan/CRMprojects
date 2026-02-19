@@ -275,7 +275,7 @@ pm2 start dist/src/main.js --name crm-server
 - **版本号**: R1.2.0
 - **发布日期**: 2026-02-19
 - **Git标签**: R1
-- **分支**: V5.0
+- **分支**: main
 
 ---
 

@@ -320,7 +320,7 @@ services:
 ### 1. 拉取最新代码
 
 ```bash
-git pull origin V5.0
+git pull origin main
 ```
 
 ### 2. 重新构建镜像

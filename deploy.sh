@@ -69,10 +69,10 @@ check_git_status() {
 verify_branch() {
     echo -n "验证当前分支... "
     CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-    if [ "$CURRENT_BRANCH" = "V5.0" ]; then
+    if [ "$CURRENT_BRANCH" = "main" ]; then
         echo -e "${GREEN}✓ $CURRENT_BRANCH${NC}"
     else
-        echo -e "${YELLOW}⚠ 当前分支: $CURRENT_BRANCH (建议使用 V5.0)${NC}"
+        echo -e "${YELLOW}⚠ 当前分支: $CURRENT_BRANCH (建议使用 main)${NC}"
         read -p "是否继续部署? (y/n) " -n 1 -r
         echo
         if [[ ! $REPLY =~ ^[Yy]$ ]]; then
