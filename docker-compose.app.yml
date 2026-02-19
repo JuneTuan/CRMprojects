@@ -38,5 +38,16 @@ services:
     depends_on:
       - server
 
+  customer-h5:
+    build:
+      context: ./customerH5
+      dockerfile: Dockerfile
+    container_name: junlite-crm-customer-h5
+    restart: always
+    ports:
+      - "8081:80"
+    depends_on:
+      - server
+
 volumes:
   server_uploads:
