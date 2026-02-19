@@ -1,1 +1,0 @@
-ALTER TABLE `prize` MODIFY COLUMN `type` ENUM('券', '实物', '积分') NOT NULL;

@@ -1,6 +1,6 @@
 {
   "name": "crm-server",
-  "version": "R1.0.0",
+  "version": "R1.1.0",
   "description": "CRM System Backend Server",
   "author": "",
   "private": true,

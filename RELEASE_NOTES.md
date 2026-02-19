@@ -1,14 +1,14 @@
-# CRM系统 R1.0.0 发布说明
+# CRM系统 R1.1.0 发布说明
 
 ## 🎉 版本发布
 
-CRM系统 R1.0.0 版本已准备就绪，可以部署到生产环境！
+CRM系统 R1.1.0 版本已准备就绪，可以部署到生产环境！
 
 ## 📦 版本信息
 
-- **版本号**: R1.0.0
+- **版本号**: R1.1.0
 - **发布日期**: 2026-02-19
-- **Git标签**: R1
+- **Git标签**: R1.1
 - **分支**: V5.0
 - **状态**: ✅ 生产就绪
 
@@ -189,6 +189,29 @@ R1.0.0 版本已完成以下测试：
 - 优化移动端体验
 
 ## 📝 更新日志
+
+### R1.1.0 (2026-02-19)
+
+**代码优化**：
+- 清理所有临时脚本和迁移文件
+- 删除不用的数据库脚本（add-active-game-type.sql, add-activity-type.sql等）
+- 删除不用的TypeScript迁移脚本（run-migration.ts, run-prize-type-migration.ts等）
+- 删除不用的JavaScript脚本（add-prizes-activity7.js, add-scratch-card-activity7.js等）
+- 删除server/scripts目录及其内容
+- 删除server/customerH5目录
+- 删除server/API_ENDPOINTS_ANALYSIS.md文档
+- 更新.gitignore排除archives目录
+
+**版本更新**：
+- 更新后端版本号：R1.0.0 → R1.1.0
+- 更新管理后台版本号：R1.0.0 → R1.1.0
+- 更新H5前端版本号：R1.0.0 → R1.1.0
+- 更新部署文档中的版本信息
+
+**部署优化**：
+- 更新所有部署文档至R1.1.0版本
+- 清理项目结构，移除历史版本文件
+- 优化部署包结构
 
 ### R1.0.0 (2026-02-19)
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# CRM系统 R1.0.0 部署脚本
+# CRM系统 R1.1.0 部署脚本
 # 使用方法: ./deploy.sh [environment]
 # environment: development | production
 
@@ -10,7 +10,7 @@ ENVIRONMENT=${1:-production}
 PROJECT_DIR="/Users/duanjunyi/LocalFY25/codeGPT/CRMprojects"
 
 echo "=========================================="
-echo "CRM系统部署脚本 - R1.0.0"
+echo "CRM系统部署脚本 - R1.1.0"
 echo "=========================================="
 echo "环境: $ENVIRONMENT"
 echo ""
@@ -160,7 +160,7 @@ create_deployment_package() {
     cd "$PROJECT_DIR"
     
     # 创建部署目录
-    DEPLOY_DIR="deployment-r1.0.0"
+    DEPLOY_DIR="deployment-r1.1.0"
     rm -rf "$DEPLOY_DIR"
     mkdir -p "$DEPLOY_DIR"
     
@@ -195,7 +195,7 @@ create_deployment_package() {
 # 生产环境部署脚本
 set -e
 
-echo "开始部署CRM系统 R1.0.0..."
+echo "开始部署CRM系统 R1.1.0..."
 
 # 部署后端
 echo "部署后端服务..."
@@ -223,9 +223,9 @@ EOF
     
     # 创建压缩包
     echo "创建压缩包..."
-    tar -czf "crm-r1.0.0-deployment.tar.gz" "$DEPLOY_DIR"
+    tar -czf "crm-r1.1.0-deployment.tar.gz" "$DEPLOY_DIR"
     
-    echo -e "${GREEN}✓ 部署包创建成功: crm-r1.0.0-deployment.tar.gz${NC}"
+    echo -e "${GREEN}✓ 部署包创建成功: crm-r1.1.0-deployment.tar.gz${NC}"
 }
 
 # 显示部署信息
@@ -234,9 +234,9 @@ show_deployment_info() {
     echo "=========================================="
     echo "部署信息"
     echo "=========================================="
-    echo "版本: R1.0.0"
+    echo "版本: R1.1.0"
     echo "环境: $ENVIRONMENT"
-    echo "部署包: crm-r1.0.0-deployment.tar.gz"
+    echo "部署包: crm-r1.1.0-deployment.tar.gz"
     echo ""
     echo "下一步操作:"
     echo "1. 将 crm-r1.0.0-deployment.tar.gz 上传到服务器"

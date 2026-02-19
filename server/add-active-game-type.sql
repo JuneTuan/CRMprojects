@@ -1,1 +1,0 @@
-ALTER TABLE `activity` ADD COLUMN `active_game_type` VARCHAR(50) NULL AFTER `image_url`;
