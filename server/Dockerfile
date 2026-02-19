@@ -1,25 +1,21 @@
-FROM node:20-alpine AS builder
+FROM node:20
+
+RUN apt-get update && apt-get install -y ca-certificates && \
+    update-ca-certificates
 
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci
 
-COPY . .
-RUN npm run build
+ENV NODE_TLS_REJECT_UNAUTHORIZED=0
+ENV npm_config_strict_ssl=false
+ENV npm_config_registry=https://registry.npmmirror.com
 
-FROM node:20-alpine
+RUN npm cache clean --force && \
+    npm install
 
-WORKDIR /app
-
-COPY package*.json ./
-RUN npm ci --only=production
-
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-
-RUN npm install -g pm2
+COPY dist ./dist
 
 EXPOSE 3001
 
-CMD ["pm2-runtime", "start", "dist/main.js", "--name", "crm-server"]
+CMD ["node", "dist/main.js"]

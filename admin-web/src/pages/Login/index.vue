@@ -55,7 +55,7 @@ const handleLogin = async () => {
         localStorage.setItem('token', response.access_token);
         localStorage.setItem('userInfo', JSON.stringify(response.user));
         ElMessage.success('登录成功');
-        router.push('/dashboard');
+        router.push('/statistics');
       } catch (error) {
         console.error('登录失败:', error);
       } finally {
