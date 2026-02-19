@@ -1,7 +1,7 @@
 {
   "name": "crm-server",
   "version": "R1.1.0",
-  "description": "CRM System Backend Server",
+  "description": "JunLite CRM Backend Server",
   "author": "",
   "private": true,
   "license": "UNLICENSED",

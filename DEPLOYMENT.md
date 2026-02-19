@@ -1,4 +1,4 @@
-# CRM系统 R1.1.0 部署指南
+# JunLite CRM R1.1.0 部署指南
 
 ## 📋 版本信息
 
@@ -9,7 +9,7 @@
 
 ## 🎯 系统概述
 
-CRM系统是一个完整的客户关系管理系统，包含以下三个主要部分：
+JunLite CRM是一个完整的客户关系管理系统，包含以下三个主要部分：
 
 1. **后端服务** (NestJS + TypeORM + MySQL)
 2. **管理后台** (Vue 3 + Vite + Element Plus)

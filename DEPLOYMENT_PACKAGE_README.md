@@ -1,8 +1,8 @@
-# CRM系统 R1.1.0 部署包说明
+# JunLite CRM R1.1.0 部署包说明
 
 ## 📦 部署包内容
 
-本部署包包含CRM系统 R1.1.0 版本的所有必要文件：
+本部署包包含JunLite CRM R1.1.0 版本的所有必要文件：
 
 ```
 crm-r1.1.0-deployment.tar.gz

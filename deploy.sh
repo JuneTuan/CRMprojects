@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# CRM系统 R1.1.0 部署脚本
+# JunLite CRM R1.1.0 部署脚本
 # 使用方法: ./deploy.sh [environment]
 # environment: development | production
 
@@ -10,7 +10,7 @@ ENVIRONMENT=${1:-production}
 PROJECT_DIR="/Users/duanjunyi/LocalFY25/codeGPT/CRMprojects"
 
 echo "=========================================="
-echo "CRM系统部署脚本 - R1.1.0"
+echo "JunLite CRM部署脚本 - R1.1.0"
 echo "=========================================="
 echo "环境: $ENVIRONMENT"
 echo ""
@@ -195,7 +195,7 @@ create_deployment_package() {
 # 生产环境部署脚本
 set -e
 
-echo "开始部署CRM系统 R1.1.0..."
+echo "开始部署JunLite CRM R1.1.0..."
 
 # 部署后端
 echo "部署后端服务..."
