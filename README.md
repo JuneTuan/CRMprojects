@@ -507,7 +507,7 @@ npm run build:h5
 # 将dist目录部署到Web服务器
 ```
 
-### Docker部署（可选）
+### Docker部署（推荐）
 
 ```bash
 # 构建镜像
@@ -515,6 +515,27 @@ docker-compose build
 
 # 启动服务
 docker-compose up -d
+```
+
+详细部署指南请参考：[DOCKER_DEPLOYMENT.md](./DOCKER_DEPLOYMENT.md)
+
+### 传统部署（可选）
+
+```bash
+# 后端部署
+cd server
+npm run build
+# 使用PM2启动
+
+# 管理后台部署
+cd admin-web
+npm run build
+# 将dist目录部署到Web服务器
+
+# H5前端部署
+cd customerH5
+npm run build:h5
+# 将dist目录部署到Web服务器
 ```
 
 ---

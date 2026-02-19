@@ -31,7 +31,63 @@ JunLite CRM是一个完整的客户关系管理系统，包含以下三个主要
 - **npm**: >= 9.0.0
 - **Git**: >= 2.0
 
-## 📦 部署步骤
+## 🐳 Docker 部署（推荐）
+
+如果您希望快速部署，可以使用Docker和Docker Compose。这是最简单和最推荐的部署方式。
+
+### 前置要求
+
+- **Docker**: >= 20.10
+- **Docker Compose**: >= 2.0
+- 至少2GB可用内存
+- 至少10GB可用磁盘空间
+
+### 快速开始
+
+```bash
+# 1. 克隆代码
+git clone https://github.com/JuneTuan/CRMprojects.git
+cd CRMprojects
+git checkout R1.2
+
+# 2. 配置环境变量
+cp .env.docker .env
+# 编辑 .env 文件，修改数据库密码和JWT密钥
+
+# 3. 启动所有服务
+docker-compose up -d
+
+# 4. 查看服务状态
+docker-compose ps
+```
+
+### 访问应用
+
+- **管理后台**: http://localhost:8080
+- **H5前端**: http://localhost:8081
+- **后端API**: http://localhost:3001
+
+### 常用命令
+
+```bash
+# 查看日志
+docker-compose logs -f
+
+# 停止服务
+docker-compose down
+
+# 重启服务
+docker-compose restart
+
+# 重新构建
+docker-compose up -d --build
+```
+
+### 详细文档
+
+详细的Docker部署指南请参考：[DOCKER_DEPLOYMENT.md](./DOCKER_DEPLOYMENT.md)
+
+## 📦 传统部署步骤
 
 ### 1. 克隆代码
 
