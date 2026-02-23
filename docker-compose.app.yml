@@ -45,7 +45,7 @@ services:
     container_name: junlite-crm-customer-h5
     restart: always
     ports:
-      - "8081:80"
+      - "8081:5173"
     depends_on:
       - server
 

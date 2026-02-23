@@ -12,6 +12,35 @@
  * 如果你的项目同样使用了scss预处理，你也可以直接在你的 scss 代码中使用如下变量，同时无需 import 这个文件
  */
 
+/* uview-plus 主题变量 */
+$u-primary: #2979ff;
+$u-success: #19be6b;
+$u-warning: #ff9900;
+$u-error: #fa3534;
+$u-info: #909399;
+$u-content-color: #606266;
+$u-main-color: #303133;
+$u-secondary-color: #909399;
+$u-border-color: #e4e7ed;
+$u-bg-color: #f3f4f6;
+$u-form-item-border-color: #dcdfe6;
+$u-form-item-error-border-color: #fa3534;
+
+/* uview-plus 间距变量 */
+$u-spacing-base: 15px;
+
+/* uview-plus 字体变量 */
+$u-font-size-sm: 12px;
+$u-font-size-base: 14px;
+$u-font-size-lg: 16px;
+$u-font-size-xl: 20px;
+
+/* uview-plus flex mixins */
+@mixin flex($direction: row) {
+  display: flex;
+  flex-direction: $direction;
+}
+
 /* 颜色变量 */
 
 /* 行为相关颜色 */

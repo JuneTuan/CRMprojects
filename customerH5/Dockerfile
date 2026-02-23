@@ -1,9 +1,12 @@
-FROM nginx:alpine
+FROM node:20-alpine
 
-COPY dist/build/h5 /usr/share/nginx/html
+WORKDIR /app
 
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY package*.json ./
+RUN npm install
 
-EXPOSE 80
+COPY . .
 
-CMD ["nginx", "-g", "daemon off;"]
+EXPOSE 5173
+
+CMD ["npx", "uni"]
