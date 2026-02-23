@@ -7,25 +7,24 @@ services:
       dockerfile: Dockerfile
     container_name: junlite-crm-server
     restart: always
+    network_mode: host
     environment:
       NODE_ENV: production
       PORT: 3001
-      DB_HOST: host.docker.internal
+      DB_HOST: localhost
       DB_PORT: 3306
-      DB_USERNAME: ${MYSQL_USER:-root}
-      DB_PASSWORD: ${MYSQL_PASSWORD:-your_mysql_password}
-      DB_DATABASE: ${MYSQL_DATABASE:-crm_db}
+      DB_USERNAME: root
+      DB_PASSWORD: Password01
+      DB_DATABASE: crm_system
       JWT_SECRET: ${JWT_SECRET:-your-jwt-secret-key-change-in-production}
       JWT_EXPIRATION: 7d
       UPLOAD_DIR: /app/uploads
       MAX_FILE_SIZE: 10485760
-      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:8080,http://localhost:8081}
+      CORS_ORIGIN: http://localhost:8080,http://localhost:5173
     ports:
       - "3001:3001"
     volumes:
       - server_uploads:/app/uploads
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
 
   admin-web:
     build:
