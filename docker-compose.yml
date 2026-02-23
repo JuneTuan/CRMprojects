@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   mysql:
-    image: mysql:8.0-alpine
+    image: mysql:8.4
     container_name: junlite-crm-mysql
     restart: always
     environment:
@@ -16,7 +16,6 @@ services:
       - mysql_data:/var/lib/mysql
     networks:
       - junlite-crm-network
-    command: --default-authentication-plugin=mysql_native_password
 
   server:
     build:
