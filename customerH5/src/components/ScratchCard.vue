@@ -52,6 +52,10 @@ const props = defineProps({
     type: Number,
     default: 0
   },
+  actualCostPoints: {
+    type: Number,
+    default: 0
+  },
   userPoints: {
     type: Number,
     default: 0
@@ -75,10 +79,11 @@ const progressTimer = ref(null)
 const canDraw = computed(() => {
   if (isScratching.value || isScratched.value) return false
   
-  if (props.costPoints > 0) {
-    return props.userPoints >= props.costPoints
+  const cost = props.actualCostPoints || props.costPoints
+  if (cost > 0) {
+    return props.userPoints >= cost
   } else {
-    return props.remainingCount > 0
+    return props.remainingCount > 0 || props.userPoints >= 10
   }
 })
 
@@ -285,21 +290,23 @@ defineExpose({
 
 .scratch-card {
   position: relative;
-  width: 600rpx;
+  width: 100%;
+  max-width: 600rpx;
   height: 400rpx;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-radius: 30rpx;
   padding: 20rpx;
   box-shadow: 0 10rpx 30rpx rgba(102, 126, 234, 0.3);
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 .prize-layer {
   position: absolute;
   top: 20rpx;
   left: 20rpx;
-  width: 560rpx;
-  height: 360rpx;
+  right: 20rpx;
+  height: calc(100% - 40rpx);
   background: #fff;
   border-radius: 20rpx;
   display: flex;
@@ -324,8 +331,8 @@ defineExpose({
   position: absolute;
   top: 20rpx;
   left: 20rpx;
-  width: 560rpx;
-  height: 360rpx;
+  right: 20rpx;
+  height: calc(100% - 40rpx);
   border-radius: 20rpx;
   z-index: 10;
 }
@@ -334,8 +341,8 @@ defineExpose({
   position: absolute;
   top: 20rpx;
   left: 20rpx;
-  width: 560rpx;
-  height: 360rpx;
+  right: 20rpx;
+  height: calc(100% - 40rpx);
   background: rgba(0, 0, 0, 0.7);
   border-radius: 20rpx;
   display: flex;

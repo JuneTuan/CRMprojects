@@ -59,12 +59,24 @@
                 v-for="game in activity.gameTypes" 
                 :key="game.gameTypeId"
               >
-                {{ game.gameTypeName }}
+                {{ game.gameTypeName }} ({{ game.gameTypeCode }})
+              </text>
+            </view>
+          </view>
+          <view class="activity-games" v-else-if="activity.gameType">
+            <text class="games-label">游戏类型：</text>
+            <view class="game-tags">
+              <text class="game-tag">
+                {{ activity.gameType }}
               </text>
             </view>
           </view>
           <view class="activity-requirement" v-if="activity.minPoints > 0">
             <text class="requirement-text">⚠️ 需要积分：{{ activity.minPoints }}</text>
+          </view>
+          <view class="activity-draw-info" v-if="activity.activityType === '游戏活动'">
+            <text class="draw-info-text">🎁 免费抽奖：{{ activity.freeDraws }}次</text>
+            <text class="draw-info-text">💰 积分消耗：{{ activity.pointsCost }}积分/次</text>
           </view>
         </view>
       </view>
@@ -431,6 +443,21 @@ const getActivityTypeClass = (type) => {
 .requirement-text {
   font-size: 24rpx;
   color: #856404;
+}
+
+.activity-draw-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  background: #d1ecf1;
+  border-left: 4rpx solid #17a2b8;
+  padding: 16rpx;
+  margin-top: 16rpx;
+}
+
+.draw-info-text {
+  font-size: 24rpx;
+  color: #0c5460;
 }
 
 .empty-state {

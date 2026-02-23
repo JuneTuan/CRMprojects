@@ -33,9 +33,10 @@ import { AppService } from './app.service';
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_DATABASE'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: true,
+        synchronize: false,
         logging: true,
-        charset: 'utf8mb4',
+        charset: 'utf8mb4_unicode_ci',
+        collation: 'utf8mb4_unicode_ci',
         extra: {
           connectionLimit: 10,
         },

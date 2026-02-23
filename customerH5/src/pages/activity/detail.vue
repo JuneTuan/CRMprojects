@@ -20,10 +20,15 @@
         <text class="stat-label">我的积分</text>
         <text class="stat-value">{{ userPoints }}</text>
       </view>
-      <view class="stat-item" v-if="selectedGame">
-        <text class="stat-icon">🎯</text>
-        <text class="stat-label">剩余次数</text>
-        <text class="stat-value">{{ getRemainingDrawText() }}</text>
+      <view class="stat-item">
+        <text class="stat-icon">🎁</text>
+        <text class="stat-label">免费次数</text>
+        <text class="stat-value">{{ remainingFreeDraws }}次</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-icon">💵</text>
+        <text class="stat-label">积分消耗</text>
+        <text class="stat-value">{{ pointsCost }}积分</text>
       </view>
     </view>
 
@@ -50,7 +55,7 @@
     <view class="game-area" v-if="selectedGame && currentGameConfig">
       <view class="game-title">
         <text class="game-name-text">{{ currentGameConfig.name }}</text>
-        <text class="game-status">{{ selectedGame.remainingDrawCount }}/{{ selectedGame.maxDrawCount }}</text>
+        <text class="game-status">{{ selectedGame.remainingDrawCount }}/{{ Math.max(selectedGame.maxDrawCount, remainingFreeDraws + (selectedGame.maxDrawCount || 0)) }}</text>
       </view>
 
       <view class="game-canvas">
@@ -60,6 +65,7 @@
           :items="currentGameItems"
           :remaining-count="selectedGame.remainingDrawCount"
           :cost-points="selectedGame.costPoints"
+          :actual-cost-points="selectedGame.actualCostPoints"
           :user-points="userPoints"
           @spin="handleGameSpin"
           @result="handleGameResult"
@@ -70,6 +76,7 @@
           :items="currentGameItems"
           :remaining-count="selectedGame.remainingDrawCount"
           :cost-points="selectedGame.costPoints"
+          :actual-cost-points="selectedGame.actualCostPoints"
           :user-points="userPoints"
           @spin="handleGameSpin"
           @result="handleGameResult"
@@ -80,6 +87,7 @@
           :items="currentGameItems"
           :remaining-count="selectedGame.remainingDrawCount"
           :cost-points="selectedGame.costPoints"
+          :actual-cost-points="selectedGame.actualCostPoints"
           :user-points="userPoints"
           @open="handleGameSpin"
           @result="handleGameResult"
@@ -90,6 +98,7 @@
           :items="currentGameItems"
           :remaining-count="selectedGame.remainingDrawCount"
           :cost-points="selectedGame.costPoints"
+          :actual-cost-points="selectedGame.actualCostPoints"
           :user-points="userPoints"
           @spin="handleGameSpin"
           @result="handleGameResult"
@@ -100,6 +109,7 @@
           :items="currentGameItems"
           :remaining-count="selectedGame.remainingDrawCount"
           :cost-points="selectedGame.costPoints"
+          :actual-cost-points="selectedGame.actualCostPoints"
           :user-points="userPoints"
           @scratch="handleGameSpin"
           @result="handleGameResult"
@@ -143,6 +153,8 @@ const scratchCardRef = ref(null)
 const activityId = ref(null)
 const activityInfo = ref({})
 const userPoints = ref(0)
+const remainingFreeDraws = ref(0)
+const pointsCost = ref(10)
 const selectedGameId = ref(null)
 const selectedGame = ref(null)
 const isDrawing = ref(false)
@@ -189,11 +201,11 @@ const loadActivityInfo = async () => {
     const data = await gameConfigService.loadActivityInfo(activityId.value)
     activityInfo.value = data
     userPoints.value = Number(data.customerPoints) || 0
+    remainingFreeDraws.value = Number(data.remainingFreeDraws) || 0
+    pointsCost.value = Number(data.pointsCost) || 10
     
     if (data.gameTypes && data.gameTypes.length > 0) {
-      if (availableGameTypes.value && availableGameTypes.value.length > 0) {
-        selectGame(availableGameTypes.value[0])
-      }
+      selectGame(data.gameTypes[0])
     }
   } catch (error) {
     console.error('加载活动信息失败', error)
@@ -210,20 +222,22 @@ const selectGame = (game) => {
     ...game,
     costPoints: Number(game.costPoints) || 0,
     remainingDrawCount: Number(game.remainingDrawCount) || 0,
-    maxDrawCount: Number(game.maxDrawCount) || 1
+    maxDrawCount: Number(game.maxDrawCount) || 1,
+    remainingFreeDraws: Number(game.remainingFreeDraws) || 0,
+    actualCostPoints: Number(game.remainingFreeDraws) > 0 ? 0 : Number(pointsCost.value)
   }
-  gameConfigService.selectGameType(game.gameTypeId)
+  
+  const gameConfig = availableGameTypes.value.find(gt => gt.gameTypeId === game.gameTypeId)
+  if (gameConfig) {
+    gameConfigService.selectGameType(game.gameTypeId)
+  }
 }
 
 const handleDraw = async () => {
   if (isDrawing.value) return
   
-  const costPoints = selectedGame.value.costPoints
-  const remainingDrawCount = selectedGame.value.remainingDrawCount
-  
-  // 检查是否可以抽奖
-  const canFreeDraw = remainingDrawCount > 0
-  const canPointsDraw = userPoints.value >= 10
+  const canFreeDraw = remainingFreeDraws.value > 0
+  const canPointsDraw = userPoints.value >= pointsCost.value
   
   if (!canFreeDraw && !canPointsDraw) {
     uni.showToast({
@@ -233,10 +247,9 @@ const handleDraw = async () => {
     return
   }
   
-  // 如果需要消耗积分，检查积分是否足够
-  if (costPoints > 0 && userPoints.value < costPoints) {
+  if (!canFreeDraw && userPoints.value < pointsCost.value) {
     uni.showToast({
-      title: '积分不足',
+      title: `积分不足，需要${pointsCost.value}积分`,
       icon: 'none'
     })
     return
@@ -264,7 +277,11 @@ const handleDraw = async () => {
     setTimeout(() => {
       showResult.value = true
       userPoints.value = Number(result.remainingPoints) || 0
-      selectedGame.value.remainingDrawCount = Math.max(0, selectedGame.value.remainingDrawCount - 1)
+      
+      if (result.costPoints === 0) {
+        remainingFreeDraws.value = Math.max(0, remainingFreeDraws.value - 1)
+      }
+      
       isDrawing.value = false
     }, 3000)
   } catch (error) {
@@ -296,17 +313,6 @@ const formatDate = (date) => {
   if (!date) return ''
   const d = new Date(date)
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-}
-
-const getRemainingDrawText = () => {
-  if (!selectedGame.value) return '0'
-  
-  const remainingCount = selectedGame.value.remainingDrawCount
-  if (remainingCount > 0) {
-    return `${remainingCount}次(免费)`
-  } else {
-    return '积分抽奖'
-  }
 }
 </script>
 

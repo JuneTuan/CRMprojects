@@ -32,6 +32,8 @@
       </button>
       
       <view class="register-link">
+        <text class="link" @click="goToForgotPassword">忘记密码？</text>
+        <text class="divider">|</text>
         <text>还没有账号？</text>
         <text class="link" @click="goToRegister">立即注册</text>
       </view>
@@ -108,6 +110,12 @@ const handleLogin = async () => {
 const goToRegister = () => {
   uni.navigateTo({
     url: '/pages/register/register'
+  })
+}
+
+const goToForgotPassword = () => {
+  uni.navigateTo({
+    url: '/pages/forgot-password/forgot-password'
   })
 }
 </script>
@@ -224,8 +232,14 @@ const goToRegister = () => {
 .link {
   color: var(--primary-color);
   margin-left: 10rpx;
+  margin-right: 10rpx;
   font-weight: bold;
   text-decoration: underline;
+}
+
+.divider {
+  color: var(--text-secondary);
+  margin: 0 10rpx;
 }
 
 /* 响应式设计 */

@@ -48,6 +48,10 @@ const props = defineProps({
     type: Number,
     default: 0
   },
+  actualCostPoints: {
+    type: Number,
+    default: 0
+  },
   userPoints: {
     type: Number,
     default: 0
@@ -73,10 +77,11 @@ const color = computed(() => ['#ff6b6b', '#feca57'])
 
 const canDraw = computed(() => {
   if (isSpinning.value) return false
-  if (props.costPoints > 0) {
-    return props.userPoints >= props.costPoints
+  const cost = props.actualCostPoints || props.costPoints
+  if (cost > 0) {
+    return props.userPoints >= cost
   } else {
-    return props.remainingCount > 0
+    return props.remainingCount > 0 || props.userPoints >= 10
   }
 })
 
@@ -129,7 +134,7 @@ const drawWheel = (rotation = 0) => {
     ctx.setTextAlign('center')
     ctx.setTextBaseline('middle')
     ctx.translate(w1, h1)
-    ctx.rotate((arc * (i + 2)) * Math.PI / 180)
+    ctx.rotate((arc * (i + 0.5)) * Math.PI / 180)
     ctx.fillText(text.value[i], 0, -(h1 * 0.8))
     ctx.restore()
   }
@@ -259,8 +264,10 @@ defineExpose({
 
 .wheel-wrapper {
   position: relative;
-  width: 330rpx;
-  height: 330rpx;
+  width: 300px;
+  height: 300px;
+  max-width: 90vw;
+  max-height: 90vw;
   display: flex;
   align-items: center;
   justify-content: center;

@@ -16,6 +16,18 @@ export const authAPI = {
   getProfile: () => request({
     url: '/h5/auth/profile',
     method: 'GET'
+  }),
+
+  forgotPassword: (phone) => request({
+    url: '/h5/auth/forgot-password',
+    method: 'POST',
+    data: { phone }
+  }),
+
+  resetPassword: (phone, oldPassword, newPassword) => request({
+    url: '/h5/auth/reset-password',
+    method: 'POST',
+    data: { phone, oldPassword, newPassword }
   })
 }
 

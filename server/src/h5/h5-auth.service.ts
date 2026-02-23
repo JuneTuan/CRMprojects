@@ -141,4 +141,50 @@ export class H5AuthService {
       position: customer.position
     };
   }
+
+  async forgotPassword(phone: string) {
+    const customer = await this.customerRepository.findOne({
+      where: { phone, isActive: true },
+    });
+
+    if (!customer) {
+      throw new UnauthorizedException('该手机号未注册');
+    }
+
+    const tempPassword = Math.random().toString(36).slice(-8);
+    const hashedPassword = await bcrypt.hash(tempPassword, 10);
+    
+    customer.password = hashedPassword;
+    await this.customerRepository.save(customer);
+
+    console.log(`临时密码已发送到手机号 ${phone}: ${tempPassword}`);
+    
+    return {
+      message: '临时密码已发送到您的手机',
+      tempPassword: tempPassword
+    };
+  }
+
+  async resetPassword(phone: string, oldPassword: string, newPassword: string) {
+    const customer = await this.customerRepository.findOne({
+      where: { phone, isActive: true },
+    });
+
+    if (!customer) {
+      throw new UnauthorizedException('用户不存在');
+    }
+
+    const isPasswordValid = await bcrypt.compare(oldPassword, customer.password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('原密码错误');
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    customer.password = hashedPassword;
+    await this.customerRepository.save(customer);
+
+    return {
+      message: '密码修改成功'
+    };
+  }
 }

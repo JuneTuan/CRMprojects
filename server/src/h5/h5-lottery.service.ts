@@ -29,24 +29,42 @@ export class H5LotteryService {
     const now = new Date();
     const activities = await this.activityRepository.find({
       where: { status: '进行中' },
-      relations: ['activityGames', 'activityGames.gameType'],
+      relations: ['activityGames', 'activityGames.gameType', 'activityGames.gamePrizes'],
       order: { createdAt: 'DESC' },
     });
 
-    return activities.map(activity => {
-      let gameTypes = activity.activityGames.map(ag => ({
-        gameTypeId: ag.gameType.id,
-        gameTypeName: ag.gameType.name,
-        gameTypeCode: ag.gameType.type,
-        costPoints: ag.config?.costPoints || 0,
-        maxDrawCount: ag.config?.maxDrawCount || 1
-      }));
-
-      if (activity.gameType) {
-        gameTypes = gameTypes.filter(gt => gt.gameTypeCode === activity.gameType);
+    const result = [];
+    for (const activity of activities) {
+      let gameTypes = [];
+      
+      if (activity.activityGames && activity.activityGames.length > 0) {
+        gameTypes = activity.activityGames
+          .filter(ag => ag.isActive)
+          .filter(ag => ag.gameType)
+          .map(ag => ({
+            gameTypeId: ag.gameType.id,
+            gameTypeName: ag.gameType.name,
+            gameTypeCode: ag.gameType.type,
+            costPoints: ag.config?.costPoints || 0,
+            maxDrawCount: ag.config?.maxDrawCount || 1
+          }));
+      } else if (activity.gameType) {
+        const gameTypeEntity = await this.gameTypeRepository.findOne({
+          where: { type: activity.gameType }
+        });
+        
+        if (gameTypeEntity) {
+          gameTypes = [{
+            gameTypeId: gameTypeEntity.id,
+            gameTypeName: gameTypeEntity.name,
+            gameTypeCode: gameTypeEntity.type,
+            costPoints: 0,
+            maxDrawCount: 1
+          }];
+        }
       }
 
-      return {
+      result.push({
         activityId: activity.activityId,
         activityName: activity.activityName,
         activityCode: activity.activityCode,
@@ -55,11 +73,15 @@ export class H5LotteryService {
         startTime: activity.startTime,
         endTime: activity.endTime,
         minPoints: activity.minPoints,
+        freeDraws: activity.freeDraws || 3,
+        pointsCost: activity.pointsCost || 10,
         status: activity.status,
         imageUrl: activity.imageUrl,
         gameTypes: gameTypes
-      };
-    });
+      });
+    }
+    
+    return result;
   }
 
   async getDrawInfo(customerId: number, activityId: number) {
@@ -82,17 +104,94 @@ export class H5LotteryService {
 
     let activityGames = activity.activityGames || [];
     activityGames = activityGames.filter(ag => ag.isActive !== false);
-    
-    if (activity.gameType) {
-      activityGames = activityGames.filter(ag => ag.gameType.type === activity.gameType);
+
+    if (activityGames.length === 0 && activity.gameType) {
+      const gameTypeEntity = await this.gameTypeRepository.findOne({
+        where: { type: activity.gameType }
+      });
+      
+      if (gameTypeEntity) {
+        let gamePrizes = [];
+        if (activity.winRateConfig && Array.isArray(activity.winRateConfig)) {
+          for (const winRateItem of activity.winRateConfig) {
+            if (winRateItem.prizeId && winRateItem.prizeId !== 0) {
+              const prize = await this.prizeRepository.findOne({
+                where: { prizeId: winRateItem.prizeId }
+              });
+              if (prize) {
+                gamePrizes.push({
+                  id: 0,
+                  activityGameId: 0,
+                  prizeId: prize.prizeId,
+                  probability: winRateItem.probability,
+                  prize: prize,
+                  createdAt: new Date(),
+                  updatedAt: new Date()
+                });
+              }
+            } else if (winRateItem.name) {
+              gamePrizes.push({
+                id: 0,
+                activityGameId: 0,
+                prizeId: 0,
+                probability: winRateItem.probability,
+                prize: {
+                  prizeId: 0,
+                  prizeName: winRateItem.name,
+                  type: '其他',
+                  value: 0,
+                  status: '可用',
+                  createdAt: new Date(),
+                  updatedAt: new Date()
+                },
+                createdAt: new Date(),
+                updatedAt: new Date()
+              });
+            }
+          }
+        }
+        
+        activityGames = [{
+          id: 0,
+          activityId: activityId,
+          gameTypeId: gameTypeEntity.id,
+          gameType: gameTypeEntity,
+          config: null,
+          isActive: true,
+          gamePrizes: gamePrizes,
+          deletedAt: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          activity: activity
+        }];
+      }
     }
 
+    const freeDrawsPerActivity = activity.freeDraws || 3;
+    const pointsCost = activity.pointsCost || 10;
+
+    const freeDrawCount = await this.lotteryRecordRepository.count({
+      where: { customerId, activityId, costPoints: 0 },
+    });
+
+    const totalDrawCount = await this.lotteryRecordRepository.count({
+      where: { customerId, activityId },
+    });
+
+    const remainingFreeDraws = Math.max(0, freeDrawsPerActivity - freeDrawCount);
+    const canUsePoints = remainingFreeDraws === 0 && customer.points >= pointsCost;
+
     const gameTypeDrawCounts = {};
+    const gameTypeFreeDrawCounts = {};
     for (const activityGame of activityGames) {
       const drawCount = await this.lotteryRecordRepository.count({
         where: { customerId, activityId, gameTypeId: activityGame.gameType.id },
       });
+      const freeDrawCount = await this.lotteryRecordRepository.count({
+        where: { customerId, activityId, gameTypeId: activityGame.gameType.id, costPoints: 0 },
+      });
       gameTypeDrawCounts[activityGame.gameType.id] = drawCount;
+      gameTypeFreeDrawCounts[activityGame.gameType.id] = freeDrawCount;
     }
 
     const result = {
@@ -103,24 +202,38 @@ export class H5LotteryService {
       startTime: activity.startTime,
       endTime: activity.endTime,
       minPoints: activity.minPoints,
+      freeDraws: freeDrawsPerActivity,
+      pointsCost: pointsCost,
       imageUrl: activity.imageUrl,
       customerPoints: customer.points,
-      gameTypes: activityGames.map(ag => ({
-        gameTypeId: ag.gameType.id,
-        gameTypeName: ag.gameType.name,
-        gameTypeCode: ag.gameType.type,
-        costPoints: ag.config?.costPoints || 0,
-        maxDrawCount: ag.config?.maxDrawCount || 1,
-        usedDrawCount: gameTypeDrawCounts[ag.gameType.id] || 0,
-        remainingDrawCount: (ag.config?.maxDrawCount || 1) - (gameTypeDrawCounts[ag.gameType.id] || 0),
-        prizes: (ag.gamePrizes || []).map(gp => ({
-          prizeId: gp.prize.prizeId,
-          prizeName: gp.prize.prizeName,
-          prizeType: gp.prize.type,
-          value: gp.prize.value,
-          probability: gp.probability
-        }))
-      }))
+      remainingFreeDraws: remainingFreeDraws,
+      canUsePoints: canUsePoints,
+      canDraw: remainingFreeDraws > 0 || canUsePoints,
+      gameTypes: activityGames.map(ag => {
+        const totalDrawCount = gameTypeDrawCounts[ag.gameType.id] || 0;
+        const freeDrawCountForGame = gameTypeFreeDrawCounts[ag.gameType.id] || 0;
+        const maxDrawCount = ag.config?.maxDrawCount || 1;
+        const remainingFreeDrawsForGame = Math.max(0, remainingFreeDraws - freeDrawCountForGame);
+        const remainingDrawCount = Math.max(0, maxDrawCount - totalDrawCount);
+        
+        return {
+          gameTypeId: ag.gameType.id,
+          gameTypeName: ag.gameType.name,
+          gameTypeCode: ag.gameType.type,
+          costPoints: ag.config?.costPoints || 0,
+          maxDrawCount: maxDrawCount,
+          usedDrawCount: totalDrawCount,
+          remainingDrawCount: remainingDrawCount,
+          remainingFreeDraws: remainingFreeDrawsForGame,
+          prizes: (ag.gamePrizes || []).map(gp => ({
+            prizeId: gp.prize.prizeId,
+            prizeName: gp.prize.prizeName,
+            prizeType: gp.prize.type,
+            value: gp.prize.value,
+            probability: gp.probability
+          }))
+        };
+      })
     };
 
     return result;
@@ -135,17 +248,39 @@ export class H5LotteryService {
       throw new NotFoundException('活动不存在或已结束');
     }
 
-    const activityGame = await this.activityGameRepository.findOne({
+    let activityGame = await this.activityGameRepository.findOne({
       where: { activityId, gameTypeId, isActive: true },
       relations: ['gameType'],
     });
+
+    if (!activityGame && activity.gameType) {
+      const gameTypeEntity = await this.gameTypeRepository.findOne({
+        where: { id: gameTypeId }
+      });
+      
+      if (gameTypeEntity && gameTypeEntity.type === activity.gameType) {
+        activityGame = {
+          id: 0,
+          activityId: activityId,
+          gameTypeId: gameTypeEntity.id,
+          gameType: gameTypeEntity,
+          config: null,
+          isActive: true,
+          gamePrizes: [],
+          deletedAt: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          activity: activity
+        };
+      }
+    }
 
     if (!activityGame) {
       throw new NotFoundException('游戏类型不存在');
     }
 
-    const costPoints = activityGame.config?.costPoints || 0;
-    const maxDrawCount = activityGame.config?.maxDrawCount || 1;
+    const freeDrawsPerActivity = activity.freeDraws || 3;
+    const pointsCost = activity.pointsCost || 10;
 
     const customer = await this.customerRepository.findOne({
       where: { customerId },
@@ -155,26 +290,22 @@ export class H5LotteryService {
       throw new NotFoundException('客户不存在');
     }
 
-    if (customer.points < costPoints) {
-      throw new BadRequestException('积分不足');
-    }
-
-    const usedDrawCount = await this.lotteryRecordRepository.count({
-      where: { customerId, activityId, gameTypeId },
+    const freeDrawCount = await this.lotteryRecordRepository.count({
+      where: { customerId, activityId, costPoints: 0 },
     });
 
-    let actualCostPoints = costPoints;
+    const remainingFreeDraws = Math.max(0, freeDrawsPerActivity - freeDrawCount);
     
-    // 免费抽奖次数用完后，需要消耗积分继续抽奖
-    if (costPoints === 0 && usedDrawCount >= maxDrawCount) {
-      // 免费次数已用完，需要消耗10积分继续抽奖
-      actualCostPoints = 10;
+    let actualCostPoints = 0;
+    
+    if (remainingFreeDraws > 0) {
+      actualCostPoints = 0;
+    } else {
+      actualCostPoints = pointsCost;
       
       if (customer.points < actualCostPoints) {
         throw new BadRequestException('免费次数已用完，积分不足');
       }
-    } else if (costPoints > 0 && customer.points < costPoints) {
-      throw new BadRequestException('积分不足');
     }
 
     const gamePrizes = await this.gamePrizeRepository.find({
@@ -182,6 +313,40 @@ export class H5LotteryService {
       relations: ['prize'],
       order: { id: 'ASC' },
     });
+
+    if (gamePrizes.length === 0 && activity.winRateConfig && Array.isArray(activity.winRateConfig)) {
+      for (const winRateItem of activity.winRateConfig) {
+        let prize = null;
+        if (winRateItem.prizeId && winRateItem.prizeId !== 0) {
+          prize = await this.prizeRepository.findOne({
+            where: { prizeId: winRateItem.prizeId }
+          });
+        } else if (winRateItem.name) {
+          prize = {
+            prizeId: 0,
+            prizeName: winRateItem.name,
+            type: '其他',
+            value: 0,
+            status: '可用',
+            remainingQuantity: 999999,
+            createdAt: new Date(),
+            updatedAt: new Date()
+          };
+        }
+        
+        if (prize) {
+          gamePrizes.push({
+            id: 0,
+            activityGameId: activityGame.id,
+            prizeId: prize.prizeId,
+            probability: winRateItem.probability,
+            prize: prize,
+            activityGame: activityGame,
+            createdAt: new Date()
+          });
+        }
+      }
+    }
 
     if (gamePrizes.length === 0) {
       throw new BadRequestException('没有可用的奖品');
@@ -258,7 +423,8 @@ export class H5LotteryService {
         value: selectedPrize.value
       } : null,
       status: selectedPrize ? '未领取' : '未中奖',
-      remainingPoints: customer.points
+      remainingPoints: customer.points,
+      costPoints: actualCostPoints
     };
   }
 

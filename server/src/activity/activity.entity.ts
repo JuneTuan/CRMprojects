@@ -37,6 +37,12 @@ export class Activity {
   @Column({ name: 'min_points', type: 'int', default: 0 })
   minPoints: number;
 
+  @Column({ name: 'free_draws', type: 'int', default: 3, nullable: true })
+  freeDraws: number;
+
+  @Column({ name: 'points_cost', type: 'int', default: 10, nullable: true })
+  pointsCost: number;
+
   @Column({ name: 'win_rate_config', type: 'json', nullable: true })
   winRateConfig: any;
 

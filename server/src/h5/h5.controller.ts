@@ -26,6 +26,17 @@ export class H5Controller {
     return this.h5AuthService.register(registerDto);
   }
 
+  @Post('auth/forgot-password')
+  async forgotPassword(@Body() data: any) {
+    return this.h5AuthService.forgotPassword(data.phone);
+  }
+
+  @UseGuards(AuthGuard('h5-jwt'))
+  @Post('auth/reset-password')
+  async resetPassword(@Body() data: any, @Request() req) {
+    return this.h5AuthService.resetPassword(data.phone, data.oldPassword, data.newPassword);
+  }
+
   @UseGuards(AuthGuard('h5-jwt'))
   @Get('orders')
   async getOrders(@Request() req) {

@@ -9,11 +9,12 @@ import { GameType } from './game-type.entity';
 import { ActivityGame } from './activity-game.entity';
 import { GamePrize } from './game-prize.entity';
 import { Prize } from '../prize/prize.entity';
+import { LotteryRecord } from '../lottery/lottery-record.entity';
 
 @Module({
   imports: [
     ScheduleModule.forRoot(),
-    TypeOrmModule.forFeature([Activity, GameType, ActivityGame, GamePrize, Prize]),
+    TypeOrmModule.forFeature([Activity, GameType, ActivityGame, GamePrize, Prize, LotteryRecord]),
   ],
   controllers: [ActivityController],
   providers: [ActivityService, ActivitySchedulerService],

@@ -80,6 +80,14 @@
             <el-radio label="nine-grid">九宫格</el-radio>
           </el-radio-group>
         </el-form-item>
+        <el-form-item label="免费抽奖次数" prop="freeDraws" v-if="form.activityType === '游戏活动'">
+          <el-input-number v-model="form.freeDraws" :min="0" :max="100" placeholder="默认3次" style="width: 100%" />
+          <div class="form-tip">用户每天可免费参与的抽奖次数，免费次数用完后需要消耗积分</div>
+        </el-form-item>
+        <el-form-item label="积分消耗" prop="pointsCost" v-if="form.activityType === '游戏活动'">
+          <el-input-number v-model="form.pointsCost" :min="0" :max="10000" placeholder="免费次数用完后每次消耗的积分" style="width: 100%" />
+          <div class="form-tip">免费次数用完后，每次抽奖需要消耗的积分数</div>
+        </el-form-item>
         <el-form-item label="中奖率配置" prop="winRateConfig" v-if="form.activityType === '游戏活动'">
           <div class="win-rate-config">
             <div v-for="(item, index) in form.winRateConfig" :key="index" class="win-rate-item">
@@ -165,6 +173,8 @@ const form = reactive({
   activityCode: '',
   activityType: '游戏活动',
   gameType: 'slot-machine',
+  freeDraws: 3,
+  pointsCost: 10,
   description: '',
   startDate: null as Date | null,
   endDate: null as Date | null,
@@ -213,13 +223,13 @@ const getGameTypeRules = () => {
 const handleGameTypeChange = () => {
   if (form.activityType === '游戏活动' && (!form.winRateConfig || form.winRateConfig.length === 0)) {
     form.winRateConfig = [
-      { prizeId: null, name: '谢谢', probability: 50 }
+      { prizeId: 0, name: '谢谢', probability: 50 }
     ];
   }
 };
 
 const addWinRateItem = () => {
-  form.winRateConfig.push({ prizeId: null, name: '', probability: 0 });
+  form.winRateConfig.push({ prizeId: 0, name: '', probability: 0 });
 };
 
 const removeWinRateItem = (index: number) => {
@@ -281,6 +291,8 @@ const handleAdd = async () => {
     activityCode: `ACT${Date.now().toString().slice(-6)}`,
     activityType: '游戏活动',
     gameType: 'slot-machine',
+    freeDraws: 3,
+    pointsCost: 10,
     description: '',
     startDate: null,
     endDate: null,
@@ -331,7 +343,7 @@ const handleSubmit = async () => {
     if (valid) {
       submitLoading.value = true;
       try {
-        const submitData = { ...form };
+        const submitData: any = { ...form };
         
         const formatDate = (date: Date | null) => {
           if (!date) return '';
@@ -342,7 +354,7 @@ const handleSubmit = async () => {
         submitData.endDate = formatDate(form.endDate);
         
         if (form.activityId) {
-          const allowedFields = ['activityName', 'activityCode', 'activityType', 'gameType', 'description', 'startDate', 'endDate', 'status', 'maxParticipants', 'maxDrawsPerUser', 'minPoints', 'imageUrl', 'winRateConfig'];
+          const allowedFields = ['activityName', 'activityCode', 'activityType', 'gameType', 'freeDraws', 'pointsCost', 'description', 'startDate', 'endDate', 'status', 'maxParticipants', 'maxDrawsPerUser', 'minPoints', 'imageUrl', 'winRateConfig'];
           const filteredData: any = {};
           allowedFields.forEach(field => {
             const value = submitData[field as keyof typeof submitData];
@@ -445,6 +457,13 @@ onMounted(() => {
     width: 100%;
     display: flex;
     justify-content: flex-end;
+  }
+
+  .form-tip {
+    font-size: 12px;
+    color: #909399;
+    margin-top: 5px;
+    line-height: 1.5;
   }
 
   .win-rate-config {

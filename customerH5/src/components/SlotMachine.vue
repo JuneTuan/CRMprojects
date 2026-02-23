@@ -44,6 +44,10 @@ const props = defineProps({
     type: Number,
     default: 0
   },
+  actualCostPoints: {
+    type: Number,
+    default: 0
+  },
   userPoints: {
     type: Number,
     default: 0
@@ -91,10 +95,11 @@ const getTranslateY = (colIndex) => {
 const canDraw = computed(() => {
   if (isSpinning.value) return false
   
-  if (props.costPoints > 0) {
-    return props.userPoints >= props.costPoints
+  const cost = props.actualCostPoints || props.costPoints
+  if (cost > 0) {
+    return props.userPoints >= cost
   } else {
-    return props.remainingCount > 0
+    return props.remainingCount > 0 || props.userPoints >= 10
   }
 })
 
@@ -177,6 +182,7 @@ defineExpose({
   border-radius: 30rpx;
   padding: 40rpx;
   box-shadow: 0 10rpx 30rpx rgba(102, 126, 234, 0.3);
+  max-width: 100%;
 }
 
 .slot-window {
@@ -186,6 +192,7 @@ defineExpose({
   border-radius: 20rpx;
   padding: 30rpx;
   overflow: hidden;
+  max-width: 100%;
 }
 
 .slot-column {
@@ -193,6 +200,7 @@ defineExpose({
   height: 240rpx;
   overflow: hidden;
   position: relative;
+  flex-shrink: 0;
 }
 
 .slot-items {

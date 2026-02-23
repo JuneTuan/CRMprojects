@@ -6,6 +6,7 @@ import { GameType } from './game-type.entity';
 import { ActivityGame } from './activity-game.entity';
 import { GamePrize } from './game-prize.entity';
 import { Prize } from '../prize/prize.entity';
+import { LotteryRecord } from '../lottery/lottery-record.entity';
 import { CreateActivityDto } from './dto/create-activity.dto';
 import { UpdateActivityDto } from './dto/update-activity.dto';
 
@@ -17,6 +18,7 @@ export class ActivityService {
     @InjectRepository(ActivityGame) private activityGameRepository: Repository<ActivityGame>,
     @InjectRepository(GamePrize) private gamePrizeRepository: Repository<GamePrize>,
     @InjectRepository(Prize) private prizeRepository: Repository<Prize>,
+    @InjectRepository(LotteryRecord) private lotteryRecordRepository: Repository<LotteryRecord>,
   ) {}
 
   async findAll() {
@@ -81,11 +83,7 @@ export class ActivityService {
     
     const savedActivity = await this.activityRepository.save(activity);
     
-    if (activityData.activityType === '游戏活动' && activityData.winRateConfig) {
-      return savedActivity;
-    }
-    
-    return savedActivity;
+    return this.findOne(savedActivity.activityId);
   }
 
   async update(id: number, updateActivityDto: UpdateActivityDto) {
@@ -132,18 +130,28 @@ export class ActivityService {
       activity.status = '已结束';
     }
     
-    const savedActivity = await this.activityRepository.save(activity);
+    await this.activityRepository.save(activity);
     
-    if (updateData.activityType === '游戏活动' && updateData.winRateConfig) {
-      return savedActivity;
-    }
-    
-    return savedActivity;
+    return this.findOne(id);
   }
 
   async remove(id: number) {
     const activity = await this.findOne(id);
-    return this.activityRepository.remove(activity);
+    
+    await this.lotteryRecordRepository.delete({ activityId: id });
+    
+    const existingGames = await this.activityGameRepository.find({
+      where: { activityId: id },
+    });
+    
+    for (const existingGame of existingGames) {
+      await this.gamePrizeRepository.delete({ activityGameId: existingGame.id });
+    }
+    
+    await this.activityGameRepository.delete({ activityId: id });
+    await this.activityRepository.delete(id);
+    
+    return { message: 'Activity deleted successfully' };
   }
 
   async updateActivityGames(activityId: number, gamesData: any) {
@@ -172,7 +180,7 @@ export class ActivityService {
         const activityGame = this.activityGameRepository.create({
           activityId,
           gameTypeId: gameTypeEntity.id,
-          isActive: activity.gameType === gameType,
+          isActive: true,
         });
         
         const savedActivityGame = await this.activityGameRepository.save(activityGame);

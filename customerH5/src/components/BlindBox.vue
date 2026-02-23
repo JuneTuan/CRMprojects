@@ -38,6 +38,10 @@ const props = defineProps({
     type: Number,
     default: 0
   },
+  actualCostPoints: {
+    type: Number,
+    default: 0
+  },
   userPoints: {
     type: Number,
     default: 0
@@ -52,10 +56,11 @@ const openedBoxIndex = ref(null)
 const canDraw = computed(() => {
   if (isOpening.value || openedBoxIndex.value !== null) return false
   
-  if (props.costPoints > 0) {
-    return props.userPoints >= props.costPoints
+  const cost = props.actualCostPoints || props.costPoints
+  if (cost > 0) {
+    return props.userPoints >= cost
   } else {
-    return props.remainingCount > 0
+    return props.remainingCount > 0 || props.userPoints >= 10
   }
 })
 
@@ -102,15 +107,17 @@ defineExpose({
 .blind-box {
   display: flex;
   flex-wrap: wrap;
-  width: 600rpx;
+  width: 100%;
+  max-width: 600rpx;
   padding: 40rpx;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-radius: 30rpx;
   box-shadow: 0 10rpx 30rpx rgba(102, 126, 234, 0.3);
+  box-sizing: border-box;
 }
 
 .box-item {
-  width: 180rpx;
+  width: calc(33.33% - 20rpx);
   height: 180rpx;
   margin: 10rpx;
   background: rgba(255, 255, 255, 0.2);
@@ -121,6 +128,7 @@ defineExpose({
   cursor: pointer;
   transition: all 0.3s ease;
   border: 3rpx solid transparent;
+  box-sizing: border-box;
 }
 
 .box-item.opened {

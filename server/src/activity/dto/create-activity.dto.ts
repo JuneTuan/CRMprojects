@@ -62,6 +62,14 @@ export class CreateActivityDto {
   @IsOptional()
   minPoints: number;
 
+  @IsNumber()
+  @IsOptional()
+  freeDraws: number;
+
+  @IsNumber()
+  @IsOptional()
+  pointsCost: number;
+
   @IsString()
   @IsOptional()
   imageUrl: string;

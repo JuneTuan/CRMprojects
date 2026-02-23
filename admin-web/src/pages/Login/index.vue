@@ -2,7 +2,7 @@
   <div class="login-container">
     <el-card class="login-card">
       <template #header>
-        <h2 class="login-title">CRM管理系统</h2>
+        <h2 class="login-title">JunLite CRM</h2>
       </template>
       <el-form :model="loginForm" :rules="rules" ref="formRef" label-width="80px">
         <el-form-item label="用户名/手机号" prop="username">
@@ -55,7 +55,7 @@ const handleLogin = async () => {
         localStorage.setItem('token', response.access_token);
         localStorage.setItem('userInfo', JSON.stringify(response.user));
         ElMessage.success('登录成功');
-        router.push('/statistics');
+        router.push('/customer');
       } catch (error) {
         console.error('登录失败:', error);
       } finally {

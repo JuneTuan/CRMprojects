@@ -40,7 +40,7 @@ export class LotteryService {
     const customer = await this.customerService.findOne(customerId);
     const activity = await this.activityService.findOne(activityId);
 
-    const freeDrawsPerActivity = 3;
+    const freeDrawsPerActivity = activity.freeDraws || 3;
     const usedFreeDraws = await this.lotteryRecordRepository.count({
       where: { 
         customerId, 
@@ -50,11 +50,12 @@ export class LotteryService {
     });
 
     const remainingFreeDraws = Math.max(0, freeDrawsPerActivity - usedFreeDraws);
-    const canUsePoints = remainingFreeDraws === 0 && customer.points >= activity.minPoints;
+    const pointsCost = activity.pointsCost || activity.minPoints;
+    const canUsePoints = remainingFreeDraws === 0 && customer.points >= pointsCost;
 
     return {
       remainingFreeDraws,
-      pointsCost: activity.minPoints,
+      pointsCost,
       customerPoints: customer.points,
       canUsePoints,
       canDraw: remainingFreeDraws > 0 || canUsePoints,
@@ -86,7 +87,7 @@ export class LotteryService {
       throw new BadRequestException('该游戏暂无可用奖品');
     }
 
-    const freeDrawsPerActivity = 3;
+    const freeDrawsPerActivity = activity.freeDraws || 3;
     const usedFreeDraws = await this.lotteryRecordRepository.count({
       where: { 
         customerId, 
@@ -101,7 +102,7 @@ export class LotteryService {
     if (remainingFreeDraws > 0) {
       costPoints = 0;
     } else {
-      costPoints = activity.minPoints;
+      costPoints = activity.pointsCost || activity.minPoints;
       if (customer.points < costPoints) {
         throw new BadRequestException(`积分不足，需要${costPoints}积分`);
       }

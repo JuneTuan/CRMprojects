@@ -46,6 +46,10 @@ const props = defineProps({
     type: Number,
     default: 0
   },
+  actualCostPoints: {
+    type: Number,
+    default: 0
+  },
   userPoints: {
     type: Number,
     default: 0
@@ -96,30 +100,34 @@ const getGridBackground = (index) => {
 const canDraw = computed(() => {
   if (isSpinning.value) return false
   
+  const cost = props.actualCostPoints || props.costPoints
   const canFreeDraw = props.remainingCount > 0
-  const canPointsDraw = props.userPoints >= 10
+  const canPointsDraw = props.userPoints >= (cost > 0 ? cost : 10)
   
   return canFreeDraw || canPointsDraw
 })
 
 const getButtonText = () => {
+  const cost = props.actualCostPoints || props.costPoints
   if (props.remainingCount > 0) {
     return '开始'
   } else {
-    return '消耗10积分抽奖'
+    return cost > 0 ? `消耗${cost}积分抽奖` : '消耗10积分抽奖'
   }
 }
 
 const getDrawInfo = () => {
+  const cost = props.actualCostPoints || props.costPoints
   if (props.remainingCount > 0) {
     return `剩余免费次数: ${props.remainingCount}次`
   } else {
-    return `免费次数已用完，消耗10积分抽奖`
+    return cost > 0 ? `免费次数已用完，消耗${cost}积分抽奖` : `免费次数已用完，消耗10积分抽奖`
   }
 }
 
 const handleSpin = () => {
   if (!canDraw.value) {
+    const cost = props.actualCostPoints || props.costPoints
     if (props.remainingCount > 0) {
       uni.showToast({
         title: '积分不足',
@@ -127,7 +135,7 @@ const handleSpin = () => {
       })
     } else {
       uni.showToast({
-        title: '免费次数已用完，积分不足',
+        title: cost > 0 ? `积分不足，需要${cost}积分` : '免费次数已用完，积分不足',
         icon: 'none'
       })
     }
@@ -204,23 +212,26 @@ defineExpose({
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);
-  width: 600rpx;
+  width: 100%;
+  max-width: 600rpx;
   height: 600rpx;
   padding: 20rpx;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-radius: 30rpx;
   box-shadow: 0 10rpx 30rpx rgba(102, 126, 234, 0.3);
   gap: 10rpx;
+  box-sizing: border-box;
 }
 
 .grid-item {
-  width: 180rpx;
-  height: 180rpx;
+  width: 100%;
+  height: 100%;
   border-radius: 20rpx;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: background 0.1s ease;
+  box-sizing: border-box;
 }
 
 .grid-item.center {

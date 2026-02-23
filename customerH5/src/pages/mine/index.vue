@@ -72,6 +72,14 @@
         </view>
         <text class="menu-arrow">></text>
       </view>
+      
+      <view class="menu-item" @click="goToResetPassword">
+        <view class="menu-left">
+          <text class="menu-icon">🔐</text>
+          <text class="menu-text">修改密码</text>
+        </view>
+        <text class="menu-arrow">></text>
+      </view>
     </view>
   </view>
 </template>
@@ -238,6 +246,26 @@ const goToProfile = () => {
   }
   uni.navigateTo({
     url: '/pages/mine/profile'
+  })
+}
+
+const goToResetPassword = () => {
+  if (!userStore.user) {
+    uni.showModal({
+      title: '提示',
+      content: '请先登录',
+      success: (res) => {
+        if (res.confirm) {
+          uni.navigateTo({
+            url: '/pages/login/login'
+          })
+        }
+      }
+    })
+    return
+  }
+  uni.navigateTo({
+    url: '/pages/reset-password/reset-password'
   })
 }
 </script>

@@ -39,13 +39,27 @@
 			}
 		},
 		{
-			"path": "pages/register/register",
-			"style": {
-				"navigationBarTitleText": "注册"
-			}
-		},
-		{
-			"path": "pages/mine/index",
+		"path": "pages/register/register",
+		"style": {
+			"navigationBarTitleText": "注册"
+		}
+	},
+	{
+		"path": "pages/forgot-password/forgot-password",
+		"style": {
+			"navigationBarTitleText": "忘记密码",
+			"navigationStyle": "custom"
+		}
+	},
+	{
+		"path": "pages/reset-password/reset-password",
+		"style": {
+			"navigationBarTitleText": "修改密码",
+			"navigationStyle": "custom"
+		}
+	},
+	{
+		"path": "pages/mine/index",
 			"style": {
 				"navigationBarTitleText": "我的中心"
 			}
