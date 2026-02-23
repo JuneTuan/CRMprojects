@@ -24,9 +24,13 @@ async function bootstrap() {
     credentials: true,
   });
   
-  // 设置响应编码
+  // 设置JSON序列化选项，确保中文字符不被转义
   app.use((req, res, next) => {
-    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    const originalJson = res.json;
+    res.json = function(data) {
+      res.setHeader('Content-Type', 'application/json; charset=utf-8');
+      return originalJson.call(this, data);
+    };
     next();
   });
   

@@ -39,6 +39,7 @@ import { AppService } from './app.service';
         extra: {
           connectionLimit: 10,
         },
+        timezone: '+08:00',
       }),
       inject: [ConfigService],
     }),
