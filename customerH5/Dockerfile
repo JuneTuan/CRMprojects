@@ -7,6 +7,11 @@ RUN npm install
 
 COPY . .
 
+RUN chmod +x start.sh
+
+ENV HOST=0.0.0.0
+ENV PORT=5173
+
 EXPOSE 5173
 
-CMD ["npx", "uni"]
+CMD ["./start.sh"]
