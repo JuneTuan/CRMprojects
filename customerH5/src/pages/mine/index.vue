@@ -87,7 +87,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useUserStore } from '@/store/user.js'
-import { orderAPI, couponAPI, pointsAPI } from '@/api/index.js'
+import { orderAPI, couponAPI, pointsAPI, userAPI } from '@/api/index.js'
 
 const userStore = useUserStore()
 const userPoints = ref(0)
@@ -102,6 +102,7 @@ onMounted(async () => {
   if (userStore.user) {
     console.log('用户已登录，开始加载统计数据')
     await loadStats()
+    await refreshUserInfo()
   } else {
     console.log('用户未登录，跳转到登录页面')
     uni.redirectTo({
@@ -109,6 +110,39 @@ onMounted(async () => {
     })
   }
 })
+
+const refreshUserInfo = async () => {
+  if (!userStore.user) return
+  
+  try {
+    const profile = await userAPI.getProfile()
+    console.log('获取到的最新用户信息:', profile)
+    
+    userStore.user = {
+      ...userStore.user,
+      id: profile.id,
+      customerId: profile.customerId,
+      customerCode: profile.customerCode,
+      customerName: profile.customerName,
+      phone: profile.phone,
+      email: profile.email,
+      points: profile.points,
+      level: profile.level,
+      levelCode: profile.levelCode,
+      levelIcon: profile.levelIcon,
+      avatar: profile.avatar,
+      position: profile.position,
+      address: profile.address,
+      totalConsumption: profile.totalConsumption,
+      memberLevelId: profile.memberLevelId
+    }
+    
+    uni.setStorageSync('user', userStore.user)
+    console.log('用户信息已更新:', userStore.user)
+  } catch (error) {
+    console.error('刷新用户信息失败:', error)
+  }
+}
 
 const loadStats = async () => {
   if (!userStore.user) return
