@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Customer } from '../customer/customer.entity';
 import { PointsRecord } from '../customer/points-record.entity';
 import { MemberLevel } from '../member-level/member-level.entity';
+import { MemberLevelService } from '../member-level/member-level.service';
 
 @Injectable()
 export class H5CustomerService {
@@ -11,9 +12,13 @@ export class H5CustomerService {
     @InjectRepository(Customer) private customerRepository: Repository<Customer>,
     @InjectRepository(PointsRecord) private pointsRecordRepository: Repository<PointsRecord>,
     @InjectRepository(MemberLevel) private memberLevelRepository: Repository<MemberLevel>,
+    private memberLevelService: MemberLevelService,
   ) {}
 
   async getCustomerInfo(customerId: number) {
+    // 先检查并更新会员等级
+    await this.memberLevelService.checkAndUpgradeLevel(customerId);
+    
     const customer = await this.customerRepository.findOne({
       where: { customerId },
       relations: ['memberLevel'],
@@ -60,6 +65,9 @@ export class H5CustomerService {
   }
 
   async getProfile(customerId: number) {
+    // 先检查并更新会员等级
+    await this.memberLevelService.checkAndUpgradeLevel(customerId);
+    
     const customer = await this.customerRepository.findOne({
       where: { customerId },
       relations: ['memberLevel'],

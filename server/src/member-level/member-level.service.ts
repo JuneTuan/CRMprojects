@@ -49,17 +49,21 @@ export class MemberLevelService {
     await this.memberLevelRepository.save(level);
   }
 
-  async calculateLevelByConsumption(totalConsumption: number): Promise<MemberLevel | null> {
+  async calculateLevelByConsumption(totalConsumption: number, points: number = 0): Promise<MemberLevel | null> {
     const levels = await this.memberLevelRepository.find({
       where: { isActive: true },
       order: { minConsumption: 'DESC' },
     });
 
     const consumption = parseFloat(totalConsumption?.toString() || '0');
+    const customerPoints = parseFloat(points?.toString() || '0');
+    
+    // 计算有效等级判断值：消费金额 + 积分/100（积分按100:1换算为消费）
+    const effectiveValue = consumption + (customerPoints / 100);
 
     for (const level of levels) {
       const levelMinConsumption = parseFloat(level.minConsumption?.toString() || '0');
-      if (consumption >= levelMinConsumption) {
+      if (effectiveValue >= levelMinConsumption) {
         return level;
       }
     }
@@ -77,7 +81,7 @@ export class MemberLevelService {
       throw new NotFoundException(`客户 ${customerId} 不存在`);
     }
 
-    const targetLevel = await this.calculateLevelByConsumption(customer.totalConsumption);
+    const targetLevel = await this.calculateLevelByConsumption(customer.totalConsumption, customer.points);
 
     if (!targetLevel) {
       return;
