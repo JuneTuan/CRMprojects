@@ -72,26 +72,48 @@ export class MemberLevelService {
   }
 
   async checkAndUpgradeLevel(customerId: number): Promise<void> {
+    console.log(`开始检查客户 ${customerId} 的会员等级`);
+    
     const customer = await this.customerRepository.findOne({
       where: { customerId },
       relations: ['memberLevel'],
     });
 
     if (!customer) {
+      console.error(`客户 ${customerId} 不存在`);
       throw new NotFoundException(`客户 ${customerId} 不存在`);
     }
+
+    console.log(`客户 ${customer.customerName} 信息：`);
+    console.log(`- 积分：${customer.points}`);
+    console.log(`- 总消费：${customer.totalConsumption}`);
+    console.log(`- 当前会员等级ID：${customer.memberLevelId}`);
+    console.log(`- 当前会员等级：${customer.memberLevel?.levelName || '无'}`);
 
     const targetLevel = await this.calculateLevelByConsumption(customer.totalConsumption, customer.points);
 
     if (!targetLevel) {
+      console.log(`未找到合适的会员等级`);
       return;
     }
+
+    console.log(`计算得出的目标会员等级：`);
+    console.log(`- 等级ID：${targetLevel.levelId}`);
+    console.log(`- 等级名称：${targetLevel.levelName}`);
+    console.log(`- 最低消费要求：${targetLevel.minConsumption}`);
 
     const currentLevelId = customer.memberLevelId;
 
+    console.log(`等级比较：`);
+    console.log(`- 当前等级ID：${currentLevelId}`);
+    console.log(`- 目标等级ID：${targetLevel.levelId}`);
+
     if (currentLevelId === targetLevel.levelId) {
+      console.log(`会员等级无需更新`);
       return;
     }
+
+    console.log(`需要更新会员等级`);
 
     await this.changeMemberLevel(
       customerId,

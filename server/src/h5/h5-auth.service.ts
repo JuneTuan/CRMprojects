@@ -5,6 +5,7 @@ import { Customer } from '../customer/customer.entity';
 import { MemberLevel } from '../member-level/member-level.entity';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { MemberLevelService } from '../member-level/member-level.service';
 
 @Injectable()
 export class H5AuthService {
@@ -12,6 +13,7 @@ export class H5AuthService {
     @InjectRepository(Customer) private customerRepository: Repository<Customer>,
     @InjectRepository(MemberLevel) private memberLevelRepository: Repository<MemberLevel>,
     private jwtService: JwtService,
+    private memberLevelService: MemberLevelService,
   ) {}
 
   async login(loginDto: any) {
@@ -29,11 +31,20 @@ export class H5AuthService {
       throw new UnauthorizedException('用户名或密码错误');
     }
 
-    const memberLevel = customer.memberLevel;
+    // 检查并更新会员等级
+    await this.memberLevelService.checkAndUpgradeLevel(customer.customerId);
+    
+    // 重新加载客户信息以获取最新的会员等级
+    const updatedCustomer = await this.customerRepository.findOne({
+      where: { customerId: customer.customerId },
+      relations: ['memberLevel'],
+    });
+
+    const memberLevel = updatedCustomer.memberLevel;
 
     const payload = { 
-      username: customer.customerCode, 
-      sub: customer.customerId, 
+      username: updatedCustomer.customerCode, 
+      sub: updatedCustomer.customerId, 
       role: 'customer',
       userType: 'customer' 
     };
@@ -41,20 +52,20 @@ export class H5AuthService {
     return {
       access_token: this.jwtService.sign(payload),
       user: {
-        id: customer.customerId,
-        customerId: customer.customerId,
-        customerCode: customer.customerCode,
-        customerName: customer.customerName,
-        phone: customer.phone,
-        email: customer.email,
-        points: customer.points,
+        id: updatedCustomer.customerId,
+        customerId: updatedCustomer.customerId,
+        customerCode: updatedCustomer.customerCode,
+        customerName: updatedCustomer.customerName,
+        phone: updatedCustomer.phone,
+        email: updatedCustomer.email,
+        points: updatedCustomer.points,
         level: memberLevel ? memberLevel.levelName : '普通会员',
         levelCode: memberLevel ? memberLevel.levelCode : 'normal',
         levelIcon: memberLevel ? memberLevel.iconCode : 'User',
-        avatar: customer.avatar,
-        position: customer.position,
-        totalConsumption: customer.totalConsumption,
-        memberLevelId: customer.memberLevelId,
+        avatar: updatedCustomer.avatar,
+        position: updatedCustomer.position,
+        totalConsumption: updatedCustomer.totalConsumption,
+        memberLevelId: updatedCustomer.memberLevelId,
       },
     };
   }
