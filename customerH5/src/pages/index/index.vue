@@ -148,8 +148,7 @@ const loadDrawInfo = async () => {
     return
   }
   
-  const activityId = Number(currentActivity.value.activityId)
-  
+  const activityId = Number(currentActivity.value.activityId)  
   console.log('准备加载抽奖信息:', {
     userId: userStore.user.id,
     userIdType: typeof userStore.user.id,
