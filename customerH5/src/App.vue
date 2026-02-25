@@ -1,7 +1,19 @@
 <script>
+import { useUserStore } from '@/store/user.js'
+
 export default {
   onLaunch: function () {
     console.log('App Launch')
+    
+    const userStore = useUserStore()
+    userStore.initUser()
+    
+    if (!userStore.user || !userStore.user.value) {
+      console.log('用户未登录，跳转到登录页面')
+      uni.reLaunch({
+        url: '/pages/login/login'
+      })
+    }
   },
   onShow: function () {
     console.log('App Show')
