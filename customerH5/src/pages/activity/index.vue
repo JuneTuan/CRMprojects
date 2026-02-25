@@ -134,7 +134,7 @@ const getLevelIcon = (iconCode) => {
 }
 
 const filteredActivities = computed(() => {
-  if (!userStore.user) return []
+  if (!userStore.user || !userStore.user.value) return []
   
   return activities.value.filter(activity => {
     const userPointsValue = Number(userPoints.value) || 0
@@ -155,10 +155,12 @@ onMounted(async () => {
   console.log('活动页面已挂载')
   userStore.initUser()
   console.log('用户信息:', userStore.user)
-  if (userStore.user) {
+  
+  if (userStore.user && userStore.user.value) {
     await loadActivities()
     await loadUserPoints()
   } else {
+    console.log('用户未登录，不加载活动')
     loading.value = false
   }
 })
@@ -167,8 +169,9 @@ const loadActivities = async () => {
   try {
     loading.value = true
     
-    if (!userStore.user) {
+    if (!userStore.user || !userStore.user.value) {
       console.log('用户未登录，不加载活动')
+      loading.value = false
       return
     }
     

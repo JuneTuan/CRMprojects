@@ -148,15 +148,15 @@ const loadGameData = async () => {
 }
 
 const loadDrawInfo = async () => {
-  if (!userStore.user || !currentActivity.value) {
+  if (!userStore.user || !userStore.user.value || !currentActivity.value) {
     console.log('用户信息或活动信息不存在', { user: userStore.user, activity: currentActivity.value })
     return
   }
   
   const activityId = Number(currentActivity.value.activityId)  
   console.log('准备加载抽奖信息:', {
-    userId: userStore.user.id,
-    userIdType: typeof userStore.user.id,
+    userId: userStore.user.value.id,
+    userIdType: typeof userStore.user.value.id,
     activityId: currentActivity.value.activityId,
     activityIdType: typeof currentActivity.value.activityId
   })
@@ -177,7 +177,7 @@ const loadDrawInfo = async () => {
 onMounted(async () => {
   userStore.initUser()
   
-  if (!userStore.user) {
+  if (!userStore.user || !userStore.user.value) {
     console.log('用户未登录，跳转到登录页面')
     uni.redirectTo({
       url: '/pages/login/login'
@@ -190,13 +190,13 @@ onMounted(async () => {
 })
 
 watch(() => userStore.user, async (newUser) => {
-  if (newUser) {
+  if (newUser && newUser.value) {
     await loadDrawInfo()
   }
 })
 
 watch(() => currentActivity.value, async (newActivity) => {
-  if (newActivity && userStore.user) {
+  if (newActivity && userStore.user && userStore.user.value) {
     await loadDrawInfo()
   }
 })
