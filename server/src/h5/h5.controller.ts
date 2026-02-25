@@ -85,6 +85,7 @@ export class H5Controller {
     return this.h5CustomerService.updateProfile(req.user.customerId, data);
   }
 
+  @UseGuards(AuthGuard('h5-jwt'))
   @Get('activities')
   async getActivities() {
     return this.h5LotteryService.getActivities();

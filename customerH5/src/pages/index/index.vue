@@ -126,6 +126,11 @@ const updateDrawInfo = (info) => {
 }
 
 const loadGameData = async () => {
+  if (!userStore.user) {
+    console.log('用户未登录，跳转到登录页面')
+    return
+  }
+  
   try {
     const activities = await lotteryAPI.getActivities()
     if (activities && activities.length > 0) {
@@ -171,10 +176,17 @@ const loadDrawInfo = async () => {
 
 onMounted(async () => {
   userStore.initUser()
-  await loadGameData()
-  if (userStore.user) {
-    await loadDrawInfo()
+  
+  if (!userStore.user) {
+    console.log('用户未登录，跳转到登录页面')
+    uni.redirectTo({
+      url: '/pages/login/login'
+    })
+    return
   }
+  
+  await loadGameData()
+  await loadDrawInfo()
 })
 
 watch(() => userStore.user, async (newUser) => {
