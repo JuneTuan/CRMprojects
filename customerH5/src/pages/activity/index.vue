@@ -166,12 +166,24 @@ onMounted(async () => {
 const loadActivities = async () => {
   try {
     loading.value = true
+    
+    if (!userStore.user) {
+      console.log('用户未登录，不加载活动')
+      return
+    }
+    
     const data = await lotteryAPI.getActivities()
     console.log('获取到的活动数据:', data)
     activities.value = data || []
     console.log('活动列表赋值后:', activities.value)
   } catch (error) {
     console.error('加载活动失败', error)
+    
+    if (error.response?.status === 401) {
+      console.log('用户未认证，不显示错误提示')
+      return
+    }
+    
     uni.showToast({
       title: '加载活动失败',
       icon: 'none'

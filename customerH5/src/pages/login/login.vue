@@ -78,15 +78,17 @@ const handleLogin = async () => {
   loading.value = true
   try {
     await userStore.login(formData.value.username, formData.value.password)
+    
     uni.showToast({
       title: '登录成功',
       icon: 'success'
     })
+    
     setTimeout(() => {
       uni.switchTab({
         url: '/pages/activity/index'
       })
-    }, 1000)
+    }, 1500)
   } catch (error) {
     console.error('登录失败:', error)
     let errorMessage = '登录失败'
