@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { Role } from './role.entity';
 import { Customer } from '../customer/customer.entity';
+import { AuditLog } from '../audit/audit-log.entity';
 
 @Entity()
 export class User {
@@ -46,4 +47,7 @@ export class User {
 
   @OneToMany(() => Customer, customer => customer.owner)
   customers: Customer[];
+
+  @OneToMany(() => AuditLog, auditLog => auditLog.user)
+  auditLogs: AuditLog[];
 }

@@ -7,6 +7,7 @@ import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { AuditLogService } from '../audit/audit-log.service';
 
 @Injectable()
 export class AuthService {
@@ -14,6 +15,7 @@ export class AuthService {
     @InjectRepository(User) private userRepository: Repository<User>,
     @InjectRepository(Customer) private customerRepository: Repository<Customer>,
     private jwtService: JwtService,
+    private auditLogService: AuditLogService,
   ) {}
 
   async validateUser(username: string, password: string): Promise<any> {

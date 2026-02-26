@@ -77,6 +77,12 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/pages/MemberLevel/index.vue'),
         meta: { title: '会员等级管理' },
       },
+      {
+        path: '/audit-log',
+        name: 'AuditLog',
+        component: () => import('@/pages/AuditLog/index.vue'),
+        meta: { title: '审计日志' },
+      },
     ],
   },
 ];

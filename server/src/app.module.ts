@@ -15,6 +15,7 @@ import { StatisticsModule } from './statistics/statistics.module';
 import { H5Module } from './h5/h5.module';
 import { UploadModule } from './upload/upload.module';
 import { MemberLevelModule } from './member-level/member-level.module';
+import { AuditLogModule } from './audit/audit-log.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -60,6 +61,7 @@ import { AppService } from './app.service';
     H5Module,
     UploadModule,
     MemberLevelModule,
+    AuditLogModule,
   ],
   controllers: [AppController],
   providers: [AppService],
