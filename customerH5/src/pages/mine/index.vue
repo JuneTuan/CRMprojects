@@ -2,12 +2,12 @@
   <view class="mine-container">
     <view class="user-info">
       <view class="avatar">
-        <text class="avatar-text">{{ userStore.user?.customerName?.charAt(0) || 'U' }}</text>
+        <text class="avatar-text">{{ userStore.user.value?.customerName?.charAt(0) || 'U' }}</text>
       </view>
       <view class="info">
-        <text class="name">{{ userStore.user?.customerName }}</text>
-        <text class="phone">{{ userStore.user?.phone || '' }}</text>
-        <text class="level">{{ userStore.user?.level || '普通会员' }}</text>
+        <text class="name">{{ userStore.user.value?.customerName }}</text>
+        <text class="phone">{{ userStore.user.value?.phone || '' }}</text>
+        <text class="level">{{ userStore.user.value?.level || '普通会员' }}</text>
       </view>
       <view class="logout" @click="handleLogout">
         <text>退出</text>
@@ -99,7 +99,7 @@ onMounted(async () => {
   userStore.initUser()
   console.log('用户信息初始化完成:', userStore.user)
   
-  if (userStore.user) {
+  if (userStore.user.value) {
     console.log('用户已登录，开始加载统计数据')
     await loadStats()
     await refreshUserInfo()
@@ -112,14 +112,14 @@ onMounted(async () => {
 })
 
 const refreshUserInfo = async () => {
-  if (!userStore.user) return
+  if (!userStore.user.value) return
   
   try {
     const profile = await userAPI.getProfile()
     console.log('获取到的最新用户信息:', profile)
     
-    userStore.user = {
-      ...userStore.user,
+    userStore.user.value = {
+      ...userStore.user.value,
       id: profile.id,
       customerId: profile.customerId,
       customerCode: profile.customerCode,
@@ -137,15 +137,15 @@ const refreshUserInfo = async () => {
       memberLevelId: profile.memberLevelId
     }
     
-    uni.setStorageSync('user', userStore.user)
-    console.log('用户信息已更新:', userStore.user)
+    uni.setStorageSync('user', userStore.user.value)
+    console.log('用户信息已更新:', userStore.user.value)
   } catch (error) {
     console.error('刷新用户信息失败:', error)
   }
 }
 
 const loadStats = async () => {
-  if (!userStore.user) return
+  if (!userStore.user.value) return
   
   try {
     const [customerInfo, coupons, orders] = await Promise.all([
@@ -184,7 +184,7 @@ const handleLogout = () => {
 }
 
 const goToOrders = () => {
-  if (!userStore.user) {
+  if (!userStore.user.value) {
     uni.showModal({
       title: '提示',
       content: '请先登录',
@@ -204,7 +204,7 @@ const goToOrders = () => {
 }
 
 const goToCoupons = () => {
-  if (!userStore.user) {
+  if (!userStore.user.value) {
     uni.showModal({
       title: '提示',
       content: '请先登录',
@@ -224,7 +224,7 @@ const goToCoupons = () => {
 }
 
 const goToPoints = () => {
-  if (!userStore.user) {
+  if (!userStore.user.value) {
     uni.showModal({
       title: '提示',
       content: '请先登录',
@@ -244,7 +244,7 @@ const goToPoints = () => {
 }
 
 const goToLotteryRecords = () => {
-  if (!userStore.user) {
+  if (!userStore.user.value) {
     uni.showModal({
       title: '提示',
       content: '请先登录',
@@ -264,7 +264,7 @@ const goToLotteryRecords = () => {
 }
 
 const goToProfile = () => {
-  if (!userStore.user) {
+  if (!userStore.user.value) {
     uni.showModal({
       title: '提示',
       content: '请先登录',
@@ -284,7 +284,7 @@ const goToProfile = () => {
 }
 
 const goToResetPassword = () => {
-  if (!userStore.user) {
+  if (!userStore.user.value) {
     uni.showModal({
       title: '提示',
       content: '请先登录',

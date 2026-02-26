@@ -20,21 +20,55 @@ export class H5Controller {
 
   @Post('auth/login')
   async login(@Body() loginDto: any, @Request() req) {
-    const result = await this.h5AuthService.login(loginDto);
+    const ipAddress = req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || req.connection.remoteAddress;
+    const userAgent = req.headers['user-agent'];
     
-    if (result.user) {
-      const ipAddress = req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || req.connection.remoteAddress;
-      const userAgent = req.headers['user-agent'];
+    console.log('H5登录请求开始:', { username: loginDto.username, ipAddress, userAgent });
+    
+    try {
+      const result = await this.h5AuthService.login(loginDto);
       
-      await this.auditLogService.logLogin(
-        result.user.customerId,
-        result.user.customerCode,
-        ipAddress,
-        userAgent,
-      );
+      console.log('H5登录成功:', { user: result.user });
+      
+      if (result.user) {
+        console.log('开始记录H5登录成功审计日志:', { customerId: result.user.customerId, customerCode: result.user.customerCode });
+        try {
+          await this.auditLogService.logLogin(
+            result.user.customerId,
+            result.user.customerCode,
+            ipAddress,
+            userAgent,
+            'customer'
+          );
+          console.log('H5登录成功审计日志记录完成');
+        } catch (auditError) {
+          console.error('H5登录成功审计日志记录失败:', auditError);
+        }
+      }
+      
+      return result;
+    } catch (error) {
+      console.error('H5登录失败:', error.message);
+      // 登录失败时也记录审计日志
+      try {
+        await this.auditLogService.create({
+          userId: 0,
+          username: loginDto.username,
+          action: 'LOGIN',
+          module: 'H5_AUTH',
+          description: `客户 ${loginDto.username} 登录H5系统失败: ${error.message}`,
+          ipAddress,
+          userAgent,
+          status: 'failed',
+          errorMessage: error.message,
+        });
+        console.log('H5登录失败审计日志记录完成');
+      } catch (auditError) {
+        console.error('H5登录失败审计日志记录失败:', auditError);
+      }
+      
+      throw error;
     }
-    
-    return result;
   }
 
   @Post('auth/register')

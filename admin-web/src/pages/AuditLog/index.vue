@@ -59,7 +59,7 @@
             @change="handleFilter"
           >
             <el-option label="成功" value="success" />
-            <el-option label="失败" value="failed" />
+            <el-option label="失败" value="failure" />
           </el-select>
         </div>
         <div class="filter-item">
@@ -201,7 +201,7 @@
 import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Refresh } from '@element-plus/icons-vue'
-import axios from 'axios'
+import request from '@/api/index'
 
 interface AuditLog {
   logId: number
@@ -318,9 +318,9 @@ const loadAuditLogs = async () => {
       params.endDate = dateRange.value[1]
     }
 
-    const response = await axios.get('/audit-logs', { params })
-    auditLogs.value = response.data.data
-    pagination.value.total = response.data.total
+    const response = await request.get('/audit-logs', { params })
+    auditLogs.value = response.data
+    pagination.value.total = response.total
   } catch (error) {
     ElMessage.error('加载审计日志失败')
   } finally {
@@ -330,7 +330,7 @@ const loadAuditLogs = async () => {
 
 const loadStatistics = async () => {
   try {
-    const response = await axios.get('/audit-logs/statistics')
+    const response = await request.get('/audit-logs/statistics')
     statistics.value = response.data
     ElMessage.success('统计数据已更新')
   } catch (error) {

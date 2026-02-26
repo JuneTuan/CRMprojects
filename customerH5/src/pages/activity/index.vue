@@ -5,7 +5,7 @@
       <text class="subtitle">参与活动赢取丰厚奖品</text>
     </view>
 
-    <view class="user-info" v-if="userStore.user">
+    <view class="user-info" v-if="userStore.user.value">
       <view class="info-card">
         <view class="info-item">
           <text class="info-icon">💰</text>
@@ -16,8 +16,8 @@
           <text class="info-icon">⭐</text>
           <text class="info-label">会员等级</text>
           <view class="level-display">
-            <text class="level-icon">{{ getLevelIcon(userStore.user?.levelIcon) }}</text>
-            <text class="info-value">{{ userStore.user?.level || '普通会员' }}</text>
+            <text class="level-icon">{{ getLevelIcon(userStore.user.value?.levelIcon) }}</text>
+            <text class="info-value">{{ userStore.user.value?.level || '普通会员' }}</text>
           </view>
         </view>
       </view>
@@ -30,7 +30,7 @@
       </navigator>
     </view>
 
-    <view class="activity-list" v-if="userStore.user">
+    <view class="activity-list" v-if="userStore.user.value">
       <view 
         class="activity-item" 
         v-for="activity in filteredActivities" 
@@ -96,7 +96,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useUserStore } from '@/store/user.js'
-import { lotteryAPI } from '@/api/index.js'
+import { lotteryAPI, userAPI } from '@/api/index.js'
 
 const userStore = useUserStore()
 const activities = ref([])
@@ -134,7 +134,7 @@ const getLevelIcon = (iconCode) => {
 }
 
 const filteredActivities = computed(() => {
-  if (!userStore.user || !userStore.user.value) return []
+  if (!userStore.user.value) return []
   
   return activities.value.filter(activity => {
     const userPointsValue = Number(userPoints.value) || 0
@@ -156,7 +156,29 @@ onMounted(async () => {
   userStore.initUser()
   console.log('用户信息:', userStore.user)
   
-  if (userStore.user && userStore.user.value) {
+  if (userStore.user.value) {
+    try {
+      // 获取最新用户资料，确保等级信息是最新的
+      const profile = await userAPI.getProfile()
+      console.log('获取到的用户资料:', profile)
+      
+      // 更新用户信息
+      if (profile) {
+        userStore.user.value = {
+          ...userStore.user.value,
+          level: profile.level || '普通会员',
+          levelIcon: profile.levelIcon,
+          points: profile.points || 0
+        }
+        console.log('更新后的用户信息:', userStore.user.value)
+        
+        // 保存到本地存储
+        uni.setStorageSync('user', userStore.user.value)
+      }
+    } catch (error) {
+      console.error('加载用户资料失败:', error)
+    }
+    
     await loadActivities()
     await loadUserPoints()
   } else {
@@ -169,7 +191,7 @@ const loadActivities = async () => {
   try {
     loading.value = true
     
-    if (!userStore.user || !userStore.user.value) {
+    if (!userStore.user.value) {
       console.log('用户未登录，不加载活动')
       loading.value = false
       return

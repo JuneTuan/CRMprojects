@@ -8,12 +8,27 @@ export default {
     const userStore = useUserStore()
     userStore.initUser()
     
-    if (!userStore.user || !userStore.user.value) {
-      console.log('用户未登录，跳转到登录页面')
-      uni.reLaunch({
-        url: '/pages/login/login'
-      })
-    }
+    console.log('检查登录状态:', {
+      user: userStore.user,
+      userValue: userStore.user.value,
+      token: userStore.token.value,
+      tokenExists: !!userStore.token.value,
+      userExists: !!userStore.user.value
+    })
+    
+    // 检查本地存储中的原始数据
+    const savedToken = uni.getStorageSync('token')
+    const savedUser = uni.getStorageSync('user')
+    console.log('本地存储原始数据:', {
+      savedToken: !!savedToken,
+      savedUser: !!savedUser
+    })
+    
+    // 强制跳转到活动页面，测试登录状态
+    console.log('强制跳转到活动页面')
+    uni.switchTab({
+      url: '/pages/activity/index'
+    })
   },
   onShow: function () {
     console.log('App Show')

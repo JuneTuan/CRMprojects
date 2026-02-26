@@ -34,8 +34,7 @@ export class AuditLogService {
   async findAll(query: any = {}): Promise<{ data: AuditLog[]; total: number }> {
     const { page = 1, limit = 20, userId, action, module, status, startDate, endDate } = query;
 
-    const queryBuilder = this.auditLogRepository.createQueryBuilder('auditLog')
-      .leftJoinAndSelect('auditLog.user', 'user');
+    const queryBuilder = this.auditLogRepository.createQueryBuilder('auditLog');
 
     if (userId) {
       queryBuilder.andWhere('auditLog.userId = :userId', { userId });

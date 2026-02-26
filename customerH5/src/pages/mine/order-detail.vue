@@ -47,7 +47,7 @@
 </template>
 
 <script setup>
-import { ref, onLoad } from 'vue'
+import { ref } from 'vue'
 import { orderAPI } from '@/api/index.js'
 
 const order = ref(null)
