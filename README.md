@@ -29,11 +29,13 @@ CRMprojects/
 │   │   ├── components/   # 公共组件
 │   │   ├── pages/        # 页面组件
 │   │   │   ├── Activity/     # 活动管理
+│   │   │   ├── AuditLog/     # 审计日志
 │   │   │   ├── Coupon/       # 优惠券管理
 │   │   │   ├── Customer/     # 客户管理
 │   │   │   ├── Dashboard/    # 仪表板
 │   │   │   ├── Login/        # 登录页
 │   │   │   ├── Lottery/      # 抽奖管理
+│   │   │   ├── MemberLevel/  # 会员等级
 │   │   │   ├── Order/        # 订单管理
 │   │   │   ├── Permission/   # 权限管理
 │   │   │   ├── Product/      # 产品管理
@@ -102,6 +104,11 @@ CRMprojects/
 │   │   │   ├── coupon.module.ts
 │   │   │   ├── coupon.entity.ts
 │   │   │   └── customer-coupon.entity.ts
+│   │   ├── audit/         # 审计日志模块
+│   │   │   ├── audit-log.controller.ts
+│   │   │   ├── audit-log.entity.ts
+│   │   │   ├── audit-log.module.ts
+│   │   │   └── audit-log.service.ts
 │   │   ├── customer/     # 客户模块
 │   │   │   ├── dto/
 │   │   │   ├── customer.controller.ts
@@ -110,12 +117,30 @@ CRMprojects/
 │   │   │   ├── customer.entity.ts
 │   │   │   └── points-record.entity.ts
 │   │   ├── dashboard/    # 仪表板模块
+│   │   ├── h5/           # H5接口模块
+│   │   │   ├── strategies/
+│   │   │   ├── h5-auth.service.ts
+│   │   │   ├── h5-coupon.service.ts
+│   │   │   ├── h5-customer.service.ts
+│   │   │   ├── h5-lottery.service.ts
+│   │   │   ├── h5-order.service.ts
+│   │   │   ├── h5.controller.ts
+│   │   │   └── h5.module.ts
 │   │   ├── lottery/      # 抽奖模块
+│   │   ├── member-level/ # 会员等级模块
+│   │   │   ├── member-level-log.entity.ts
+│   │   │   ├── member-level.controller.ts
+│   │   │   ├── member-level.entity.ts
+│   │   │   ├── member-level.module.ts
+│   │   │   └── member-level.service.ts
 │   │   ├── order/        # 订单模块
 │   │   ├── prize/        # 奖品模块
 │   │   ├── product/      # 产品模块
 │   │   ├── staff/        # 员工模块
 │   │   ├── statistics/   # 统计模块
+│   │   ├── upload/       # 文件上传模块
+│   │   │   ├── upload.controller.ts
+│   │   │   └── upload.module.ts
 │   │   ├── app.module.ts
 │   │   ├── app.controller.ts
 │   │   ├── app.service.ts
