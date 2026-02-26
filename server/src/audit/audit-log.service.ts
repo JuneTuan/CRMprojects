@@ -114,13 +114,18 @@ export class AuditLogService {
     };
   }
 
-  async logLogin(userId: number, username: string, ipAddress: string, userAgent: string): Promise<void> {
+  async logLogin(userId: number, username: string, ipAddress: string, userAgent: string, userType: string = 'admin'): Promise<void> {
+    const module = userType === 'customer' ? 'H5_AUTH' : 'AUTH';
+    const description = userType === 'customer' 
+      ? `客户 ${username} 登录H5系统`
+      : `管理员 ${username} 登录管理系统`;
+    
     await this.create({
       userId,
       username,
       action: 'LOGIN',
-      module: 'AUTH',
-      description: `用户 ${username} 登录系统`,
+      module,
+      description,
       ipAddress,
       userAgent,
       status: 'success',

@@ -38,7 +38,8 @@
             style="width: 150px"
             @change="handleFilter"
           >
-            <el-option label="认证" value="AUTH" />
+            <el-option label="管理系统认证" value="AUTH" />
+            <el-option label="H5系统认证" value="H5_AUTH" />
             <el-option label="客户管理" value="CUSTOMER" />
             <el-option label="产品管理" value="PRODUCT" />
             <el-option label="订单管理" value="ORDER" />
@@ -266,7 +267,8 @@ const getActionLabel = (action: string) => {
 
 const getModuleLabel = (module: string) => {
   const labelMap: Record<string, string> = {
-    AUTH: '认证',
+    AUTH: '管理系统认证',
+    H5_AUTH: 'H5系统认证',
     CUSTOMER: '客户管理',
     PRODUCT: '产品管理',
     ORDER: '订单管理',

@@ -5,6 +5,7 @@ import { H5CouponService } from './h5-coupon.service';
 import { H5CustomerService } from './h5-customer.service';
 import { H5LotteryService } from './h5-lottery.service';
 import { AuthGuard } from '@nestjs/passport';
+import { AuditLogService } from '../audit/audit-log.service';
 
 @Controller('h5')
 export class H5Controller {
@@ -14,11 +15,26 @@ export class H5Controller {
     private h5CouponService: H5CouponService,
     private h5CustomerService: H5CustomerService,
     private h5LotteryService: H5LotteryService,
+    private auditLogService: AuditLogService,
   ) {}
 
   @Post('auth/login')
-  async login(@Body() loginDto: any) {
-    return this.h5AuthService.login(loginDto);
+  async login(@Body() loginDto: any, @Request() req) {
+    const result = await this.h5AuthService.login(loginDto);
+    
+    if (result.user) {
+      const ipAddress = req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || req.connection.remoteAddress;
+      const userAgent = req.headers['user-agent'];
+      
+      await this.auditLogService.logLogin(
+        result.user.customerId,
+        result.user.customerCode,
+        ipAddress,
+        userAgent,
+      );
+    }
+    
+    return result;
   }
 
   @Post('auth/register')

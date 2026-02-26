@@ -25,6 +25,7 @@ import { JwtStrategy } from '../auth/strategies/jwt.strategy';
 import { H5JwtStrategy } from './strategies/h5-jwt.strategy';
 import { AuthModule } from '../auth/auth.module';
 import { MemberLevelModule } from '../member-level/member-level.module';
+import { AuditLogModule } from '../audit/audit-log.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { MemberLevelModule } from '../member-level/member-level.module';
     PassportModule,
     AuthModule,
     MemberLevelModule,
+    AuditLogModule,
   ],
   controllers: [H5Controller],
   providers: [

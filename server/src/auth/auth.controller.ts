@@ -25,6 +25,7 @@ export class AuthController {
         result.user.username,
         ipAddress,
         userAgent,
+        'admin',
       );
     }
     
