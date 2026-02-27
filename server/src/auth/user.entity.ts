@@ -2,8 +2,11 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColum
 import { Role } from './role.entity';
 import { Customer } from '../customer/customer.entity';
 import { AuditLog } from '../audit/audit-log.entity';
+import { Lead } from '../leads/lead.entity';
+import { LeadFollowup } from '../leads/lead-followup.entity';
+import { LeadAssignment } from '../leads/lead-assignment.entity';
 
-@Entity()
+@Entity('user')
 export class User {
   @PrimaryGeneratedColumn({ name: 'user_id' })
   userId: number;
@@ -50,4 +53,20 @@ export class User {
 
   @OneToMany(() => AuditLog, auditLog => auditLog.user)
   auditLogs: AuditLog[];
+
+  // Lead relationships
+  @OneToMany(() => Lead, lead => lead.assignedUser)
+  assignedLeads: Lead[];
+
+  @OneToMany(() => Lead, lead => lead.createdUser)
+  createdLeads: Lead[];
+
+  @OneToMany(() => LeadFollowup, followup => followup.createdUser)
+  createdLeadFollowups: LeadFollowup[];
+
+  @OneToMany(() => LeadAssignment, assignment => assignment.assignedUser)
+  assignedLeadAssignments: LeadAssignment[];
+
+  @OneToMany(() => LeadAssignment, assignment => assignment.assignedByUser)
+  createdLeadAssignments: LeadAssignment[];
 }

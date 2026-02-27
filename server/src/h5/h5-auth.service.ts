@@ -92,7 +92,7 @@ export class H5AuthService {
       memberLevelId: 1,
       totalConsumption: 0,
       isActive: true,
-      source: 'H5注册',
+      source: registerDto.source || 'H5注册',
     });
     
     const savedCustomer = await this.customerRepository.save(customer);

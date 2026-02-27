@@ -109,3 +109,10 @@ export const lotteryAPI = {
     method: 'PUT'
   })
 }
+
+export const dictionaryAPI = {
+  getByType: (dictType) => request({
+    url: `/api/v6/dictionary/type/${dictType}`,
+    method: 'GET'
+  })
+}

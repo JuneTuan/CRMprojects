@@ -98,6 +98,9 @@ const formData = ref({
 const loading = ref(false)
 const userStore = useUserStore()
 
+// H5自注册来源标识
+const H5_REGISTER_SOURCE = 'h5_register'
+
 const handleRegister = async () => {
   if (!formData.value.customerCode || !formData.value.password) {
     uni.showToast({
@@ -131,7 +134,8 @@ const handleRegister = async () => {
       phone: formData.value.phone,
       name: formData.value.customerName || formData.value.customerCode,
       email: formData.value.email,
-      roleId: 2
+      roleId: 2,
+      source: H5_REGISTER_SOURCE
     }
     
     await userStore.register(registerData)

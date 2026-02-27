@@ -4,7 +4,7 @@ import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { AuthGuard } from '@nestjs/passport';
 
-@Controller('customers')
+@Controller('api/v6/customers')
 export class CustomerController {
   constructor(private customerService: CustomerService) {}
 
@@ -14,10 +14,12 @@ export class CustomerController {
     @Query('page') page: string = '1',
     @Query('pageSize') pageSize: string = '10',
     @Query('search') search?: string,
+    @Query('sort') sort: string = 'createdAt',
+    @Query('order') order: 'ASC' | 'DESC' = 'DESC',
   ) {
     const pageNum = parseInt(page, 10);
     const pageSizeNum = parseInt(pageSize, 10);
-    return this.customerService.findAll(pageNum, pageSizeNum, search);
+    return this.customerService.findAll(pageNum, pageSizeNum, search, sort, order);
   }
 
   @UseGuards(AuthGuard('jwt'))

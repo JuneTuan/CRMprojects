@@ -14,7 +14,7 @@ export class CustomerService {
     @InjectRepository(PointsRecord) private pointsRecordRepository: Repository<PointsRecord>,
   ) {}
 
-  async findAll(page: number = 1, pageSize: number = 10, search?: string) {
+  async findAll(page: number = 1, pageSize: number = 10, search?: string, sort: string = 'createdAt', order: 'ASC' | 'DESC' = 'DESC') {
     const queryBuilder = this.customerRepository.createQueryBuilder('customer')
       .leftJoinAndSelect('customer.owner', 'owner');
 
@@ -28,7 +28,7 @@ export class CustomerService {
     const [data, total] = await queryBuilder
       .skip((page - 1) * pageSize)
       .take(pageSize)
-      .orderBy('customer.createdAt', 'DESC')
+      .orderBy(`customer.${sort}`, order)
       .getManyAndCount();
 
     return {
@@ -58,9 +58,8 @@ export class CustomerService {
     const customerCode = `CUST_${Date.now()}`;
     console.log('生成的客户编码:', customerCode);
     
-    const password = createCustomerDto.source === '后台新增' 
-      ? '123456' 
-      : createCustomerDto.password;
+    // 如果是后台新增或线索转化，使用默认密码 123456
+    const password = createCustomerDto.password || '123456';
     
     const hashedPassword = await bcrypt.hash(password, 10);
     console.log('密码已加密');
@@ -70,7 +69,7 @@ export class CustomerService {
       customerCode,
       password: hashedPassword,
       source: createCustomerDto.source || '后台新增',
-      ownerId: createCustomerDto.ownerId || 22,
+      ownerId: createCustomerDto.ownerId,
     };
     console.log('准备保存的数据:', JSON.stringify({
       ...customerData,

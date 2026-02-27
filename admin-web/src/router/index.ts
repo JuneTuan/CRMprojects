@@ -83,6 +83,18 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/pages/AuditLog/index.vue'),
         meta: { title: '审计日志' },
       },
+      {
+        path: '/leads',
+        name: 'Leads',
+        component: () => import('@/pages/Leads/index.vue'),
+        meta: { title: '线索管理' },
+      },
+      {
+        path: '/dictionary',
+        name: 'Dictionary',
+        component: () => import('@/pages/Dictionary/index.vue'),
+        meta: { title: '字典管理' },
+      },
     ],
   },
 ];

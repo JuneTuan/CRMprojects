@@ -55,6 +55,10 @@ export class CreateOrderDto {
   @IsOptional()
   points: number;
 
+  @IsNumber()
+  @IsOptional()
+  leadId: number;
+
   @ValidateNested({ each: true })
   @Type(() => OrderItemDto)
   @IsNotEmpty()

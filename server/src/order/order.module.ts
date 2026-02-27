@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { OrderController } from './order.controller';
 import { OrderService } from './order.service';
@@ -8,6 +8,7 @@ import { ProductModule } from '../product/product.module';
 import { CustomerModule } from '../customer/customer.module';
 import { CouponModule } from '../coupon/coupon.module';
 import { MemberLevelModule } from '../member-level/member-level.module';
+import { LeadModule } from '../leads/lead.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { MemberLevelModule } from '../member-level/member-level.module';
     CustomerModule,
     CouponModule,
     MemberLevelModule,
+    forwardRef(() => LeadModule),
   ],
   controllers: [OrderController],
   providers: [OrderService],

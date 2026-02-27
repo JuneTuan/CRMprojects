@@ -27,8 +27,9 @@ export class UpdateCustomerDto {
   @MaxLength(255)
   address: string;
 
-  @IsEnum(['后台新增', 'H5注册'])
+  @IsString()
   @IsOptional()
+  @MaxLength(50)
   source: string;
 
   @IsString()

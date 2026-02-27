@@ -24,21 +24,31 @@
         </el-input>
       </div>
       
-      <el-table :data="tableData" style="width: 100%" v-loading="loading">
-        <el-table-column prop="customerName" label="姓名" />
-        <el-table-column prop="customerCode" label="用户名" />
-        <el-table-column prop="phone" label="手机号" />
-        <el-table-column prop="email" label="邮箱" />
-        <el-table-column prop="level" label="会员等级" />
-        <el-table-column prop="points" label="积分" />
-        <el-table-column prop="source" label="来源" />
+      <el-table 
+        :data="tableData" 
+        style="width: 100%" 
+        v-loading="loading"
+        @sort-change="handleSortChange"
+        :default-sort="{ prop: 'createdAt', order: 'descending' }"
+      >
+        <el-table-column prop="customerName" label="姓名" sortable="custom" />
+        <el-table-column prop="customerCode" label="用户名" sortable="custom" />
+        <el-table-column prop="phone" label="手机号" sortable="custom" />
+        <el-table-column prop="email" label="邮箱" sortable="custom" />
+        <el-table-column prop="level" label="会员等级" sortable="custom" />
+        <el-table-column prop="points" label="积分" sortable="custom" />
+        <el-table-column prop="source" label="来源" sortable="custom">
+          <template #default="scope">
+            {{ getSourceLabel(scope.row.source) }}
+          </template>
+        </el-table-column>
         <el-table-column prop="remark" label="备注" show-overflow-tooltip />
         <el-table-column label="负责人">
           <template #default="scope">
             {{ scope.row.owner?.userName || '-' }}
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="250">
+        <el-table-column label="操作" width="250" fixed="right">
           <template #default="scope">
             <el-button size="small" @click="handleEdit(scope.row)">编辑</el-button>
             <el-button size="small" type="primary" @click="handleViewPoints(scope.row)">查看积分</el-button>
@@ -83,6 +93,16 @@
             <el-option label="白银会员" value="白银会员" />
             <el-option label="黄金会员" value="黄金会员" />
             <el-option label="钻石会员" value="钻石会员" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="来源" prop="source">
+          <el-select v-model="form.source" placeholder="请选择来源" clearable>
+            <el-option
+              v-for="item in customerSourceDict"
+              :key="item.dictValue"
+              :label="item.dictLabel"
+              :value="item.dictValue"
+            />
           </el-select>
         </el-form-item>
         <el-form-item label="积分" prop="points" v-if="form.customerId">
@@ -155,6 +175,7 @@ import { ElMessage, ElMessageBox, ElForm } from 'element-plus';
 import { Search } from '@element-plus/icons-vue';
 import type { FormInstance, FormRules } from 'element-plus';
 import request from '@/api';
+import { dictionaryApi } from '@/api/dictionary';
 
 const loading = ref(false);
 const submitLoading = ref(false);
@@ -167,6 +188,11 @@ const searchKeyword = ref('');
 const currentPage = ref(1);
 const pageSize = ref(10);
 const total = ref(0);
+const customerSourceDict = ref<any[]>([]);
+
+// 排序相关
+const sortProp = ref('createdAt');
+const sortOrder = ref('descending');
 
 const pointsDialogVisible = ref(false);
 const pointsLoading = ref(false);
@@ -184,6 +210,7 @@ const form = reactive({
   email: '',
   level: '普通会员',
   points: 0,
+  source: 'backend',
   remark: '',
   ownerId: null as number | null,
 });
@@ -209,7 +236,11 @@ const getCustomers = async () => {
     if (searchKeyword.value) {
       params.search = searchKeyword.value;
     }
-    const response: any = await request.get('/customers', { params });
+    if (sortProp.value) {
+      params.sort = sortProp.value;
+      params.order = sortOrder.value === 'ascending' ? 'ASC' : 'DESC';
+    }
+    const response: any = await request.get('/api/v6/customers', { params });
     tableData.value = response.data || [];
     total.value = response.total || 0;
   } catch (error) {
@@ -217,6 +248,13 @@ const getCustomers = async () => {
   } finally {
     loading.value = false;
   }
+};
+
+// 排序变化
+const handleSortChange = ({ prop, order }: { prop: string; order: string }) => {
+  sortProp.value = prop || 'createdAt';
+  sortOrder.value = order || 'descending';
+  getCustomers();
 };
 
 // 搜索
@@ -272,6 +310,7 @@ const handleAdd = () => {
     email: '',
     level: '普通会员',
     points: 0,
+    source: 'backend',
     remark: '',
     ownerId: adminUserId,
   });
@@ -289,6 +328,7 @@ const handleEdit = (row: any) => {
     email: row.email,
     level: row.level,
     points: Number(row.points) || 0,
+    source: row.source || 'backend',
     remark: row.remark || '',
     ownerId: row.owner?.userId || null,
   });
@@ -303,7 +343,7 @@ const handleDelete = (row: any) => {
     type: 'warning',
   }).then(async () => {
     try {
-        await request.delete(`/customers/${row.customerId}`);
+        await request.delete(`/api/v6/customers/${row.customerId}`);
         ElMessage.success('删除成功');
         getCustomers();
       } catch (error) {
@@ -319,13 +359,16 @@ const handleSubmit = async () => {
     if (valid) {
       submitLoading.value = true;
       try {
+        const { customerId, ...data } = form;
+        // 确保 source 有值，默认为 backend
+        if (!data.source) {
+          data.source = 'backend';
+        }
         if (form.customerId) {
-          const { customerId, ...data } = form;
-          await request.put(`/customers/${form.customerId}`, data);
+          await request.put(`/api/v6/customers/${form.customerId}`, data);
           ElMessage.success('更新成功');
         } else {
-          const { customerId, ...data } = form;
-          await request.post('/customers', { ...data, source: '后台新增' });
+          await request.post('/api/v6/customers', data);
           ElMessage.success('新增成功');
         }
         dialogVisible.value = false;
@@ -378,10 +421,27 @@ const handlePointsCurrentChange = (page: number) => {
   getPointsRecords();
 };
 
+// 获取客户来源字典
+const getCustomerSourceDict = async () => {
+  try {
+    const response: any = await dictionaryApi.getByType('customer_source');
+    customerSourceDict.value = response || [];
+  } catch (error) {
+    console.error('获取客户来源字典失败:', error);
+  }
+};
+
+// 获取来源标签
+const getSourceLabel = (source: string) => {
+  const dictItem = customerSourceDict.value.find(item => item.dictValue === source);
+  return dictItem ? dictItem.dictLabel : source;
+};
+
 // 初始化
 onMounted(() => {
   getCustomers();
   getUsers();
+  getCustomerSourceDict();
 });
 </script>
 

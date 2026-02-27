@@ -266,10 +266,14 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox, ElForm } from 'element-plus';
 import { Search, Plus, Delete, ArrowUp } from '@element-plus/icons-vue';
 import type { FormInstance, FormRules } from 'element-plus';
 import request from '@/api';
+
+const route = useRoute();
+const router = useRouter();
 
 const loading = ref(false);
 const submitLoading = ref(false);
@@ -290,6 +294,9 @@ const currentCustomer = ref<any>(null);
 const currentCustomerLevel = ref<any>(null);
 const predictedLevel = ref<any>(null);
 
+// 线索转化相关
+const leadInfo = ref<any>(null);
+
 const form = reactive({
   orderId: null as number | null,
   orderNo: '',
@@ -300,6 +307,7 @@ const form = reactive({
   isPoints: true,
   points: 0,
   shippingAddress: '',
+  leadId: null as number | null,
   orderItems: [
     {
       productId: null as number | null,
@@ -358,7 +366,7 @@ const getOrders = async () => {
 
 const getCustomers = async () => {
   try {
-    const response: any = await request.get('/customers');
+    const response: any = await request.get('/api/v6/customers');
     customers.value = response.data || [];
     console.log('客户列表:', customers.value);
   } catch (error) {
@@ -454,6 +462,7 @@ const handleReset = () => {
 
 const handleAdd = () => {
   dialogTitle.value = '新增订单';
+  leadInfo.value = null;
   Object.assign(form, {
     orderId: null,
     orderNo: `ORD_${Date.now()}`,
@@ -464,6 +473,7 @@ const handleAdd = () => {
     isPoints: true,
     points: 0,
     shippingAddress: '',
+    leadId: null,
     orderItems: [
       {
         productId: null,
@@ -474,6 +484,84 @@ const handleAdd = () => {
     ],
   });
   dialogVisible.value = true;
+};
+
+// 从线索转化创建订单
+const handleAddFromLead = async () => {
+  const { leadId, leadName, leadPhone, leadEmail, leadCompany, leadSource } = route.query;
+  
+  if (!leadId) {
+    handleAdd();
+    return;
+  }
+  
+  dialogTitle.value = '从线索创建订单';
+  leadInfo.value = {
+    id: leadId,
+    name: leadName,
+    phone: leadPhone,
+    email: leadEmail,
+    company: leadCompany,
+    source: leadSource,
+  };
+  
+  // 查找或创建客户
+  try {
+    // 先查找是否存在该客户
+    const customerResponse: any = await request.get('/api/v6/customers', {
+      params: { search: leadPhone }
+    });
+    
+    let customerId = null;
+    if (customerResponse.data && customerResponse.data.length > 0) {
+      // 客户已存在
+      customerId = customerResponse.data[0].customerId;
+      ElMessage.success('找到已有客户，将关联到该客户');
+    } else {
+      // 创建新客户
+      const createCustomerResponse: any = await request.post('/api/v6/customers', {
+        customerName: leadName,
+        phone: leadPhone,
+        email: leadEmail || '',
+        source: leadSource || 'lead_convert',
+        remark: `从线索转化创建，线索ID: ${leadId}`,
+      });
+      
+      if (createCustomerResponse.customerId) {
+        customerId = createCustomerResponse.customerId;
+        ElMessage.success('已创建新客户');
+      }
+    }
+    
+    // 重新加载客户列表
+    await getCustomers();
+    
+    Object.assign(form, {
+      orderId: null,
+      orderNo: `ORD_${Date.now()}`,
+      customerId: customerId,
+      status: '待支付',
+      totalAmount: 0,
+      actualAmount: 0,
+      isPoints: true,
+      points: 0,
+      shippingAddress: '',
+      leadId: Number(leadId),
+      orderItems: [
+        {
+          productId: null,
+          quantity: 1,
+          unitPrice: 0,
+          subtotal: 0,
+        },
+      ],
+    });
+    
+    dialogVisible.value = true;
+  } catch (error) {
+    console.error('从线索创建订单失败:', error);
+    ElMessage.error('创建失败，请重试');
+  }
 };
 
 const handleEdit = (row: any) => {
@@ -584,6 +672,7 @@ const handleSubmit = async () => {
           status: form.status,
           shippingAddress: form.shippingAddress,
           isPoints: form.isPoints,
+          leadId: form.leadId,
           orderItems: form.orderItems.map(item => ({
             productId: item.productId,
             quantity: item.quantity,
@@ -597,10 +686,21 @@ const handleSubmit = async () => {
         } else {
           await request.post('/orders', orderData);
           ElMessage.success('创建成功');
+          
+          // 如果是从线索转化，显示转化成功提示
+          if (form.leadId) {
+            ElMessage.success('线索已成功转化为客户');
+          }
         }
 
         dialogVisible.value = false;
-        getOrders();
+        
+        // 如果是从线索转化，返回线索列表
+        if (form.leadId && !form.orderId) {
+          router.push('/leads');
+        } else {
+          getOrders();
+        }
       } catch (error) {
         console.error('提交失败:', error);
       } finally {
@@ -625,6 +725,11 @@ onMounted(() => {
   getCustomers();
   getProducts();
   getMemberLevels();
+  
+  // 检查是否从线索转化跳转
+  if (route.query.leadId) {
+    handleAddFromLead();
+  }
 });
 </script>
 

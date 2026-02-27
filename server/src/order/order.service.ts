@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Order } from './order.entity';
@@ -10,6 +10,7 @@ import { CustomerService } from '../customer/customer.service';
 import { PointsRecordService } from '../customer/points-record.service';
 import { CouponService } from '../coupon/coupon.service';
 import { MemberLevelService } from '../member-level/member-level.service';
+import { LeadService } from '../leads/lead.service';
 
 @Injectable()
 export class OrderService {
@@ -21,6 +22,8 @@ export class OrderService {
     private pointsRecordService: PointsRecordService,
     private couponService: CouponService,
     private memberLevelService: MemberLevelService,
+    @Inject(forwardRef(() => LeadService))
+    private leadService: LeadService,
   ) {}
 
   async findAll(
@@ -145,6 +148,19 @@ export class OrderService {
       await this.customerService.updateConsumption(savedOrder.customerId, Number(savedOrder.actualAmount));
 
       await this.memberLevelService.checkAndUpgradeLevel(savedOrder.customerId);
+    }
+
+    // 如果是从线索转化，更新线索状态
+    if (createOrderDto.leadId) {
+      try {
+        await this.leadService.convertLead(createOrderDto.leadId, {
+          convertedAmount: savedOrder.actualAmount,
+          convertedCustomerId: savedOrder.customerId,
+        });
+        console.log(`线索 ${createOrderDto.leadId} 已成功转化`);
+      } catch (error) {
+        console.error('转化线索失败:', error);
+      }
     }
 
     return this.findOne(savedOrder.orderId);

@@ -9,7 +9,11 @@
         text-color="#bfcbd9"
         active-text-color="#409eff"
       >
-        <el-menu-item index="/customer">
+       <el-menu-item index="/leads">
+          <el-icon><Guide /></el-icon>
+          <span>线索管理</span>
+        </el-menu-item>  
+      <el-menu-item index="/customer">
           <el-icon><User /></el-icon>
           <span>客户管理</span>
         </el-menu-item>
@@ -49,13 +53,17 @@
           <el-icon><Document /></el-icon>
           <span>审计日志</span>
         </el-menu-item>
-        <el-menu-item index="/user">
+       <el-menu-item index="/user">
           <el-icon><Avatar /></el-icon>
           <span>用户管理</span>
         </el-menu-item>
         <el-menu-item index="/role">
           <el-icon><UserFilled /></el-icon>
           <span>角色管理</span>
+        </el-menu-item>
+        <el-menu-item index="/dictionary">
+          <el-icon><Collection /></el-icon>
+          <span>字典管理</span>
         </el-menu-item>
       </el-menu>
     </el-aside>
@@ -92,6 +100,24 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import {
+  Guide,
+  User,
+  Goods,
+  Menu,
+  Document,
+  Medal,
+  Ticket,
+  Present,
+  Trophy,
+  TrendCharts,
+  Avatar,
+  UserFilled,
+  Fold,
+  Expand,
+  ArrowDown,
+  Collection
+} from '@element-plus/icons-vue';
 
 const route = useRoute();
 const router = useRouter();

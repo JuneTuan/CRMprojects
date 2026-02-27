@@ -547,7 +547,7 @@ const getCoupons = async () => {
 
 const getCustomers = async () => {
   try {
-    const response: any = await request.get('/customers');
+    const response: any = await request.get('/api/v6/customers');
     customers.value = response.data || [];
   } catch (error) {
     console.error('获取客户列表失败:', error);

@@ -1,4 +1,4 @@
-import request from '../api';
+import request from './index';
 
 export interface MemberLevel {
   levelId: number;

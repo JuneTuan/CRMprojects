@@ -1,5 +1,8 @@
 import axios from 'axios';
 import { ElMessage } from 'element-plus';
+import leadsApi from './leads';
+import userApi from './user';
+import { memberLevelApi } from './member-level';
 
 const request = axios.create({
   baseURL: 'http://localhost:3001',
@@ -38,3 +41,4 @@ request.interceptors.response.use(
 );
 
 export default request;
+export { leadsApi, userApi, memberLevelApi };

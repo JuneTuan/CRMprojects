@@ -5,6 +5,7 @@ import { LotteryRecord } from '../lottery/lottery-record.entity';
 import { PointsRecord } from './points-record.entity';
 import { User } from '../auth/user.entity';
 import { MemberLevel } from '../member-level/member-level.entity';
+import { Lead } from '../leads/lead.entity';
 
 @Entity()
 export class Customer {
@@ -47,7 +48,7 @@ export class Customer {
   @Column({ name: 'address', nullable: true, length: 255 })
   address: string;
 
-  @Column({ name: 'source', type: 'enum', enum: ['后台新增', 'H5注册'], default: '后台新增' })
+  @Column({ name: 'source', type: 'varchar', length: 50, default: 'backend' })
   source: string;
 
   @Column({ name: 'remark', type: 'text', nullable: true })
@@ -87,4 +88,8 @@ export class Customer {
 
   @OneToMany(() => PointsRecord, pointsRecord => pointsRecord.customer)
   pointsRecords: PointsRecord[];
+
+  // Lead relationships
+  @OneToMany(() => Lead, lead => lead.convertedCustomer)
+  convertedLeads: Lead[];
 }

@@ -16,6 +16,8 @@ import { H5Module } from './h5/h5.module';
 import { UploadModule } from './upload/upload.module';
 import { MemberLevelModule } from './member-level/member-level.module';
 import { AuditLogModule } from './audit/audit-log.module';
+import { LeadModule } from './leads/lead.module';
+import { DictionaryModule } from './dictionary/dictionary.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -35,7 +37,7 @@ import { AppService } from './app.service';
         database: configService.get('DB_DATABASE'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: false,
-        logging: true,
+        logging: false,
         charset: 'utf8mb4_unicode_ci',
         collation: 'utf8mb4_unicode_ci',
         extra: {
@@ -62,6 +64,8 @@ import { AppService } from './app.service';
     UploadModule,
     MemberLevelModule,
     AuditLogModule,
+    LeadModule,
+    DictionaryModule,
   ],
   controllers: [AppController],
   providers: [AppService],
