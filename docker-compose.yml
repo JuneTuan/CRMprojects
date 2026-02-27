@@ -12,6 +12,7 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./database/init:/docker-entrypoint-initdb.d:ro
     networks:
       - junlite-crm-network
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
